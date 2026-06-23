@@ -779,8 +779,10 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
         <div class="wg-chips" id="wg-focus"><button class="wg-chip on" data-v="Auto" onclick="wgPick('focus',this)">Auto (fit the day)</button><button class="wg-chip" data-v="Strength" onclick="wgPick('focus',this)">Strength</button><button class="wg-chip" data-v="Engine" onclick="wgPick('focus',this)">Engine</button><button class="wg-chip" data-v="Endurance" onclick="wgPick('focus',this)">Endurance</button><button class="wg-chip" data-v="HYROX sim" onclick="wgPick('focus',this)">HYROX sim</button><button class="wg-chip" data-v="Partner" onclick="wgPick('focus',this)">Partner</button></div>
         <div class="wg-q">Length</div>
         <div class="wg-chips" id="wg-len"><button class="wg-chip" data-v="45 min" onclick="wgPick('len',this)">45 min</button><button class="wg-chip on" data-v="60 min" onclick="wgPick('len',this)">60 min</button><button class="wg-chip" data-v="75 min" onclick="wgPick('len',this)">75 min</button></div>
-        <div class="wg-q">Target a station <span style="opacity:.6;font-weight:400;">(optional)</span></div>
-        <div class="wg-chips" id="wg-station"><button class="wg-chip on" data-v="Any" onclick="wgPick('station',this)">Any</button><button class="wg-chip" data-v="Run" onclick="wgPick('station',this)">Run</button><button class="wg-chip" data-v="Ski" onclick="wgPick('station',this)">Ski</button><button class="wg-chip" data-v="Row" onclick="wgPick('station',this)">Row</button><button class="wg-chip" data-v="Sled" onclick="wgPick('station',this)">Sled</button><button class="wg-chip" data-v="Wall balls" onclick="wgPick('station',this)">Wall balls</button><button class="wg-chip" data-v="Burpees" onclick="wgPick('station',this)">Burpees</button><button class="wg-chip" data-v="Carry" onclick="wgPick('station',this)">Carry</button><button class="wg-chip" data-v="Lunges" onclick="wgPick('station',this)">Lunges</button></div>
+        <div class="wg-q">Target stations <span style="opacity:.6;font-weight:400;">(optional — pick any)</span></div>
+        <div class="wg-chips" id="wg-station"><button class="wg-chip on" data-v="Any" onclick="wgToggleStation(this)">Any</button><button class="wg-chip" data-v="Run" onclick="wgToggleStation(this)">Run</button><button class="wg-chip" data-v="Ski" onclick="wgToggleStation(this)">Ski</button><button class="wg-chip" data-v="Row" onclick="wgToggleStation(this)">Row</button><button class="wg-chip" data-v="Sled" onclick="wgToggleStation(this)">Sled</button><button class="wg-chip" data-v="Wall balls" onclick="wgToggleStation(this)">Wall balls</button><button class="wg-chip" data-v="Burpees" onclick="wgToggleStation(this)">Burpees</button><button class="wg-chip" data-v="Carry" onclick="wgToggleStation(this)">Carry</button><button class="wg-chip" data-v="Lunges" onclick="wgToggleStation(this)">Lunges</button></div>
+        <div class="wg-q">Strength main lift <span style="opacity:.6;font-weight:400;">(on strength days)</span></div>
+        <div class="wg-chips" id="wg-lift"><button class="wg-chip on" data-v="Auto" onclick="wgPick('lift',this)">Auto</button><button class="wg-chip" data-v="Squat" onclick="wgPick('lift',this)">Squat</button><button class="wg-chip" data-v="Press" onclick="wgPick('lift',this)">Press</button><button class="wg-chip" data-v="Deadlift" onclick="wgPick('lift',this)">Deadlift</button></div>
         <div class="wg-q">Equipment</div>
         <div class="wg-chips" id="wg-equip"><button class="wg-chip on" data-v="Full" onclick="wgPick('equip',this)">Full kit</button><button class="wg-chip" data-v="NoBar" onclick="wgPick('equip',this)">No barbell</button><button class="wg-chip" data-v="BW" onclick="wgPick('equip',this)">Bodyweight</button></div>
         <div class="wg-q">Gym context</div>
@@ -1567,9 +1569,10 @@ async function saveWOD(){
   loadWODForm();renderWOD();renderDisplay();
 }
 let wgFocus='Auto',wgLen='60 min',wodGenLast=null,wgLastCore='',wodGenApplied=false;
-let wgCtxOn=false,wgClassSize=12,wgStation='Any',wgEquip='Full';
+let wgCtxOn=false,wgClassSize=12,wgStations=['Any'],wgEquip='Full',wgLift='Auto';
 function openWodGen(){const p=document.getElementById('wod-gen-panel');if(!p)return;p.style.display=(p.style.display==='none'||!p.style.display)?'block':'none';if(p.style.display==='block')p.scrollIntoView({behavior:'smooth',block:'nearest'});}
-function wgPick(group,el){const wrap=el.parentNode;wrap.querySelectorAll('.wg-chip').forEach(b=>b.classList.remove('on'));el.classList.add('on');if(group==='focus')wgFocus=el.dataset.v;else if(group==='class')wgClassSize=parseInt(el.dataset.v,10);else if(group==='station')wgStation=el.dataset.v;else if(group==='equip')wgEquip=el.dataset.v;else wgLen=el.dataset.v;}
+function wgPick(group,el){const wrap=el.parentNode;wrap.querySelectorAll('.wg-chip').forEach(b=>b.classList.remove('on'));el.classList.add('on');if(group==='focus')wgFocus=el.dataset.v;else if(group==='class')wgClassSize=parseInt(el.dataset.v,10);else if(group==='lift')wgLift=el.dataset.v;else if(group==='equip')wgEquip=el.dataset.v;else wgLen=el.dataset.v;}
+function wgToggleStation(el){const v=el.dataset.v;if(v==='Any'){wgStations=['Any'];}else{wgStations=wgStations.filter(function(x){return x!=='Any';});const i=wgStations.indexOf(v);if(i>=0)wgStations.splice(i,1);else wgStations.push(v);if(!wgStations.length)wgStations=['Any'];}el.parentNode.querySelectorAll('.wg-chip').forEach(function(b){b.classList.toggle('on',wgStations.indexOf(b.dataset.v)>=0);});}
 function wgToggleCtx(el){wgCtxOn=el.checked;const d=document.getElementById('wg-ctx-detail');if(d)d.style.display=wgCtxOn?'block':'none';}
 /* ===== LOCAL WORKOUT GENERATOR — no API, built on The Cave's HYROX class logic ===== */
 const WG_NAMES=['QUARRY','AVALANCHE','BEDROCK','TREMOR','GRANITE','OBSIDIAN','BASALT','RUMBLE','FAULTLINE','MAGMA','CRATER','BOULDER','SLATE','FLINT','GRIT','TURBINE','FORGE','ANVIL','CINDER','RICHTER','LANDSLIDE','SUMMIT','RIDGELINE','THE QUARRY','SANDSTORM','SCREE','SHALE','TALUS','MANTLE','BACKDRAFT','GEYSER','TECTONIC','EPICENTRE','MONOLITH','UNDERTOW','BRIMSTONE','STALACTITE'];
@@ -1648,8 +1651,9 @@ function wgStrength(want,len){
     {t:'For time: 50/40 cal ski, 40 wall balls, 30 burpees.',rx:'pace the ski, big wall ball sets',sc:'35/28 cal, 25 wall balls, 20 burpees'},
     {t:'5 rounds: '+wgRun(want,'200m')+', 12 KB swings, 6 burpee broad jumps.',rx:'steady run, snappy swings',sc:'10 swings, 4 broad jumps'},
     {t:'EMOM 12: odd minute 12/10 cal row, even minute 10 wall balls.',rx:'finish each minute with time to spare',sc:'9/7 cal, 8 wall balls'}];
-  let s;const sk=want.station;
-  if(want.wallball||sk==='wallball')s={t:'For time, 12 min cap: 100 wall balls, every time you break do 5 burpees.',rx:'6/9 kg, big sets',sc:'4 kg, sets of 10'};
+  let s;const sk=want.station;const stMulti=want.stations&&want.stations.length>=2;
+  if(stMulti){const w=want.stations.filter(function(k){return k!=='run';}).map(function(k){return wgStationMove(k,want);});s={t:'4 rounds: '+wgRun(want,'200m')+(w.length?', '+w.join(', '):'')+'.',rx:'steady, smooth transitions, even pace',sc:'shorter run, lighter loads, '+wgScaleRun(want)};}
+  else if(want.wallball||sk==='wallball')s={t:'For time, 12 min cap: 100 wall balls, every time you break do 5 burpees.',rx:'6/9 kg, big sets',sc:'4 kg, sets of 10'};
   else if(want.sled||sk==='sledpush'||sk==='sledpull')s={t:'5 rounds: 25m sled push, 25m sled pull, '+wgRun(want,'200m')+'.',rx:'heavy sled, steady legs',sc:'lighter sled, keep moving'};
   else if(sk==='ski')s={t:'8 x 250m ski, rest 60s. Hold your fastest repeatable split.',rx:'redline the last two',sc:'6 x 200m ski'};
   else if(sk==='row')s={t:'5 x 400m row, rest 90s, negative-split if you can.',rx:'hard and even',sc:'5 x 300m row'};
@@ -1738,6 +1742,18 @@ function wgBodyweight(want,len){
     purpose:wgRand(['No kit, no excuses, just move and breathe.','Bodyweight conditioning, keep the heart rate up and the sets honest.']),
     bonus:len==='45 min'?'':'3 rounds easy: 30s hollow hold, 30s side plank each side, 10 slow air squats.'};
 }
+function wgStationCircuit(want,len){
+  const cap=len==='45 min'?'24 min':(len==='75 min'?'40 min':'30 min');
+  const rounds=len==='75 min'?'5':'4';
+  const keys=(want.stations&&want.stations.length)?want.stations:['ski','sledpush','row','wallball'];
+  const runSel=keys.indexOf('run')>=0;
+  const work=keys.filter(function(k){return k!=='run';}).map(function(k){return wgStationMove(k,want);});
+  const lead=runSel?wgRun(want,'600m'):wgRun(want,'400m');
+  const core=rounds+' rounds for time, '+cap+' cap:\n'+lead+(work.length?'\n'+work.join('\n'):'')+'\nRX: race effort, smooth transitions, hold an even pace.\nScale: shorter run, lighter loads, fewer reps; '+wgScaleRun(want)+'.';
+  return {core:core,focus:'Challenge',title:wgName(want.recent),
+    purpose:wgRand(['Targeted station work — sharpen the pieces you picked under fatigue.','A circuit built around your chosen stations; run honest and keep the transitions tight.']),
+    bonus:len==='45 min'?'':wgRand(['8 min easy bike or row, nose breathing, flush the legs.','3 rounds easy: 30s hollow hold, 30s side plank each side, 15 sit-ups.'])};
+}
 const EQUIP={airRunner:12,ski:6,row:6,bike:4,sled:6,platforms:6,rig:true,barbells:true,bumperPlates:true,wallBalls:true,sandbags:true,kettlebells:true,dumbbells:true,boxes:true,ropes:true};
 function wgKitNote(core,size){
   const c=String(core||'').split('\n').filter(function(l){return !/^\s*(rx:|scaled:)/i.test(l);}).join(' ').toLowerCase();
@@ -1772,9 +1788,10 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
   if(/body ?weight|no (kit|equipment|weights)|bw only/.test(N)){want.bodyweight=true;want.noBarbell=true;}
   else if(/no barbell|without (a )?barbell|no bar\b|dumbbell only|db only/.test(N))want.noBarbell=true;
   // panel controls override free text
-  if(ctx){const sk=wgStationKey(ctx.station);if(sk)want.station=sk;if(ctx.equip==='BW'){want.bodyweight=true;want.noBarbell=true;}else if(ctx.equip==='NoBar')want.noBarbell=true;}
-  if(want.station==='sledpush'||want.station==='sledpull')want.sled=true;
-  if(want.station==='wallball')want.wallball=true;
+  if(ctx){const sks=(ctx.stations||[]).map(wgStationKey).filter(Boolean);if(sks.length){want.stations=sks;want.station=sks[0];}if(ctx.equip==='BW'){want.bodyweight=true;want.noBarbell=true;}else if(ctx.equip==='NoBar')want.noBarbell=true;}
+  const stlist=want.stations||(want.station?[want.station]:[]);
+  if(stlist.indexOf('sledpush')>=0||stlist.indexOf('sledpull')>=0)want.sled=true;
+  if(stlist.indexOf('wallball')>=0)want.wallball=true;
   // Auto focus mirrors the day-focus shown on the WOD page (DAYFOCUS) so "Auto" never disagrees with the advertised focus.
   const DAY_IDX={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
   const STR_PATTERN={1:'lower',3:'upper',5:'posterior'}; // Mon / Wed / Fri strength split
@@ -1782,8 +1799,10 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
   if(focus==='Auto'){const idx=DAY_IDX[dayName];F=(idx==null?'Engine':DAYFOCUS[idx]);if(F==='Strength')want.pattern=STR_PATTERN[idx]||wgRand(['lower','upper','posterior']);}
   if(focus==='HYROX sim'){F='Challenge';want.hyroxSim=true;}
   if(want.partner)F='Partner';
-  let out;
-  if(want.bodyweight&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgBodyweight(want,length);out.focus=F;}
+  if(ctx&&ctx.lift&&ctx.lift!=='Auto')want.pattern={Squat:'lower',Press:'upper',Deadlift:'posterior'}[ctx.lift]||want.pattern;
+  let out;const multiSt=want.stations&&want.stations.length>=2;
+  if(multiSt&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgStationCircuit(want,length);out.focus=F;}
+  else if(want.bodyweight&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgBodyweight(want,length);out.focus=F;}
   else if(F==='Strength')out=wgStrength(want,length);
   else if(F==='Engine')out=wgEngine(want,length);
   else if(F==='Endurance')out=wgAerobic(want,length);
@@ -1797,7 +1816,7 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
 function genWod(surprise){
   const res=document.getElementById('wod-gen-result');if(!res)return;
   const focus=surprise?'Auto':(wgFocus||'Auto');const length=surprise?'60 min':(wgLen||'60 min');const notes=surprise?'':val('wg-notes');
-  const ctx={on:wgCtxOn,size:wgClassSize,station:surprise?'Any':wgStation,equip:surprise?'Full':wgEquip};
+  const ctx={on:wgCtxOn,size:wgClassSize,stations:surprise?['Any']:wgStations,equip:surprise?'Full':wgEquip,lift:surprise?'Auto':wgLift};
   res.innerHTML='<div class="wg-loading"><span class="wg-spin"></span>Building your workout…</div>';
   setTimeout(()=>{
     try{
