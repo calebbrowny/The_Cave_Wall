@@ -761,6 +761,10 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
         <div class="wg-chips" id="wg-focus"><button class="wg-chip on" data-v="Auto" onclick="wgPick('focus',this)">Auto (fit the day)</button><button class="wg-chip" data-v="Strength" onclick="wgPick('focus',this)">Strength</button><button class="wg-chip" data-v="Engine" onclick="wgPick('focus',this)">Engine</button><button class="wg-chip" data-v="Endurance" onclick="wgPick('focus',this)">Endurance</button><button class="wg-chip" data-v="HYROX sim" onclick="wgPick('focus',this)">HYROX sim</button><button class="wg-chip" data-v="Partner" onclick="wgPick('focus',this)">Partner</button></div>
         <div class="wg-q">Length</div>
         <div class="wg-chips" id="wg-len"><button class="wg-chip" data-v="45 min" onclick="wgPick('len',this)">45 min</button><button class="wg-chip on" data-v="60 min" onclick="wgPick('len',this)">60 min</button><button class="wg-chip" data-v="75 min" onclick="wgPick('len',this)">75 min</button></div>
+        <div class="wg-q">Target a station <span style="opacity:.6;font-weight:400;">(optional)</span></div>
+        <div class="wg-chips" id="wg-station"><button class="wg-chip on" data-v="Any" onclick="wgPick('station',this)">Any</button><button class="wg-chip" data-v="Run" onclick="wgPick('station',this)">Run</button><button class="wg-chip" data-v="Ski" onclick="wgPick('station',this)">Ski</button><button class="wg-chip" data-v="Row" onclick="wgPick('station',this)">Row</button><button class="wg-chip" data-v="Sled" onclick="wgPick('station',this)">Sled</button><button class="wg-chip" data-v="Wall balls" onclick="wgPick('station',this)">Wall balls</button><button class="wg-chip" data-v="Burpees" onclick="wgPick('station',this)">Burpees</button><button class="wg-chip" data-v="Carry" onclick="wgPick('station',this)">Carry</button><button class="wg-chip" data-v="Lunges" onclick="wgPick('station',this)">Lunges</button></div>
+        <div class="wg-q">Equipment</div>
+        <div class="wg-chips" id="wg-equip"><button class="wg-chip on" data-v="Full" onclick="wgPick('equip',this)">Full kit</button><button class="wg-chip" data-v="NoBar" onclick="wgPick('equip',this)">No barbell</button><button class="wg-chip" data-v="BW" onclick="wgPick('equip',this)">Bodyweight</button></div>
         <div class="wg-q">Gym context</div>
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="wg-ctx" onchange="wgToggleCtx(this)"> Size it to our kit and class</label>
         <div id="wg-ctx-detail" style="display:none;">
@@ -1545,48 +1549,103 @@ async function saveWOD(){
   loadWODForm();renderWOD();renderDisplay();
 }
 let wgFocus='Auto',wgLen='60 min',wodGenLast=null,wgLastCore='',wodGenApplied=false;
-let wgCtxOn=false,wgClassSize=12;
+let wgCtxOn=false,wgClassSize=12,wgStation='Any',wgEquip='Full';
 function openWodGen(){const p=document.getElementById('wod-gen-panel');if(!p)return;p.style.display=(p.style.display==='none'||!p.style.display)?'block':'none';if(p.style.display==='block')p.scrollIntoView({behavior:'smooth',block:'nearest'});}
-function wgPick(group,el){const wrap=el.parentNode;wrap.querySelectorAll('.wg-chip').forEach(b=>b.classList.remove('on'));el.classList.add('on');if(group==='focus')wgFocus=el.dataset.v;else if(group==='class')wgClassSize=parseInt(el.dataset.v,10);else wgLen=el.dataset.v;}
+function wgPick(group,el){const wrap=el.parentNode;wrap.querySelectorAll('.wg-chip').forEach(b=>b.classList.remove('on'));el.classList.add('on');if(group==='focus')wgFocus=el.dataset.v;else if(group==='class')wgClassSize=parseInt(el.dataset.v,10);else if(group==='station')wgStation=el.dataset.v;else if(group==='equip')wgEquip=el.dataset.v;else wgLen=el.dataset.v;}
 function wgToggleCtx(el){wgCtxOn=el.checked;const d=document.getElementById('wg-ctx-detail');if(d)d.style.display=wgCtxOn?'block':'none';}
 /* ===== LOCAL WORKOUT GENERATOR — no API, built on The Cave's HYROX class logic ===== */
-const WG_NAMES=['QUARRY','AVALANCHE','BEDROCK','TREMOR','GRANITE','OBSIDIAN','BASALT','RUMBLE','FAULTLINE','MAGMA','CRATER','BOULDER','SLATE','FLINT','GRIT','TURBINE','FORGE','ANVIL','CINDER','RICHTER','LANDSLIDE','SUMMIT','RIDGELINE','THE QUARRY','SANDSTORM'];
+const WG_NAMES=['QUARRY','AVALANCHE','BEDROCK','TREMOR','GRANITE','OBSIDIAN','BASALT','RUMBLE','FAULTLINE','MAGMA','CRATER','BOULDER','SLATE','FLINT','GRIT','TURBINE','FORGE','ANVIL','CINDER','RICHTER','LANDSLIDE','SUMMIT','RIDGELINE','THE QUARRY','SANDSTORM','SCREE','SHALE','TALUS','MANTLE','BACKDRAFT','GEYSER','TECTONIC','EPICENTRE','MONOLITH','UNDERTOW','BRIMSTONE','STALACTITE'];
+/* The 8 HYROX stations in race order, with RX (race) and scaled distances. */
+const HYROX=[
+  {k:'ski',n:'SkiErg',rx:'1000m ski',sc:'500m ski'},
+  {k:'sledpush',n:'Sled Push',rx:'50m sled push',sc:'25m sled push, lighter'},
+  {k:'sledpull',n:'Sled Pull',rx:'50m sled pull',sc:'25m sled pull, lighter'},
+  {k:'burpee',n:'Burpee Broad Jumps',rx:'80m burpee broad jumps',sc:'40m burpee broad jumps'},
+  {k:'row',n:'Row',rx:'1000m row',sc:'500m row'},
+  {k:'carry',n:'Farmers Carry',rx:'200m farmers carry, 24/32 kg',sc:'100m farmers carry, lighter'},
+  {k:'lunge',n:'Sandbag Lunges',rx:'100m sandbag lunge, 20/30 kg',sc:'50m walking lunge'},
+  {k:'wallball',n:'Wall Balls',rx:'75/100 wall balls, 6/9 kg',sc:'40 wall balls, lighter'}];
+function wgStationKey(s){return {Ski:'ski',Sled:'sledpush',Row:'row','Wall balls':'wallball',Burpees:'burpee',Carry:'carry',Lunges:'lunge',Run:'run'}[s]||null;}
+function wgStationMove(key,want){const bw=want.bodyweight;return {
+  ski:'15/12 cal ski',row:'15/12 cal row',bike:'15/12 cal bike',
+  sledpush:bw?'40m bear crawl':'25m sled push',
+  sledpull:bw?'15 walkouts':'25m sled pull',
+  burpee:'10 burpee broad jumps',
+  carry:bw?'40s front-rack hold':'50m farmers carry',
+  lunge:bw?'30m walking lunge':'30m sandbag lunge',
+  wallball:bw?'20 jump squats':'15 wall balls',
+  run:wgRun(want,'200m')}[key]||wgRun(want,'200m');}
 function wgRand(a){return a[Math.floor(Math.random()*a.length)];}
 function wgName(recent){const used=new Set((recent||[]).map(w=>String(w.title||'').toUpperCase().trim()));let pool=WG_NAMES.filter(n=>!used.has(n));if(!pool.length)pool=WG_NAMES.slice();return wgRand(pool);}
 function wgRun(want,d){if(want.noRun){const m={'200m':'400m row or 500m bike','400m':'500m row or 1km bike','600m':'800m row','800m':'1km row or 1.6km bike','1km':'1km row or 2km bike'};return m[d]||'1km row';}return d+' run';}
 function wgScaleRun(want){return want.noRun?'keep the machine effort easy to moderate':'knees or sore legs, same distance on the bike or row';}
 function wgWarmup(F,want){
-  const cardio=want.noRun?wgRand(['3 min bike, easy building to moderate','500m row, easy to moderate']):wgRand(['3 min easy run building to moderate','3 min row or ski, easy to moderate','400m jog then 1 min bike']);
+  const cardio=want.noRun
+    ?wgRand(['3 min bike, easy building to moderate','500m row, easy to moderate','3 min ski, smooth and steady','2 min row then 1 min bike, easy'])
+    :wgRand(['3 min easy run building to moderate','3 min row or ski, easy to moderate','400m jog then 1 min bike','2 min run, 1 min ski, easy','600m easy row, build the last 200m']);
   const drills=wgRand([
     '2 rounds: 10 air squats, 10 walking lunges, 10 KB deadlifts, 5 inchworms',
     '2 rounds: 10 leg swings each side, 10 air squats, 8 push-ups, 10 band pull-aparts',
     '2 rounds: 200m easy row, 10 light wall balls, 10 light KB swings',
-    '3 rounds: 10 box step-ups, 10 air squats, 5 ring rows']);
-  return cardio+'.\n'+drills+'.';
+    '3 rounds: 10 box step-ups, 10 air squats, 5 ring rows',
+    '2 rounds: 10 spiderman lunges, 10 scap pull-ups, 10 glute bridges, 10 arm circles',
+    '2 rounds: 15 jumping jacks, 5 world’s greatest stretch each side, 10 air squats, 8 push-ups']);
+  const prime={
+    Strength:'Then ramp the main lift with 3 lighter build-up sets before working weight.',
+    Engine:'Then 3 x 20s rising to target pace on a machine, 40s easy between.',
+    Endurance:'Then ease into nose-breathing pace before the clock starts.',
+    Challenge:'Then take one easy practice rep at each station before you start.',
+    Partner:'Then both partners run one easy practice round together.'}[F]||'';
+  return cardio+'.\n'+drills+'.'+(prime?'\n'+prime:'');
 }
-function wgCool(){return '2 min easy walk or spin.\nStatic: '+wgRand(['couch stretch, hip flexor, hamstring, quad','calves, hamstrings, shoulders, lats','pigeon, thoracic opener, hamstrings, chest'])+'.';}
+function wgCool(){return wgRand(['2 min easy walk or spin','90s easy bike, shake the legs out','2 min slow row, nose breathing'])+'.\nStatic: '+wgRand(['couch stretch, hip flexor, hamstring, quad','calves, hamstrings, shoulders, lats','pigeon, thoracic opener, hamstrings, chest','quads, adductors, lats, pecs'])+', about 30s each.';}
 function wgStrength(want,len){
   const pats={
-    lower:[{n:'Back squat',rx:'work to a heavy set, last 2 reps tough but clean',sc:'goblet squat, controlled, add load each set'},{n:'Front squat',rx:'heavy as form allows, tall chest',sc:'goblet or DB front squat, slow it down'},{n:'Back squat, 3 second lower',rx:'tempo down, drive up hard',sc:'tempo goblet squat'}],
-    upper:[{n:'Bench press',rx:'heavy as form allows, controlled lower',sc:'DB bench press, full range'},{n:'Strict press',rx:'strict, brace hard, no leg drive',sc:'DB strict press or push press'},{n:'Weighted pull-up',rx:'add load, full hang to chin over the bar',sc:'ring rows or banded pull-ups'}],
-    posterior:[{n:'Deadlift',rx:'heavy as form allows, flat back, smooth pull',sc:'KB or DB deadlift, hips and hamstrings'},{n:'Romanian deadlift',rx:'load the hamstrings, soft knees, slow lower',sc:'DB RDL, feel the stretch'},{n:'Power clean',rx:'fast hips, catch tall, reset each rep',sc:'heavy KB swing or DB clean'}]
-  };
+    lower:[{n:'Back squat',rx:'work to a heavy set, last 2 reps tough but clean',sc:'goblet squat, controlled, add load each set'},{n:'Front squat',rx:'heavy as form allows, tall chest',sc:'goblet or DB front squat, slow it down'},{n:'Back squat, 3-second lower',rx:'tempo down, drive up hard',sc:'tempo goblet squat'},{n:'Pause back squat',rx:'2s pause in the hole, no bounce',sc:'box squat to depth'},{n:'Tempo front squat',rx:'3s down, stay tall through the chest',sc:'goblet squat, slow and controlled'}],
+    upper:[{n:'Bench press',rx:'heavy as form allows, controlled lower',sc:'DB bench press, full range'},{n:'Strict press',rx:'strict, brace hard, no leg drive',sc:'DB strict press or push press'},{n:'Weighted pull-up',rx:'add load, full hang to chin over the bar',sc:'ring rows or banded pull-ups'},{n:'Close-grip bench',rx:'elbows tucked, drive through the triceps',sc:'DB floor press'},{n:'Push press',rx:'sharp dip-drive, lock out overhead',sc:'DB push press'}],
+    posterior:[{n:'Deadlift',rx:'heavy as form allows, flat back, smooth pull',sc:'KB or DB deadlift, hips and hamstrings'},{n:'Romanian deadlift',rx:'load the hamstrings, soft knees, slow lower',sc:'DB RDL, feel the stretch'},{n:'Power clean',rx:'fast hips, catch tall, reset each rep',sc:'heavy KB swing or DB clean'},{n:'Trap-bar deadlift',rx:'drive the floor away, brace hard',sc:'KB deadlift, tall finish'},{n:'Snatch-grip RDL',rx:'wide grip, big stretch, slow lower',sc:'DB RDL, controlled'}]};
+  const noBarPats={
+    lower:[{n:'Heavy goblet squat',rx:'tall chest, add load each set',sc:'lighter KB, slow tempo'},{n:'DB front-rack squat',rx:'controlled, full depth',sc:'goblet squat'},{n:'KB front-rack reverse lunge',rx:'tall torso, controlled each step',sc:'split squat, hold support'}],
+    upper:[{n:'DB bench press',rx:'full range, controlled lower',sc:'DB floor press'},{n:'DB strict press',rx:'brace hard, lock out tall',sc:'half-kneeling DB press'},{n:'Weighted pull-up',rx:'full hang to chin over the bar',sc:'ring rows'}],
+    posterior:[{n:'KB/DB Romanian deadlift',rx:'slow lower, load the hamstrings',sc:'lighter, feel the stretch'},{n:'Heavy KB swing',rx:'snappy hips, tall finish',sc:'lighter bell, focus on the hinge'},{n:'Single-arm DB row',rx:'controlled, squeeze the back',sc:'lighter, slow tempo'}]};
+  const bwPats={
+    lower:[{n:'Tempo squat',rx:'3s down, 1s pause, bodyweight or light goblet',sc:'box squat to a comfy depth'},{n:'Bulgarian split squat',rx:'pause at the bottom, tall torso',sc:'hold the rig for balance'},{n:'Walking lunge',rx:'long steps, back knee kisses the floor',sc:'shorter steps, hold support'}],
+    upper:[{n:'Tempo push-up',rx:'3s lower, chest to the floor',sc:'incline push-ups on a box'},{n:'Strict pull-up',rx:'full hang to chin over the bar',sc:'ring rows or banded pull-ups'},{n:'Pike push-up',rx:'head to the floor, push tall',sc:'box pike push-ups'}],
+    posterior:[{n:'Single-leg glute bridge',rx:'pause at the top, squeeze hard',sc:'two-leg glute bridge'},{n:'Nordic curl negative',rx:'lower as slowly as you can',sc:'banded hamstring curl'},{n:'Single-leg RDL',rx:'slow, balanced, bodyweight or light DB',sc:'hold a wall for balance'}]};
   const pat=want.pattern&&pats[want.pattern]?want.pattern:wgRand(['lower','upper','posterior']);
-  const lift=wgRand(pats[pat]);
-  const scheme=wgRand(['5 x 5, building across the sets','5 x 3, building to a heavy triple','4 x 6 across at the same tough weight','6 x 2 on a 90 second clock, fast and crisp','wave of 5, 3, 1, 5, 3, 1, building each wave']);
+  const list=want.bodyweight?bwPats[pat]:(want.noBarbell?noBarPats[pat]:pats[pat]);
+  const lift=wgRand(list);
+  const scheme=want.bodyweight
+    ?wgRand(['5 x 8, controlled tempo','4 x 12, smooth and strict','6 x 6 with a 3-second lower','5 sets of a tough 10'])
+    :wgRand(['5 x 5, building across the sets','5 x 3, building to a heavy triple','4 x 6 across at the same tough weight','6 x 2 on a 90-second clock, fast and crisp','wave of 5, 3, 1, 5, 3, 1, building each wave','5-4-3-2-1 ascending in weight','3 x 8 then 3 x 3, volume into a heavy finish']);
+  const partAmin=len==='45 min'?'18':(len==='75 min'?'26':'22');
   const rest=len==='45 min'?'rest about 90 seconds':'rest about 2 minutes';
-  const a='PART A - Strength (~'+(len==='45 min'?'18':'22')+' min)\n'+lift.n+': '+scheme+', '+rest+' between sets.\nRX: '+lift.rx+'.\nScaled: '+lift.sc+'.';
+  const a='PART A - Strength (~'+partAmin+' min)\n'+lift.n+': '+scheme+', '+rest+' between sets.\nRX: '+lift.rx+'.\nScaled: '+lift.sc+'.';
   const stings=[
     {t:'8 rounds: 30s machine sprint (ski, row, bike or runner, your pick), 90s easy.',rx:'hard, hold the same calories every round',sc:'20s on, 100s easy'},
     {t:'10 min AMRAP: 12 KB swings, 10 burpees, '+wgRun(want,'200m')+'.',rx:'unbroken swings, steady run',sc:'8 swings, 6 burpees'},
     {t:'5 rounds: 12 wall balls, 10 box jumps, 8 burpees.',rx:'6/9 kg wall ball, 60 cm box',sc:'4 kg wall ball, box step-ups'},
     {t:'4 rounds: 250m row, 15 wall balls.',rx:'push the row, unbroken wall balls',sc:'200m row, 10 wall balls'},
-    {t:'Death by burpees: 1 in the first minute, 2 in the second, keep adding until you miss the number.',rx:'see how deep you get',sc:'aim for 8 clean rounds'}];
-  let s;
-  if(want.wallball)s={t:'For time, 12 min cap: 100 wall balls, every break do 5 burpees.',rx:'6/9 kg, big sets',sc:'4 kg, sets of 10'};
-  else if(want.sled)s={t:'5 rounds: 25m sled push, 25m sled pull, '+wgRun(want,'200m')+'.',rx:'heavy sled, steady legs',sc:'lighter sled, keep moving'};
+    {t:'Death by burpees: 1 in the first minute, 2 in the second, keep adding until you miss the number.',rx:'see how deep you get',sc:'aim for 8 clean rounds'},
+    {t:'For time: 50/40 cal ski, 40 wall balls, 30 burpees.',rx:'pace the ski, big wall ball sets',sc:'35/28 cal, 25 wall balls, 20 burpees'},
+    {t:'5 rounds: '+wgRun(want,'200m')+', 12 KB swings, 6 burpee broad jumps.',rx:'steady run, snappy swings',sc:'10 swings, 4 broad jumps'},
+    {t:'EMOM 12: odd minute 12/10 cal row, even minute 10 wall balls.',rx:'finish each minute with time to spare',sc:'9/7 cal, 8 wall balls'}];
+  let s;const sk=want.station;
+  if(want.wallball||sk==='wallball')s={t:'For time, 12 min cap: 100 wall balls, every time you break do 5 burpees.',rx:'6/9 kg, big sets',sc:'4 kg, sets of 10'};
+  else if(want.sled||sk==='sledpush'||sk==='sledpull')s={t:'5 rounds: 25m sled push, 25m sled pull, '+wgRun(want,'200m')+'.',rx:'heavy sled, steady legs',sc:'lighter sled, keep moving'};
+  else if(sk==='ski')s={t:'8 x 250m ski, rest 60s. Hold your fastest repeatable split.',rx:'redline the last two',sc:'6 x 200m ski'};
+  else if(sk==='row')s={t:'5 x 400m row, rest 90s, negative-split if you can.',rx:'hard and even',sc:'5 x 300m row'};
+  else if(sk==='carry')s={t:'5 rounds: 50m farmers carry, 10 wall balls, '+wgRun(want,'200m')+'.',rx:'heavy carry, no setting down',sc:'lighter carry, 8 wall balls'};
+  else if(sk==='lunge')s={t:'4 rounds: 30m walking lunge, 15 KB swings, 10 burpees.',rx:'add load to the lunge',sc:'bodyweight lunge'};
+  else if(sk==='burpee')s={t:'For time: 40 burpee broad jumps, '+wgRun(want,'800m')+', 40 burpee broad jumps.',rx:'smooth jumps, steady middle piece',sc:'25, shorter run, 25'};
+  else if(sk==='run')s={t:'6 x '+wgRun(want,'200m')+', rest 60s. Hold your pace.',rx:'fast and even',sc:'5 reps, same effort'};
   else s=wgRand(stings);
-  const b='\n\nPART B - Engine sting (~'+(len==='45 min'?'10':'12')+' min)\n'+s.t+'\nRX: '+s.rx+'.\nScaled: '+s.sc+'.';
+  if(want.bodyweight)s=wgRand([
+    {t:'10 min AMRAP: 10 push-ups, 15 air squats, 20 mountain climbers, '+wgRun(want,'200m')+'.',rx:'steady, unbroken',sc:'7 push-ups, 12 squats'},
+    {t:'For time: 100 air squats, 75 sit-ups, 50 push-ups, 25 burpees.',rx:'chip away in big sets',sc:'halve the reps'},
+    {t:'Tabata (8 x 20s on / 10s off) through squats, push-ups, sit-ups, burpees.',rx:'max honest reps',sc:'pick three of the four'}]);
+  const partBmin=len==='45 min'?'10':'12';
+  const b='\n\nPART B - Engine sting (~'+partBmin+' min)\n'+s.t+'\nRX: '+s.rx+'.\nScaled: '+s.sc+'.';
   const titleMap={lower:'Lower strength',upper:'Upper strength',posterior:'Posterior strength'};
   return {core:a+b,title:titleMap[pat],focus:'Strength',
     purpose:wgRand(['Build real strength in the '+(pat==='posterior'?'hinge and pull':pat+' lifts')+', quality first, then a short sting to light up the engine.','Heavy and clean on the main lift, take the rest you need, then finish sharp with a quick conditioning hit.']),
@@ -1598,20 +1657,27 @@ function wgEngine(want,len){
     ()=>({name:false,core:wgRand(['5','6'])+' rounds, '+cap+' cap:\n'+wgRun(want,wgRand(['400m','600m']))+'\n15 wall balls\n12 KB swings\n10 burpees\nRX: 6/9 kg wall ball, push a strong steady pace.\nScaled: 10 wall balls, 8 burpees, '+wgScaleRun(want)+'.'}),
     ()=>({name:false,core:(len==='75 min'?'25':'20')+' min AMRAP:\n'+wgRun(want,'400m')+'\n15 KB swings\n10 box jumps\n5 burpee broad jumps\nRX: hold a pace you can repeat every round.\nScaled: 200m piece, 10 swings, 8 box step-ups.'}),
     ()=>({name:true,core:wgRand(['6','7','8'])+' x ('+wgRun(want,'400m')+' then 15 wall balls), rest 90s between rounds.\nRX: hold your splits, wall balls unbroken.\nScaled: shorter piece, 10 wall balls, '+wgScaleRun(want)+'.'}),
-    ()=>({name:true,core:'Engine ladder, '+cap+' cap:\n'+wgRun(want,'200m')+' then 10 cals\n'+wgRun(want,'400m')+' then 20 cals\n'+wgRun(want,'600m')+' then 30 cals\nmachine your pick on the cals (ski, row, bike or runner).\nRX: relentless, short transitions.\nScaled: halve the cals, '+wgScaleRun(want)+'.'})];
-  const b=wgRand(builds)();
+    ()=>({name:true,core:'Engine ladder, '+cap+' cap:\n'+wgRun(want,'200m')+' then 10 cals\n'+wgRun(want,'400m')+' then 20 cals\n'+wgRun(want,'600m')+' then 30 cals\nmachine your pick on the cals (ski, row, bike or runner).\nRX: relentless, short transitions.\nScaled: halve the cals, '+wgScaleRun(want)+'.'}),
+    ()=>({name:true,core:'Compromised running, '+cap+' cap, 5 rounds:\n'+wgRun(want,'400m')+'\n'+wgStationMove(want.station&&want.station!=='run'?want.station:'sledpush',want)+'\n'+wgStationMove('wallball',want)+'\nRX: run honest, hit the station fresh enough to keep moving.\nScaled: shorter run, lighter station, '+wgScaleRun(want)+'.'}),
+    ()=>({name:false,core:'EMOM '+(len==='45 min'?'18':'24')+', rotate:\nmin 1, '+wgRun(want,'200m')+'\nmin 2, 12 wall balls\nmin 3, 12/10 cal ski or row\nRX: each piece done inside the minute.\nScaled: shorter run, 9 wall balls, 9 cals.'}),
+    ()=>({name:true,core:'4 rounds for time, '+cap+' cap:\n500m row\n'+wgRun(want,'400m')+'\n20 wall balls\nRX: row and run at the same RPE, breathe through the wall balls.\nScaled: 350m row, shorter run, 12 wall balls.'})];
+  let pick=wgRand(builds);
+  if(want.station==='row'||want.station==='ski')pick=builds[6];
+  const b=pick();
   return {core:b.core,focus:'Engine',title:b.name?wgName(want.recent):'Engine intervals',
     purpose:wgRand(['Compromised running and engine work, hold a strong steady output and keep the transitions sharp.','Build the engine that wins HYROX, run on tired legs and breathe through the hard part.']),
     bonus:len==='45 min'?'':wgRand(['4 sets of 8 heavy KB or DB Romanian deadlift, slow lower.','3 sets: 10 DB bench, 10 ring rows, 30s plank.'])};
 }
 function wgComplete(want,len){
   const cap=len==='45 min'?'28 min':(len==='75 min'?'45 min':'38 min');
+  const simBuild=function(){const full=len==='75 min';const stations=full?HYROX:[HYROX[0],HYROX[1],HYROX[4],HYROX[7]];const runD=full?'1km':'600m';const simCap=full?'60 min':(len==='45 min'?'28 min':'38 min');const lines=stations.map(function(st){return wgRun(want,runD)+'\n'+(full?st.rx:st.sc);});return {core:(full?'Full HYROX sim (8 stations)':'Half HYROX sim (4 stations)')+' — race order, for time, '+simCap+' cap:\n'+lines.join('\n')+'\nRX: race distances and weights, treat the whole thing like one steady effort.\nScaled: take the scaled distance at each station and keep transitions tight.\nSubs if a station is busy: ski ↔ row, sled ↔ heavy carry.'};};
   const builds=[
     ()=>({core:'For time, '+cap+' cap, 4 rounds of:\n'+wgRun(want,'400m')+'\n25m sled push, 25m sled pull\n15 wall balls\n10 burpee broad jumps\nRX: race weights if you can hold form.\nScaled: lighter sled, 10 wall balls, '+wgScaleRun(want)+'.'}),
     ()=>({core:'Chipper for time, '+cap+' cap:\n'+wgRun(want,'1km')+'\n50 wall balls\n40 KB swings\n30 box jumps\n20 burpees\n50m farmers carry\nRX: 6/9 kg ball, 24/32 kg carry.\nScaled: halve the reps, '+wgScaleRun(want)+'.'}),
-    ()=>({core:'21-15-9 for time, '+cap+' cap:\nthrusters\nburpees over the bar\nwith '+wgRun(want,'400m')+' after each round.\nRX: 30/40 kg thruster.\nScaled: 20/30 kg, '+wgScaleRun(want)+'.'}),
-    ()=>{const pool=['25m sled push, 25m sled pull','15 wall balls','50m sandbag lunge','10 burpee broad jumps','50m farmers carry','12 KB swings'];if(want.sled)pool.unshift('25m sled push, 25m sled pull');if(want.wallball)pool.unshift('15 wall balls');const chosen=[];let last='';for(let i=0;i<4;i++){let opts=pool.filter(x=>x!==last);if(!opts.length)opts=pool;const st=wgRand(opts);chosen.push(st);last=st;}return {core:'HYROX sim, '+cap+' cap, for time:\n'+chosen.map(st=>wgRun(want,'400m')+' then '+st).join('\n')+'\nRX: race feel, quick transitions.\nScaled: shorten each station, keep moving.'};}];
-  const b=wgRand(builds)();
+    ()=>({core:'21-15-9 for time, '+cap+' cap:\n'+(want.noBarbell?'DB thrusters':'thrusters')+'\nburpees over the '+(want.noBarbell?'DB':'bar')+'\nwith '+wgRun(want,'400m')+' after each round.\nRX: '+(want.noBarbell?'2 x 22.5/15 kg DB':'30/40 kg barbell')+'.\nScaled: lighter load, '+wgScaleRun(want)+'.'}),
+    ()=>{let pool=['25m sled push, 25m sled pull','15 wall balls','40m sandbag lunge','10 burpee broad jumps','50m farmers carry','12 KB swings','12/10 cal ski'];const tgt={sledpush:'25m sled push, 25m sled pull',sledpull:'25m sled push, 25m sled pull',wallball:'15 wall balls',lunge:'40m sandbag lunge',burpee:'10 burpee broad jumps',carry:'50m farmers carry',ski:'12/10 cal ski'}[want.station];const chosen=[];let last='';for(let i=0;i<5;i++){if(i===0&&tgt){chosen.push(tgt);last=tgt;continue;}let opts=pool.filter(x=>x!==last&&x!==tgt);if(!opts.length)opts=pool.filter(x=>x!==last);const st=wgRand(opts);chosen.push(st);last=st;}return {core:'HYROX pick ’n’ mix, '+cap+' cap, for time:\n'+chosen.map(st=>wgRun(want,'400m')+' then '+st).join('\n')+'\nRX: race feel, quick transitions.\nScaled: shorten each station, keep moving.'};},
+    simBuild];
+  const b=(want.hyroxSim?simBuild:wgRand(builds))();
   return {core:b.core,focus:'Challenge',title:wgName(want.recent),
     purpose:wgRand(['Race-sim under fatigue, practise running on tired legs and moving smoothly through the stations.','The worst is first, settle into a pace you can hold and chip away, clean transitions win this one.']),
     bonus:len==='45 min'?'':wgRand(['Strength opposite: 4 sets of 6 heavy goblet squats, slow and controlled.','3 rounds easy: 500m bike, 1 min plank, 10 scap pull-ups.'])};
@@ -1621,7 +1687,9 @@ function wgAerobic(want,len){
   const builds=[
     ()=>({core:mins+' at a conversational pace, rotate the loop:\n'+wgRun(want,'400m')+'\n500m row\n1km bike\nsmooth and unbroken.\nRX: nose-breathing, never red-line.\nScaled: shorten each piece, same easy effort.'}),
     ()=>({core:wgRand(['4','5'])+' steady rounds, '+mins+' cap:\n'+wgRun(want,'800m')+'\n15 walking lunges\n1 min plank\nRX: hold the same lap time every round.\nScaled: '+wgRun(want,'400m')+', 10 lunges, '+wgScaleRun(want)+'.'}),
-    ()=>({core:'Long EMOM, '+mins+':\nmin 1, 15/12 cal row\nmin 2, 12 wall balls\nmin 3, 10 burpees\nkeep repeating the three.\nRX: finish each minute with a few seconds spare.\nScaled: 10 cals, 8 wall balls, 6 burpees.'})];
+    ()=>({core:'Long EMOM, '+mins+':\nmin 1, 15/12 cal row\nmin 2, 12 wall balls\nmin 3, 10 burpees\nkeep repeating the three.\nRX: finish each minute with a few seconds spare.\nScaled: 10 cals, 8 wall balls, 6 burpees.'}),
+    ()=>({core:'Machine triathlon, '+mins+' steady:\n1000m ski\n2000m row\n4000m bike\nsplit it however you like but keep moving.\nRX: even, controlled, nose-breathing.\nScaled: 750m ski, 1500m row, 3000m bike.'}),
+    ()=>({core:'Run ladder at easy-moderate pace, '+mins+' cap:\n'+wgRun(want,'400m')+', '+wgRun(want,'600m')+', '+wgRun(want,'800m')+', '+wgRun(want,'600m')+', '+wgRun(want,'400m')+'\n90s walk between efforts.\nRX: same comfortable pace throughout.\nScaled: '+wgScaleRun(want)+', shorten the ladder.'})];
   const b=wgRand(builds)();
   return {core:b.core,focus:'Endurance',title:wgRand(['Steady aerobic','Engine base',wgName(want.recent)]),
     purpose:wgRand(['A steady aerobic build, time on feet at a pace you can hold and breathe through.','Low and slow today, bank some easy volume and let the engine grow.']),
@@ -1632,11 +1700,25 @@ function wgPartner(want,len){
   const builds=[
     ()=>({core:'In pairs, '+cap+' AMRAP, you go I go:\n'+wgRun(want,'200m')+' each\n15 wall balls each\n10 synchro burpees\nRX: keep the ball moving, match each other.\nScaled: 10 wall balls, '+wgScaleRun(want)+'.'}),
     ()=>({core:'Teams of 2, for time, '+cap+' cap:\n100 cal row\n100 wall balls\n80 KB swings\n60 burpees\nsplit the reps how you like, one works at a time.\nRX: 6/9 kg ball, 24/32 kg swing.\nScaled: halve everything.'}),
-    ()=>({core:'You go I go, 5 rounds each, '+cap+' cap:\n250m row\n12 burpees\n10 box jumps\npartner rests while you work.\nRX: sprint your round.\nScaled: 200m row, 8 burpees, box step-ups.'})];
+    ()=>({core:'You go I go, 5 rounds each, '+cap+' cap:\n250m row\n12 burpees\n10 box jumps\npartner rests while you work.\nRX: sprint your round.\nScaled: 200m row, 8 burpees, box step-ups.'}),
+    ()=>({core:'Partner HYROX relay, '+cap+' cap, for time:\none runs '+wgRun(want,'200m')+' while the other works, then swap:\n50m sled push, 50m sled pull\n100 wall balls (shared)\n200m farmers carry (shared)\n80m sandbag lunge (shared)\nRX: race weights, keep one person always moving.\nScaled: lighter loads, halve the shared reps.'}),
+    ()=>({core:'Synchro chipper in pairs, '+cap+' cap:\n60 synchro wall balls\n50 synchro KB swings\n40 synchro burpees\n30 synchro box jumps\nthen '+wgRun(want,'400m')+' together to finish.\nRX: stay in time with each other.\nScaled: halve the reps, shorter run.'})];
   const b=wgRand(builds)();
   return {core:b.core,focus:'Partner',title:wgName(want.recent),
     purpose:wgRand(['A social partner session, share the load, push each other and keep the pace honest.','Bring a mate, halve the work and double the effort, this one is meant to be fun and hard.']),
     bonus:''};
+}
+function wgBodyweight(want,len){
+  const cap=len==='45 min'?'22 min':(len==='75 min'?'32 min':'26 min');
+  const builds=[
+    ()=>({core:cap+' AMRAP:\n'+wgRun(want,'400m')+'\n20 air squats\n15 push-ups\n10 sit-ups\nRX: steady, unbroken sets.\nScaled: 15 squats, 10 push-ups, '+wgScaleRun(want)+'.'}),
+    ()=>({core:'For time, '+cap+' cap, 5 rounds:\n'+wgRun(want,'200m')+'\n15 jump squats\n12 push-ups\n9 burpees\nRX: push the pace, minimal rest.\nScaled: 10 jump squats, 8 push-ups, 6 burpees.'}),
+    ()=>({core:'Bodyweight chipper, '+cap+' cap:\n100 air squats\n80 mountain climbers\n60 sit-ups\n40 push-ups\n20 burpees\nthen '+wgRun(want,'400m')+' to finish.\nRX: chip away in steady sets.\nScaled: halve the reps.'}),
+    ()=>({core:'Tabata x4 (8 x 20s on / 10s off each): air squats, push-ups, mountain climbers, hollow rocks, 1 min rest between movements.\nRX: max honest reps.\nScaled: pick three movements.'})];
+  const b=wgRand(builds)();
+  return {core:b.core,focus:'Engine',title:wgRand(['Bodyweight engine','No-kit grinder',wgName(want.recent)]),
+    purpose:wgRand(['No kit, no excuses, just move and breathe.','Bodyweight conditioning, keep the heart rate up and the sets honest.']),
+    bonus:len==='45 min'?'':'3 rounds easy: 30s hollow hold, 30s side plank each side, 10 slow air squats.'};
 }
 const EQUIP={airRunner:12,ski:6,row:6,bike:4,sled:6,platforms:6,rig:true,barbells:true,bumperPlates:true,wallBalls:true,sandbags:true,kettlebells:true,dumbbells:true,boxes:true,ropes:true};
 function wgKitNote(core,size){
@@ -1658,16 +1740,33 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
     wallball:/wall ?ball/.test(N),
     partner:/partner|teams?|pairs?/.test(N),
     sandbag:/sandbag/.test(N),
-    pattern:null};
+    pattern:null,station:null};
+  // free-text station hints
+  if(/\bski\b/.test(N))want.station='ski';
+  else if(/\brow(ing)?\b/.test(N))want.station='row';
+  else if(/farmer|carry/.test(N))want.station='carry';
+  else if(/lunge/.test(N))want.station='lunge';
+  else if(/burpee/.test(N))want.station='burpee';
+  else if(/\brun(ning)?\b/.test(N)&&!want.noRun)want.station='run';
+  else if(want.sled)want.station='sledpush';
+  else if(want.wallball)want.station='wallball';
+  // free-text equipment hints
+  if(/body ?weight|no (kit|equipment|weights)|bw only/.test(N)){want.bodyweight=true;want.noBarbell=true;}
+  else if(/no barbell|without (a )?barbell|no bar\b|dumbbell only|db only/.test(N))want.noBarbell=true;
+  // panel controls override free text
+  if(ctx){const sk=wgStationKey(ctx.station);if(sk)want.station=sk;if(ctx.equip==='BW'){want.bodyweight=true;want.noBarbell=true;}else if(ctx.equip==='NoBar')want.noBarbell=true;}
+  if(want.station==='sledpush'||want.station==='sledpull')want.sled=true;
+  if(want.station==='wallball')want.wallball=true;
   // Auto focus mirrors the day-focus shown on the WOD page (DAYFOCUS) so "Auto" never disagrees with the advertised focus.
   const DAY_IDX={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
   const STR_PATTERN={1:'lower',3:'upper',5:'posterior'}; // Mon / Wed / Fri strength split
   let F=focus;
   if(focus==='Auto'){const idx=DAY_IDX[dayName];F=(idx==null?'Engine':DAYFOCUS[idx]);if(F==='Strength')want.pattern=STR_PATTERN[idx]||wgRand(['lower','upper','posterior']);}
-  if(focus==='HYROX sim')F='Challenge';
+  if(focus==='HYROX sim'){F='Challenge';want.hyroxSim=true;}
   if(want.partner)F='Partner';
   let out;
-  if(F==='Strength')out=wgStrength(want,length);
+  if(want.bodyweight&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgBodyweight(want,length);out.focus=F;}
+  else if(F==='Strength')out=wgStrength(want,length);
   else if(F==='Engine')out=wgEngine(want,length);
   else if(F==='Endurance')out=wgAerobic(want,length);
   else if(F==='Partner')out=wgPartner(want,length);
@@ -1680,13 +1779,14 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
 function genWod(surprise){
   const res=document.getElementById('wod-gen-result');if(!res)return;
   const focus=surprise?'Auto':(wgFocus||'Auto');const length=surprise?'60 min':(wgLen||'60 min');const notes=surprise?'':val('wg-notes');
+  const ctx={on:wgCtxOn,size:wgClassSize,station:surprise?'Any':wgStation,equip:surprise?'Full':wgEquip};
   res.innerHTML='<div class="wg-loading"><span class="wg-spin"></span>Building your workout…</div>';
   setTimeout(()=>{
     try{
       const recent=cache.wods.slice().filter(w=>(w.core&&String(w.core).trim())||w.title).sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,8).map(w=>({date:w.date,title:w.title,focus:w.focus,core:w.core}));
       const dayName=dateLabel(adminWodDate,{weekday:'long'});
-      let wod=buildWod(focus,length,notes,dayName,recent,{on:wgCtxOn,size:wgClassSize}),tries=0;
-      while(wgLastCore&&wod.core.split('\n')[0]===wgLastCore&&tries<6){wod=buildWod(focus,length,notes,dayName,recent,{on:wgCtxOn,size:wgClassSize});tries++;}
+      let wod=buildWod(focus,length,notes,dayName,recent,ctx),tries=0;
+      while(wgLastCore&&wod.core.split('\n')[0]===wgLastCore&&tries<6){wod=buildWod(focus,length,notes,dayName,recent,ctx);tries++;}
       wgLastCore=wod.core.split('\n')[0];
       wodGenLast=wod;renderWodGenResult(wod);
       const rr=document.getElementById('wod-gen-result');if(rr)rr.scrollIntoView({behavior:'smooth',block:'start'});
