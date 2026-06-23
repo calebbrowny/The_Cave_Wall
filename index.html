@@ -782,7 +782,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
         <div class="wg-q">Target stations <span style="opacity:.6;font-weight:400;">(optional — pick any)</span></div>
         <div class="wg-chips" id="wg-station"><button class="wg-chip on" data-v="Any" onclick="wgToggleStation(this)">Any</button><button class="wg-chip" data-v="Run" onclick="wgToggleStation(this)">Run</button><button class="wg-chip" data-v="Ski" onclick="wgToggleStation(this)">Ski</button><button class="wg-chip" data-v="Row" onclick="wgToggleStation(this)">Row</button><button class="wg-chip" data-v="Sled" onclick="wgToggleStation(this)">Sled</button><button class="wg-chip" data-v="Wall balls" onclick="wgToggleStation(this)">Wall balls</button><button class="wg-chip" data-v="Burpees" onclick="wgToggleStation(this)">Burpees</button><button class="wg-chip" data-v="Carry" onclick="wgToggleStation(this)">Carry</button><button class="wg-chip" data-v="Lunges" onclick="wgToggleStation(this)">Lunges</button></div>
         <div class="wg-q">Strength main lift <span style="opacity:.6;font-weight:400;">(on strength days)</span></div>
-        <div class="wg-chips" id="wg-lift"><button class="wg-chip on" data-v="Auto" onclick="wgPick('lift',this)">Auto</button><button class="wg-chip" data-v="Squat" onclick="wgPick('lift',this)">Squat</button><button class="wg-chip" data-v="Press" onclick="wgPick('lift',this)">Press</button><button class="wg-chip" data-v="Deadlift" onclick="wgPick('lift',this)">Deadlift</button></div>
+        <div class="wg-chips" id="wg-lift"><button class="wg-chip on" data-v="Auto" onclick="wgPick('lift',this)">Auto</button><button class="wg-chip" data-v="Squat" onclick="wgPick('lift',this)">Squat</button><button class="wg-chip" data-v="Deadlift" onclick="wgPick('lift',this)">Deadlift</button><button class="wg-chip" data-v="RDL" onclick="wgPick('lift',this)">RDL</button><button class="wg-chip" data-v="Bench Press" onclick="wgPick('lift',this)">Bench Press</button><button class="wg-chip" data-v="Push Press" onclick="wgPick('lift',this)">Push Press</button><button class="wg-chip" data-v="Strict Press" onclick="wgPick('lift',this)">Strict Press</button><button class="wg-chip" data-v="Pull-up" onclick="wgPick('lift',this)">Pull-up</button><button class="wg-chip" data-v="BB Row" onclick="wgPick('lift',this)">BB Row</button></div>
         <div class="wg-q">Equipment</div>
         <div class="wg-chips" id="wg-equip"><button class="wg-chip on" data-v="Full" onclick="wgPick('equip',this)">Full kit</button><button class="wg-chip" data-v="NoBar" onclick="wgPick('equip',this)">No barbell</button><button class="wg-chip" data-v="BW" onclick="wgPick('equip',this)">Bodyweight</button></div>
         <div class="wg-q">Gym context</div>
@@ -1620,6 +1620,16 @@ function wgWarmup(F,want){
   return cardio+'.\n'+drills+'.'+(prime?'\n'+prime:'');
 }
 function wgCool(){return wgRand(['2 min easy walk or spin','90s easy bike, shake the legs out','2 min slow row, nose breathing'])+'.\nStatic: '+wgRand(['couch stretch, hip flexor, hamstring, quad','calves, hamstrings, shoulders, lats','pigeon, thoracic opener, hamstrings, chest','quads, adductors, lats, pecs'])+', about 30s each.';}
+const WG_LIFTS={
+  'Squat':{pat:'lower',n:'Back Squat',rx:'work to a heavy set, last 2 reps tough but clean',sc:'goblet or box squat, controlled',bw:'tempo squat, 3s down 1s pause'},
+  'Deadlift':{pat:'posterior',n:'Deadlift',rx:'heavy as form allows, flat back, smooth pull',sc:'trap-bar or KB deadlift',bw:'single-leg RDL, slow and balanced'},
+  'RDL':{pat:'posterior',n:'Romanian deadlift',rx:'load the hamstrings, soft knees, slow lower',sc:'DB RDL, feel the stretch',bw:'single-leg RDL, slow'},
+  'Bench Press':{pat:'upper',n:'Bench press',rx:'controlled lower, drive evenly',sc:'DB bench or floor press',bw:'tempo push-up, 3s lower'},
+  'Strict Press':{pat:'upper',n:'Strict press',rx:'brace hard, no leg drive',sc:'DB strict press',bw:'pike push-up'},
+  'Push Press':{pat:'upper',n:'Push press',rx:'sharp dip-drive, lock out overhead',sc:'DB push press',bw:'pike push-up'},
+  'Pull-up':{pat:'upper',n:'Weighted pull-up',rx:'add load, full hang to chin over the bar',sc:'ring rows or banded pull-ups',bw:'strict or banded pull-up'},
+  'BB Row':{pat:'upper',n:'Barbell row',rx:'flat back, pull to the sternum, control down',sc:'DB row or ring row',bw:'ring row, slow'}
+};
 function wgStrength(want,len){
   const pats={
     lower:[{n:'Back squat',rx:'work to a heavy set, last 2 reps tough but clean',sc:'goblet squat, controlled, add load each set'},{n:'Front squat',rx:'heavy as form allows, tall chest',sc:'goblet or DB front squat, slow it down'},{n:'Back squat, 3-second lower',rx:'tempo down, drive up hard',sc:'tempo goblet squat'},{n:'Pause back squat',rx:'2s pause in the hole, no bounce',sc:'box squat to depth'},{n:'Tempo front squat',rx:'3s down, stay tall through the chest',sc:'goblet squat, slow and controlled'}],
@@ -1633,9 +1643,9 @@ function wgStrength(want,len){
     lower:[{n:'Tempo squat',rx:'3s down, 1s pause, bodyweight or light goblet',sc:'box squat to a comfy depth'},{n:'Bulgarian split squat',rx:'pause at the bottom, tall torso',sc:'hold the rig for balance'},{n:'Walking lunge',rx:'long steps, back knee kisses the floor',sc:'shorter steps, hold support'}],
     upper:[{n:'Tempo push-up',rx:'3s lower, chest to the floor',sc:'incline push-ups on a box'},{n:'Strict pull-up',rx:'full hang to chin over the bar',sc:'ring rows or banded pull-ups'},{n:'Pike push-up',rx:'head to the floor, push tall',sc:'box pike push-ups'}],
     posterior:[{n:'Single-leg glute bridge',rx:'pause at the top, squeeze hard',sc:'two-leg glute bridge'},{n:'Nordic curl negative',rx:'lower as slowly as you can',sc:'banded hamstring curl'},{n:'Single-leg RDL',rx:'slow, balanced, bodyweight or light DB',sc:'hold a wall for balance'}]};
-  const pat=want.pattern&&pats[want.pattern]?want.pattern:wgRand(['lower','upper','posterior']);
-  const list=want.bodyweight?bwPats[pat]:(want.noBarbell?noBarPats[pat]:pats[pat]);
-  const lift=wgRand(list);
+  let pat,lift;
+  if(want.lift&&WG_LIFTS[want.lift]){const L=WG_LIFTS[want.lift];pat=L.pat;if(want.bodyweight)lift={n:L.bw||L.sc,rx:'tough but clean, full control',sc:L.sc};else if(want.noBarbell)lift={n:L.sc,rx:L.rx,sc:L.bw||L.sc};else lift={n:L.n,rx:L.rx,sc:L.sc};}
+  else{pat=want.pattern&&pats[want.pattern]?want.pattern:wgRand(['lower','upper','posterior']);const list=want.bodyweight?bwPats[pat]:(want.noBarbell?noBarPats[pat]:pats[pat]);lift=wgRand(list);}
   const scheme=want.bodyweight
     ?wgRand(['5 x 8, controlled tempo','4 x 12, smooth and strict','6 x 6 with a 3-second lower','5 sets of a tough 10'])
     :wgRand(['5 x 5, building across the sets','5 x 3, building to a heavy triple','4 x 6 across at the same tough weight','6 x 2 on a 90-second clock, fast and crisp','wave of 5, 3, 1, 5, 3, 1, building each wave','5-4-3-2-1 ascending in weight','3 x 8 then 3 x 3, volume into a heavy finish']);
@@ -1799,7 +1809,7 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
   if(focus==='Auto'){const idx=DAY_IDX[dayName];F=(idx==null?'Engine':DAYFOCUS[idx]);if(F==='Strength')want.pattern=STR_PATTERN[idx]||wgRand(['lower','upper','posterior']);}
   if(focus==='HYROX sim'){F='Challenge';want.hyroxSim=true;}
   if(want.partner)F='Partner';
-  if(ctx&&ctx.lift&&ctx.lift!=='Auto')want.pattern={Squat:'lower',Press:'upper',Deadlift:'posterior'}[ctx.lift]||want.pattern;
+  if(ctx&&ctx.lift&&ctx.lift!=='Auto')want.lift=ctx.lift;
   let out;const multiSt=want.stations&&want.stations.length>=2;
   if(multiSt&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgStationCircuit(want,length);out.focus=F;}
   else if(want.bodyweight&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgBodyweight(want,length);out.focus=F;}
