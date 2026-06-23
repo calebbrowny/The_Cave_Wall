@@ -1,2 +1,4 @@
 # The_Cave_Wall
-Daily W
+The Cave Wall is a self-contained operations and member-engagement dashboard for The Cave Gym, Toowoomba (Australia's first HYROX HTCx). It's a single index.html file — all HTML, CSS, and JavaScript inline, no build step — backed by Supabase for data and deployed as a static site on Netlify.
+It runs three surfaces from one file: a gym-display mode (leaderboards, WOD, challenges rotating on the screen), a member-facing submission flow (members submit PBs, race times, and challenge entries with photo/video proof), and a password-gated admin panel for managing all of it. Key features include live leaderboards with custom boards, a daily WOD planner with a no-API local workout generator built on The Cave's HYROX programming logic, monthly challenges, a multi-mode interval timer, an advertising/sponsor rotator for the display screen, per-device display settings, and a password-gated activity log. The design is a dark Google-style UI (Plus Jakarta Sans, #202124 background, #8ab4f8 accent).
+Stack: vanilla HTML/CSS/JS (single file, no framework, no bundler), Supabase (Postgres + Auth + Storage), Netlify (static hosting).
