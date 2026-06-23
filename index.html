@@ -1659,9 +1659,11 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
     partner:/partner|teams?|pairs?/.test(N),
     sandbag:/sandbag/.test(N),
     pattern:null};
-  const DOW={Monday:{f:'Strength',p:'lower'},Tuesday:{f:'Engine'},Wednesday:{f:'Strength',p:'upper'},Thursday:{f:'Challenge'},Friday:{f:'Strength',p:'posterior'},Saturday:{f:'Partner'},Sunday:{f:'Endurance'}};
+  // Auto focus mirrors the day-focus shown on the WOD page (DAYFOCUS) so "Auto" never disagrees with the advertised focus.
+  const DAY_IDX={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
+  const STR_PATTERN={1:'lower',3:'upper',5:'posterior'}; // Mon / Wed / Fri strength split
   let F=focus;
-  if(focus==='Auto'){const d=DOW[dayName]||{f:'Engine'};F=d.f;if(d.p)want.pattern=d.p;}
+  if(focus==='Auto'){const idx=DAY_IDX[dayName];F=(idx==null?'Engine':DAYFOCUS[idx]);if(F==='Strength')want.pattern=STR_PATTERN[idx]||wgRand(['lower','upper','posterior']);}
   if(focus==='HYROX sim')F='Challenge';
   if(want.partner)F='Partner';
   let out;
