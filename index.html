@@ -30,9 +30,10 @@ input,select,textarea{font-family:inherit;}
 .nav-i{max-width:1200px;margin:0 auto;height:56px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
 .logo{font-size:15px;font-weight:800;white-space:nowrap;}.logo span{color:var(--blue);}
 .nav-right{display:flex;align-items:center;gap:8px;}
-.mode-toggle{display:flex;background:var(--bg-light);border-radius:20px;padding:3px;gap:2px;}
-.mode-toggle button{background:none;color:var(--muted);font-size:12px;font-weight:700;padding:6px 14px;border-radius:16px;transition:all .15s;white-space:nowrap;}
-.mode-toggle button.on{background:var(--blue);color:var(--dk);}
+.mode-toggle{display:flex;background:none;padding:0;gap:6px;align-items:center;}
+.mode-toggle button{background:var(--bg-light);color:var(--muted);font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;border:1px solid var(--border);transition:all .15s;white-space:nowrap;}
+.mode-toggle button.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
+body.no-tab-emoji .te{display:none;}
 .icon-btn{background:var(--bg-light);color:var(--muted);font-size:13px;padding:6px 11px;border-radius:16px;transition:all .15s;}
 .icon-btn:hover{color:var(--text);}
 .icon-btn.on{background:var(--blue);color:var(--dk);}
@@ -788,12 +789,12 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div>
   <div class="nav-right">
     <div class="mode-toggle">
-      <button id="m-wod" class="on" onclick="setMode('wod')">🔥 WOD</button>
-      <button id="m-chal" onclick="setMode('chal')">🏅 Challenge</button>
-      <button id="m-event" onclick="setMode('event')" style="display:none;">📅 Event</button>
-      <button id="m-sub" onclick="setMode('submit')">✍️ Submit</button>
-      <button id="m-disp" onclick="setMode('disp')">📺 The Wall</button>
-      <button id="m-timer" onclick="setMode('timer')" style="display:none;">⏱ Timer</button>
+      <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span>WOD</button>
+      <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span>Challenge</button>
+      <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
+      <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span>Submit</button>
+      <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span>The Wall</button>
+      <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span>Timer</button>
     </div>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
     <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
@@ -918,7 +919,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="planner-sec" data-sec="screens" data-size="full" draggable="true">
     <div class="panel">
       <div class="panel-h"><div class="panel-t"><span class="drag-handle">⋮⋮</span>🖥️ Display Screens</div><button class="btn-sm" onclick="openModal('screen')">+ New screen</button></div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Give every TV its own mix — one can run just the WOD, another just leaderboards and ads, another the live event. Each screen gets its own link: copy it and open it on that TV. Your 📺 The Wall tab stays as the default mix.</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Give every TV its own mix — one can run just the WOD, another just leaderboards and ads, another the live event. Each screen gets its own link: copy it and open it on that TV. Your 📊 The Wall tab stays as the default mix.</div>
       <div id="screens-list"></div>
     </div>
   </div>
@@ -1051,6 +1052,7 @@ function applyAppearance(){
   document.body.classList.toggle('hide-gymname',a.show_gymname===false);
   document.body.classList.toggle('hide-clock',a.show_clock===false);
   document.body.classList.toggle('wod-fill',a.wod_fill===true);
+  document.body.classList.toggle('no-tab-emoji',a.tab_emojis===false);
 }
 function toast(msg){let t=document.getElementById('cave-toast');if(!t){t=document.createElement('div');t.id='cave-toast';t.className='cave-toast';document.body.appendChild(t);}t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
 function confettiBurst(){const cols=['#8ab4f8','#fdd663','#81c995','#f28b82','#bb86fc','#f8a8d0'];const wrap=document.createElement('div');wrap.className='confetti-wrap';document.body.appendChild(wrap);for(let i=0;i<70;i++){const p=document.createElement('div');p.className='confetti';p.style.left=Math.random()*100+'vw';p.style.background=cols[i%cols.length];p.style.animationDelay=(Math.random()*0.3)+'s';p.style.animationDuration=(1.6+Math.random()*1.4)+'s';p.style.transform='rotate('+(Math.random()*360)+'deg)';wrap.appendChild(p);}setTimeout(()=>wrap.remove(),3400);}
@@ -1286,7 +1288,7 @@ async function evpSetSections(sections){await evpSave({sections});}
 function rawVal(id){const e=document.getElementById(id);return e?e.value:'';}
 function nl2br(s){return esc(s).replace(/\n/g,'<br>');}
 function parseLines(text,keys){return String(text||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const parts=l.split('|').map(p=>p.trim());const o={id:uid()};keys.forEach((k,i)=>o[k]=parts[i]||'');return o;});}
-function refreshNav(){const cb=document.getElementById('m-chal');if(cb)cb.style.display=challengeOn()?'':'none';const btn=document.getElementById('m-event');if(!btn)return;const ep=evp();btn.style.display=ep.enabled?'':'none';btn.textContent='📅 '+(ep.title||'Event');var mt=document.getElementById('m-timer');if(mt)mt.style.display=settings().show_timer?'':'none';}
+function refreshNav(){const cb=document.getElementById('m-chal');if(cb)cb.style.display=challengeOn()?'':'none';const btn=document.getElementById('m-event');if(!btn)return;const ep=evp();btn.style.display=ep.enabled?'':'none';btn.innerHTML='<span class="te">📅 </span>'+esc(ep.title||'Event');var mt=document.getElementById('m-timer');if(mt)mt.style.display=settings().show_timer?'':'none';}
 async function evToggleEnabled(el){const nv=!evp().enabled;await evpSave({enabled:nv});if(el)el.classList.toggle('on',nv);refreshNav();renderEventPage();}
 async function evSaveMeta(){await evpSave({title:val('f-evtitle')||'Event',subtitle:val('f-evsub')});refreshNav();renderEventPage();}
 async function evAddSection(type){const base=Object.assign({id:uid(),type},EV_DEFAULTS[type]||{heading:'Section',body:''});const sections=(evp().sections||[]).concat([base]);await evpSetSections(sections);renderEventAdmin();renderEventPage();openModal('evsection',base.id);}
@@ -2106,7 +2108,7 @@ let activeScreenSlug=null;
 const SCREEN_KEYS=[['wod','🔥 WOD'],['strength','💪 Strength'],['hyrox','🏃 HYROX'],['challenge','🏅 Challenge'],['achievements','⭐ Achievements'],['events','🎉 Upcoming events'],['countdown','⏳ Countdown'],['quotes','💬 Quotes'],['ads','📣 Ads'],['event','📅 Event page / live']];
 function screenProfile(){if(!activeScreenSlug)return null;return (settings().screens||[]).find(p=>p.slug===activeScreenSlug)||null;}
 function slugify(n){let s=String(n||'screen').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'screen';const taken=(settings().screens||[]).filter(x=>x.id!==editId).map(x=>x.slug);let out=s,i=2;while(taken.includes(out))out=s+'-'+(i++);return out;}
-function renderScreens(){const el=document.getElementById('screens-list');if(!el)return;const scr=settings().screens||[];el.innerHTML=scr.length?scr.map(p=>{const on=Object.values(p.show||{}).filter(Boolean).length+(p.boards||[]).length;return `<div class="scr-card"><div style="min-width:0;"><div class="cb-title">${esc(p.name)}</div><div class="cb-sub">#display/${esc(p.slug)} · ${on} section${on===1?'':'s'}${p.rotate?' · '+p.rotate+'s rotation':''}</div></div><div class="cb-actions" style="margin:0;"><button class="btn-sm" onclick="shareLink('display/${esc(p.slug)}')">Copy link</button><button class="btn-sm" onclick="openModal('screen','${p.id}')">Edit</button><button class="btn-sm" onclick="delScreen('${p.id}')">Delete</button></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--muted);">No screen profiles yet. Your 📺 The Wall tab shows the global mix; create profiles here to give each TV its own.</div>';}
+function renderScreens(){const el=document.getElementById('screens-list');if(!el)return;const scr=settings().screens||[];el.innerHTML=scr.length?scr.map(p=>{const on=Object.values(p.show||{}).filter(Boolean).length+(p.boards||[]).length;return `<div class="scr-card"><div style="min-width:0;"><div class="cb-title">${esc(p.name)}</div><div class="cb-sub">#display/${esc(p.slug)} · ${on} section${on===1?'':'s'}${p.rotate?' · '+p.rotate+'s rotation':''}</div></div><div class="cb-actions" style="margin:0;"><button class="btn-sm" onclick="shareLink('display/${esc(p.slug)}')">Copy link</button><button class="btn-sm" onclick="openModal('screen','${p.id}')">Edit</button><button class="btn-sm" onclick="delScreen('${p.id}')">Delete</button></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--muted);">No screen profiles yet. Your 📊 The Wall tab shows the global mix; create profiles here to give each TV its own.</div>';}
 async function saveScreen(){const name=val('f-scrname');if(!name)return;const show={};SCREEN_KEYS.forEach(([k])=>{const e=document.getElementById('scr-k-'+k);show[k]=!!(e&&e.checked);});const boards=cache.boards.filter(b=>{const e=document.getElementById('scr-b-'+b.id);return e&&e.checked;}).map(b=>b.id);const rot=parseInt(val('f-scrrot'))||null;const s=settings();const screens=(s.screens||[]).slice();if(editId!==null){const i=screens.findIndex(x=>x.id===editId);if(i>=0)screens[i]=Object.assign({},screens[i],{name,slug:slugify(name),show,boards,rotate:rot});}else{screens.push({id:uid(),name,slug:slugify(name),show,boards,rotate:rot});}s.screens=screens;await stateUpdate({settings:s});closeModal();renderScreens();toast('Screen saved ✓');}
 async function delScreen(id){const s=settings();const p=(s.screens||[]).find(x=>x.id===id);if(!confirm('Delete screen "'+(p?p.name:'')+'"? Any TV using its link will fall back to the default display.'))return;s.screens=(s.screens||[]).filter(x=>x.id!==id);await stateUpdate({settings:s});renderScreens();}
 
@@ -2257,6 +2259,7 @@ function renderSettings(){
       `<div class="set-section">Podium &amp; leaderboard</div><div class="set-sub" style="margin-bottom:6px;">Colour the top 3 places and the score numbers. Go vivid if you like.</div>`+podRow('p1','1st place',DEFAULT_FOCUS?'#fdd663':'#fdd663')+podRow('p2','2nd place','#c0c4cc')+podRow('p3','3rd place','#cd7f32')+`<div class="set-row"><div><div class="set-lbl">Score colour</div></div><input type="color" class="set-color" value="${a.score||accent}" oninput="setAppearance('score',this.value)"></div>`+
       `<div class="set-section">Focus highlight colours</div><div class="set-sub" style="margin-bottom:6px;">These colour the focus tags, WOD headers and day dots. Custom covers any one-off label you type (HYROX Sim, Chipper, etc).</div>`+focusRow('Strength')+focusRow('Engine')+focusRow('Endurance')+focusRow('Challenge')+focusRow('Partner')+focusRow('Custom')+
       `<div class="set-section">Header</div>`+tog('show_gymname','Show Cave logo','In the WOD, Event & Display headers',true)+tog('show_clock','Show clock','Top-right time on WOD & Display',true)+
+      `<div class="set-section">Navigation tabs</div>`+tog('tab_emojis','Emoji on tabs','Show the little icons (🔥 ✍️ 📊) on the nav tabs. Off = clean text-only tabs.',true)+
       `<div class="set-section">WOD tiles</div>`+tog('wod_fill','Full-colour tiles','Fill each WOD tile with its colour instead of just a side bar',false)+
       `<div class="set-section">Advertising</div><div class="set-row" style="display:block;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div class="set-lbl">Ad size</div><div class="set-sub">Default 100% fills the screen. Adjust only if a screen needs it.</div></div><span class="set-pct" id="ad-scale-pct">${Math.round((s.ad_scale||1)*100)}%</span></div><input type="range" class="set-range" min="0.6" max="1.4" step="0.05" value="${s.ad_scale||1}" oninput="liveAdScale(this.value)" onchange="commitAdScale(this.value)"></div>`+
       `<button class="btn-sm" style="margin-top:14px;width:100%;text-align:center;padding:10px;" onclick="resetAppearance()">Reset appearance to default</button>`;
@@ -2278,7 +2281,7 @@ function renderSettings(){
     body=`<div class="set-section">Share a direct link</div><div class="set-sub" style="margin-bottom:8px;">Send members straight to a tab. The link opens it directly.</div>`+
       linkRow('submit','Submit page')+linkRow('wod','WOD of the day')+linkRow('challenge','Monthly challenge')+linkRow('display','Gym display screen')+
       `<div class="set-section">QR codes</div><div class="set-sub" style="margin-bottom:8px;">Download and print for the gym floor or comp day — scanning opens the page straight up. PNGs are high-res for printing.</div>`+
-      (typeof qrcode==='undefined'?`<div class="set-sub">QR library didn't load — check the internet connection and reopen settings.</div>`:`<div class="qr-grid">${[['submit','✍️ Submit a score'],['wod','🔥 WOD'],['challenge','🏅 Challenge'],['event','📅 Event page'],['display','📺 The Wall']].map(([qt,ql])=>`<div class="qr-card"><img src="${qrDataUrl(origin+'#'+qt,140)}" alt="QR"><div>${ql}</div><button class="btn-sm" onclick="downloadQR('${qt}')">Download PNG</button></div>`).join('')}</div>`)+
+      (typeof qrcode==='undefined'?`<div class="set-sub">QR library didn't load — check the internet connection and reopen settings.</div>`:`<div class="qr-grid">${[['submit','✍️ Submit a score'],['wod','🔥 WOD'],['challenge','🏅 Challenge'],['event','📅 Event page'],['display','📊 The Wall']].map(([qt,ql])=>`<div class="qr-card"><img src="${qrDataUrl(origin+'#'+qt,140)}" alt="QR"><div>${ql}</div><button class="btn-sm" onclick="downloadQR('${qt}')">Download PNG</button></div>`).join('')}</div>`)+
       `<div class="set-section">Race countdown</div>`+
       `<div class="set-row"><div><div class="set-lbl">Show countdown slide</div><div class="set-sub">A countdown to your big race on the gym screen</div></div><div class="sw ${c.on?'on':''}" onclick="toggleCountdown(this)"></div></div>`+
       `<div class="set-row"><div><div class="set-lbl">Race name</div></div><input class="set-num" style="width:130px;" value="${esc(c.label||'HYROX Melbourne')}" onchange="setCountdown('label',this.value)"></div>`+
