@@ -712,6 +712,29 @@ body.hc .wod-block-body{font-weight:600;}
 .stat-n{font-size:26px;font-weight:800;color:var(--text);line-height:1.05;}
 .stat-l{font-size:12px;color:var(--muted);font-weight:600;margin-top:5px;}
 .stat-sub{font-size:11px;color:var(--muted);opacity:.8;margin-top:3px;}
+.stat-sec{margin-top:16px;}
+.stat-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;}
+.stat-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.stat-chip{background:var(--bg-light);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--muted);text-transform:capitalize;}
+.stat-chip b{color:var(--text);font-weight:800;}
+.stat-bars{display:flex;align-items:flex-end;gap:6px;height:84px;}
+.stat-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%;}
+.stat-bar-fill{width:62%;min-height:2px;background:var(--blue);border-radius:4px 4px 0 0;}
+.stat-bar-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;}
+.stat-bar-n{font-size:10px;color:var(--text);font-weight:700;}
+.sa-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.sa-sec{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.sa-head{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:11px 13px;background:var(--bg-light);cursor:pointer;user-select:none;font-weight:700;font-size:13px;color:var(--text);}
+.sa-head .wod-chev{transition:transform .2s;transform:rotate(-90deg);}
+.sa-head.open .wod-chev{transform:rotate(0deg);}
+.sa-body{padding:12px 13px;}
+.acc-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.acc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:8px 11px;font-size:13px;}
+.acc-mail{color:var(--text);word-break:break-all;}
+.acc-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px 8px;flex-shrink:0;}
+.acc-del{background:none;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;}
+.acc-add{display:flex;gap:8px;}
+.acc-add input{flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;}
 </style>
 <script>
 (function(){try{var t=JSON.parse(localStorage.getItem('cave_theme_cache')||'null');if(t){var r=document.documentElement.style;var m={'--bg':t.bg,'--bg-card':t.card,'--bg-light':t.lt,'--text':t.text,'--muted':t.muted,'--border':t.border,'--blue':t.accent,'--lb-score':t.score};for(var k in m){if(m[k])r.setProperty(k,m[k]);}}}catch(e){}
@@ -877,7 +900,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   </div>
 
 </div>
-<div class="act-wrap" id="act-wrap"><button class="act-toggle" onclick="toggleActivity()"><span>🔒 Activity log</span><span class="wod-chev" id="act-chev" style="transform:rotate(-90deg);">▾</span></button><div id="act-panel" style="display:none;"></div></div>
+<div class="act-wrap" id="act-wrap"><button class="act-toggle" onclick="toggleActivity()"><span>🔒 Super Admin</span><span class="wod-chev" id="act-chev" style="transform:rotate(-90deg);">▾</span></button><div id="act-panel" style="display:none;"></div></div>
 </div>
 
 <!-- CHALLENGE TAB -->
@@ -2139,7 +2162,8 @@ async function setRotate(el){let v=parseInt(el.value)||8;v=Math.max(3,Math.min(6
 /* ===== AUTHENTICATION (Supabase Auth — passwordless) ===== */
 const ALLOWED_EMAILS=['info@thecavegym.com.au','caleb@thecavegym.com.au','caleb@theproswitch.com','calebbrowny@gmail.com','monkeyfeetmovement@gmail.com'];
 let currentUser=null,authEmail='';
-function emailAllowed(e){return ALLOWED_EMAILS.includes((e||'').trim().toLowerCase());}
+function adminEmails(){try{var s=settings();var a=(s&&Array.isArray(s.admin_emails))?s.admin_emails:[];return a.map(function(x){return String(x||'').trim().toLowerCase();}).filter(Boolean);}catch(e){return [];}}
+function emailAllowed(e){e=(e||'').trim().toLowerCase();return ALLOWED_EMAILS.includes(e)||adminEmails().indexOf(e)>=0;}
 function isUnlocked(){return !!currentUser && emailAllowed(currentUser.email);}
 function setUnlocked(v){const lb=document.getElementById('lock-btn'),sb2=document.getElementById('set-btn');if(lb)lb.style.display=v?'inline-block':'none';if(sb2)sb2.style.display=v?'inline-block':'none';}
 function showPwGate(){resetAuth();document.getElementById('pw-gate').classList.add('open');setTimeout(()=>{const el=document.getElementById('auth-email');if(el)el.focus();},50);}
@@ -2305,24 +2329,49 @@ function tmrWakeOn(){try{if(navigator.wakeLock&&navigator.wakeLock.request)navig
 function tmrWakeOff(){try{if(TMR.wake){TMR.wake.release();TMR.wake=null;}}catch(e){}}
 
 /* ===== ACTIVITY LOG (password gated, very bottom of admin) ===== */
-const ACT_PW='CaveGym2021';
 function logActivity(type,summary,actor){try{if(!LIVE)return;sb.from('activity_log').insert({event_type:type,summary:summary,actor:actor||(currentUser&&currentUser.email)||'member'}).then(function(){},function(){});}catch(e){}}
 function logView(){try{if(!LIVE||isUnlocked())return;var m=currentMode||'wod';if(m==='plan')return;var lbl={wod:'WOD',submit:'Submit',disp:'Display',chal:'Challenge',event:'Event',timer:'Timer'}[m]||m;logActivity('view','Viewed '+lbl+(activeScreenSlug?' · '+activeScreenSlug:''),'member');}catch(e){}}
-function actUnlocked(){try{return sessionStorage.getItem('cave_act_ok')==='1';}catch(e){return false;}}
+function isOwner(){return !!currentUser && ALLOWED_EMAILS.includes((currentUser.email||'').trim().toLowerCase());}
 function toggleActivity(){const p=document.getElementById('act-panel');if(!p)return;const open=!(p.style.display&&p.style.display!=='none');p.style.display=open?'block':'none';const ch=document.getElementById('act-chev');if(ch)ch.style.transform=open?'rotate(0deg)':'rotate(-90deg)';if(open)renderActivity();}
-let actTab='feed';
-function setActTab(t){actTab=t;renderActivity();}
+let saOpen={stats:true,feed:false,access:false};
+function saToggle(sec){saOpen[sec]=!saOpen[sec];renderActivity();}
 function renderActivity(){const p=document.getElementById('act-panel');if(!p)return;
-  if(!actUnlocked()){p.innerHTML='<div class="act-lock"><div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;">Enter the activity log password.</div><input type="password" id="act-pw" placeholder="Password" onkeydown="if(event.key===\'Enter\')actCheck()"><div style="margin-top:10px;"><button class="btn-sm" onclick="actCheck()">Unlock</button></div><div id="act-pw-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div></div>';const i=document.getElementById('act-pw');if(i)i.focus();return;}
-  const tabs='<div class="act-tabs"><button class="act-tab'+(actTab==='stats'?'':' on')+'" onclick="setActTab(\'feed\')">Activity</button><button class="act-tab'+(actTab==='stats'?' on':'')+'" onclick="setActTab(\'stats\')">\ud83d\udcca Stats</button><button class="btn-sm" style="margin-left:auto;" onclick="'+(actTab==='stats'?'loadStats()':'loadActivity()')+'">Refresh</button><button class="btn-sm" onclick="actLock()">Lock</button></div>';
-  if(actTab==='stats'){p.innerHTML=tabs+'<div id="stats-box"><div class="act-empty">Crunching numbers\u2026</div></div>';loadStats();}
-  else{p.innerHTML=tabs+'<div id="act-log" style="margin-top:4px;"><div class="act-empty">Loading\u2026</div></div>';loadActivity();}
+  if(!isOwner()){p.innerHTML='<div class="act-empty">Super Admin is owner-only \u2014 sign in with an owner email.</div>';return;}
+  const sec=function(key,icon,label,bodyId){const open=!!saOpen[key];return '<div class="sa-sec"><div class="sa-head'+(open?' open':'')+'" onclick="saToggle(\''+key+'\')"><span>'+icon+' '+label+'</span><span class="wod-chev">\u25be</span></div><div class="sa-body" id="'+bodyId+'" style="'+(open?'':'display:none;')+'"><div class="act-empty">\u2026</div></div></div>';};
+  p.innerHTML='<div class="sa-top"><div style="font-size:11.5px;color:var(--muted);">Owner tools \u2014 secured by your email sign-in.</div><button class="btn-sm" onclick="toggleActivity()">Close</button></div>'+sec('stats','\ud83d\udcca','Stats','stats-box')+sec('feed','\ud83d\udccb','Activity tracker','act-log')+sec('access','\ud83d\udc65','Admin access','access-box');
+  if(saOpen.stats)loadStats();
+  if(saOpen.feed)loadActivity();
+  if(saOpen.access)renderAccess();
 }
-function actCheck(){const v=(document.getElementById('act-pw')||{}).value||'';if(v===ACT_PW){try{sessionStorage.setItem('cave_act_ok','1');}catch(e){}renderActivity();}else{const e=document.getElementById('act-pw-err');if(e)e.textContent='Wrong password, try again.';}}
-function actLock(){try{sessionStorage.removeItem('cave_act_ok');}catch(e){}renderActivity();}
+function renderAccess(){
+  const box=document.getElementById('access-box');if(!box)return;
+  const base=ALLOWED_EMAILS.map(function(x){return String(x).toLowerCase();});
+  const managed=adminEmails().filter(function(e){return base.indexOf(e)<0;});
+  const me=((currentUser&&currentUser.email)||'').toLowerCase();
+  let h='<div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">Who can sign in to the admin. Everyone still verifies with a one-time email code \u2014 there is no shared password. Owner accounts are permanent.</div><div class="acc-list">';
+  base.forEach(function(e){h+='<div class="acc-row"><span class="acc-mail">'+esc(e)+(e===me?' <span style="color:var(--blue);">\u00b7 you</span>':'')+'</span><span class="acc-tag">owner</span></div>';});
+  if(managed.length){managed.forEach(function(e){h+='<div class="acc-row"><span class="acc-mail">'+esc(e)+(e===me?' <span style="color:var(--blue);">\u00b7 you</span>':'')+'</span><button class="acc-del" onclick="removeAdminEmail(\''+esc(e)+'\')">remove</button></div>';});}
+  else h+='<div class="act-empty" style="padding:4px 0;">No extra admins added yet.</div>';
+  h+='</div><div class="acc-add"><input id="acc-new" type="email" placeholder="new.coach@email.com" onkeydown="if(event.key===\'Enter\')addAdminEmail()"><button class="btn-sm" onclick="addAdminEmail()">+ Add</button></div><div id="acc-err" style="color:var(--red);font-size:12px;margin-top:6px;"></div>';
+  box.innerHTML=h;
+}
+async function addAdminEmail(){
+  const inp=document.getElementById('acc-new'),err=document.getElementById('acc-err');if(!inp)return;
+  const e=(inp.value||'').trim().toLowerCase();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){if(err)err.textContent='Enter a valid email.';return;}
+  const base=ALLOWED_EMAILS.map(function(x){return String(x).toLowerCase();}),list=adminEmails();
+  if(base.indexOf(e)>=0||list.indexOf(e)>=0){if(err)err.textContent='That email already has access.';return;}
+  list.push(e);const s=settings();s.admin_emails=list;await stateUpdate({settings:s});
+  logActivity('admin_added','Added admin '+e);renderAccess();toast('Admin added');
+}
+async function removeAdminEmail(e){
+  e=(e||'').trim().toLowerCase();if(!confirm('Remove admin access for '+e+'?'))return;
+  const list=adminEmails().filter(function(x){return x!==e;});const s=settings();s.admin_emails=list;await stateUpdate({settings:s});
+  logActivity('admin_removed','Removed admin '+e);renderAccess();toast('Admin removed');
+}
 async function loadActivity(){const box=document.getElementById('act-log');if(!box)return;let rows=[];try{if(LIVE){const{data}=await sb.from('activity_log').select('*').neq('event_type','view').order('created_at',{ascending:false}).limit(200);rows=data||[];}}catch(e){}
   if(!rows.length){box.innerHTML='<div class="act-empty">Nothing logged yet. Logins, new and edited workouts, member submissions and approvals will show up here.</div>';return;}
-  const IC={login:'\ud83d\udd13',logout:'\ud83d\udd12',wod_new:'\ud83d\udcdd',wod_edit:'\u270f\ufe0f',wod_clear:'\ud83d\uddd1\ufe0f',wod_generated:'\ud83d\udcab',submission_new:'\ud83d\udce5',submission_approved:'\u2705',submission_rejected:'\u274c'};
+  const IC={login:'\ud83d\udd13',logout:'\ud83d\udd12',wod_new:'\ud83d\udcdd',wod_edit:'\u270f\ufe0f',wod_clear:'\ud83d\uddd1\ufe0f',wod_generated:'\ud83d\udcab',submission_new:'\ud83d\udce5',submission_approved:'\u2705',submission_rejected:'\u274c',admin_added:'\u2795',admin_removed:'\u2796'};
   let html='',cur='';
   rows.forEach(function(r){const d=new Date(r.created_at);const day=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});if(day!==cur){cur=day;html+='<div class="act-day">'+day+'</div>';}const t=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});html+='<div class="act-row"><div class="act-ico">'+(IC[r.event_type]||'\u2022')+'</div><div class="act-body"><div class="act-sum">'+esc(r.summary||r.event_type||'')+'</div><div class="act-meta">'+t+(r.actor?' \u00b7 '+esc(r.actor):'')+'</div></div></div>';});
   box.innerHTML=html;}
@@ -2342,14 +2391,28 @@ async function loadStats(){
   const ads=(cache.ads||[]).length;
   const pending=(cache.submissions||[]).length;
   let viewsAll=0,views7=0,subAll=0,sub7=0,appAll=0,rejAll=0,act7=0;
+  const bySurface={},byCat={},trend=[0,0,0,0,0,0,0];
+  const dayMs=864e5,today0=new Date();today0.setHours(0,0,0,0);
+  const days=[];for(let i=6;i>=0;i--)days.push(new Date(today0.getTime()-i*dayMs));
   if(LIVE){
-    const weekAgo=new Date(Date.now()-7*864e5).toISOString();
-    const cnt=function(q){return q.then(function(r){return r.count||0;},function(){return 0;});};
-    const A=function(){return sb.from('activity_log').select('*',{count:'exact',head:true});};
-    try{const res=await Promise.all([cnt(A().eq('event_type','view')),cnt(A().eq('event_type','view').gte('created_at',weekAgo)),cnt(A().eq('event_type','submission_new')),cnt(A().eq('event_type','submission_new').gte('created_at',weekAgo)),cnt(A().eq('event_type','submission_approved')),cnt(A().eq('event_type','submission_rejected')),cnt(A().gte('created_at',weekAgo))]);viewsAll=res[0];views7=res[1];subAll=res[2];sub7=res[3];appAll=res[4];rejAll=res[5];act7=res[6];}catch(e){}
+    try{
+      const weekAgoMs=Date.now()-7*dayMs;
+      const{data}=await sb.from('activity_log').select('event_type,summary,created_at').order('created_at',{ascending:false}).limit(3000);
+      (data||[]).forEach(function(r){
+        const tms=new Date(r.created_at).getTime(),recent=tms>=weekAgoMs;if(recent)act7++;
+        if(r.event_type==='view'){viewsAll++;if(recent)views7++;const m=String(r.summary||'').replace(/^Viewed\s+/,'').split(' · ')[0]||'Other';bySurface[m]=(bySurface[m]||0)+1;const d=new Date(r.created_at);d.setHours(0,0,0,0);for(let i=0;i<7;i++){if(d.getTime()===days[i].getTime()){trend[i]++;break;}}}
+        else if(r.event_type==='submission_new'){subAll++;if(recent)sub7++;const m=(String(r.summary||'').match(/\(([^)]+)\)\s*$/)||[])[1]||'other';byCat[m]=(byCat[m]||0)+1;}
+        else if(r.event_type==='submission_approved')appAll++;
+        else if(r.event_type==='submission_rejected')rejAll++;
+      });
+    }catch(e){}
   }
   const card=function(n,l,sub){return '<div class="stat-card"><div class="stat-n">'+n+'</div><div class="stat-l">'+l+'</div>'+(sub?'<div class="stat-sub">'+esc(sub)+'</div>':'')+'</div>';};
-  box.innerHTML='<div class="stat-grid">'+card(viewsAll,'Page views',views7+' this week')+card(subAll,'Submissions',sub7+' this week')+card(appAll+' / '+rejAll,'Approved / rejected','all time')+card(pending,'Pending now','awaiting review')+card(strength+hyrox+custom,'Board entries',strength+' str · '+hyrox+' hyrox · '+custom+' custom')+card(achN,'Achievements','')+card(chEntries,'Challenge entries',ch?(ch.title||'active'):'none active')+card(wodsSaved,'Workouts saved',upWods+' upcoming')+card(upEvents,'Upcoming events','')+card(ads,'Ads loaded','')+card(act7,'Admin actions','last 7 days')+'</div>'+(LIVE?'':'<div class="act-empty" style="margin-top:10px;">Live stats need Supabase (local mode now).</div>');
+  const chip=function(k,v){return '<span class="stat-chip">'+esc(k)+' <b>'+v+'</b></span>';};
+  const chipsOf=function(o){const ks=Object.keys(o).sort(function(a,b){return o[b]-o[a];});return ks.length?ks.map(function(k){return chip(k,o[k]);}).join(''):'<span class="act-empty" style="padding:0;">Nothing yet</span>';};
+  const maxT=Math.max(1,trend[0],trend[1],trend[2],trend[3],trend[4],trend[5],trend[6]);
+  const bars=days.map(function(d,i){return '<div class="stat-bar"><div class="stat-bar-n">'+trend[i]+'</div><div class="stat-bar-fill" style="height:'+Math.round((trend[i]/maxT)*100)+'%"></div><div class="stat-bar-lbl">'+d.toLocaleDateString([],{weekday:'narrow'})+'</div></div>';}).join('');
+  box.innerHTML='<div class="stat-grid">'+card(viewsAll,'Page views',views7+' this week')+card(subAll,'Submissions',sub7+' this week')+card(appAll+' / '+rejAll,'Approved / rejected','all time')+card(pending,'Pending now','awaiting review')+card(strength+hyrox+custom,'Board entries',strength+' str · '+hyrox+' hyrox · '+custom+' custom')+card(achN,'Achievements','')+card(chEntries,'Challenge entries',ch?(ch.title||'active'):'none active')+card(wodsSaved,'Workouts saved',upWods+' upcoming')+card(upEvents,'Upcoming events','')+card(ads,'Ads loaded','')+card(act7,'Admin actions','last 7 days')+'</div>'+'<div class="stat-sec"><div class="stat-h">Views · last 7 days</div><div class="stat-bars">'+bars+'</div></div>'+'<div class="stat-sec"><div class="stat-h">Views by surface</div><div class="stat-chips">'+chipsOf(bySurface)+'</div></div>'+'<div class="stat-sec"><div class="stat-h">Submissions by category</div><div class="stat-chips">'+chipsOf(byCat)+'</div></div>'+(LIVE?'':'<div class="act-empty" style="margin-top:10px;">Live stats need Supabase (local mode now).</div>');
 }
 
 /* ---------- BOOT ---------- */

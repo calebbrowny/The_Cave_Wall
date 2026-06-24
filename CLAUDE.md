@@ -88,8 +88,16 @@ const buildWod = vm.runInContext(slice + '\n;buildWod', {DAYFOCUS, console});
 Sweep focus × day × length × stations × lifts × equipment and assert no `undefined`/`NaN`/`[object`
 in the output. Also run a quick inline-`<script>` syntax check (`new vm.Script(scriptText)`).
 
-## Misc
-- Admin sign-in: Supabase magic link + 6-digit OTP, restricted to an email allowlist (`ALLOWED_EMAILS`).
-- Activity log is password-gated client-side (low-sensitivity).
+## Misc & security
+- **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
+  mirrored in the `is_cave_admin()` Postgres function) **plus** extra emails managed in the UI
+  (Super Admin → Admin access → stored in `app_state.settings.admin_emails`). `is_cave_admin()` honours both.
+- **Real security is server-side (Supabase RLS).** Every table's writes are gated by `is_cave_admin()`;
+  `activity_log` reads are admin-only; public reads are open only where the public site needs them. Never
+  put a real secret in client JS — it's all viewable in the console. There is no shared password (the old
+  client-side activity-log password was removed); access = the OTP email login.
+- **Super Admin** (bottom of the admin panel, owner-only via `isOwner()`): collapsible Stats / Activity
+  tracker / Admin access sections. Page views are logged per public load (`logView`), tagged by surface,
+  and excluded from the activity feed (they power the Stats tab).
 - Appearance/theme, per-device display scaling, demo data, ads rotator, display "screens" (per-TV
   links), monthly challenges, custom leaderboards and an event-page builder all live in the same file.
