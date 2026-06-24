@@ -1900,17 +1900,27 @@ let publicWodDate=todayKey(),publicWodSlot='a';
 function wodCollapsedSet(){try{return new Set(JSON.parse(localStorage.getItem('cave_wod_collapsed')||'[]'));}catch(e){return new Set();}}
 function toggleWodBlock(k,ev){if(ev&&ev.stopPropagation)ev.stopPropagation();const set=wodCollapsedSet();if(set.has(k))set.delete(k);else set.add(k);try{localStorage.setItem('cave_wod_collapsed',JSON.stringify([...set]));}catch(e){}document.querySelectorAll('.wb-'+k).forEach(b=>b.classList.toggle('collapsed',set.has(k)));}
 function wodBody(t){const lines=String(t==null?'':t).split('\n');let h='';for(const raw of lines){const s=raw.trim();if(!s){h+='<div class="wb-gap"></div>';continue;}const isScale=/^(rx|scaled?|scale up|scale down|knees|beginner|pro|open|note|notes|build|coach cue|cue|tip|target|sub|substitute)\s*:/i.test(s);const isKey=!isScale&&(/^part\s+[a-z0-9]/i.test(s)||/^finisher\b/i.test(s)||/^\d+\s*(rounds|rds|sets|rft|amrap|emom|min|sec|for time|x\b)/i.test(s)||/^\d+\s*[-\u2013]\s*\d+/.test(s)||/:$/.test(s)||(/^[^a-z]+$/.test(s)&&s.length<=34));const cls=isScale?'wb-line wb-scale':(isKey?'wb-line wb-key':'wb-line');h+='<div class="'+cls+'">'+esc(s)+'</div>';}return h;}
+function defaultCool(w){
+  const f=(w&&w.focus)||(w&&w.date?focusForDate(w.date):'');
+  return {
+    Strength:'3 min easy spin or row to bring the heart rate down, then quads, hamstrings, hips and shoulders — 30–45s each.',
+    Engine:'5 min easy walk or spin, nose breathing, then hip flexors, calves and hamstrings — 45s each side.',
+    Endurance:'5 min easy walk or spin, nose breathing, then hip flexors, calves and hamstrings — 45s each side.',
+    Partner:'5 min easy spin together to flush the legs, then quads, hip flexors and hamstrings — 45s each side.',
+    Challenge:'5 min easy spin to flush, then pigeon, couch stretch and hamstrings — 60s each side.'
+  }[f]||'3–5 min easy walk, spin or row to bring the heart rate down, then stretch the main muscles you worked — 30–45s each.';
+}
 function wodBlocksHTML(w){
   const wc=wodCollapsedSet();
   const has=k=>w[k]&&String(w[k]).trim();
-  const blk=k=>{const b=WOD_BLOCKS.find(x=>x.k===k);if(!has(k))return '';const cc=wc.has(b.k)?' collapsed':'';return `<div class="wod-block ${b.cls} wb-${b.k}${cc}"><div class="wod-block-h" onclick="toggleWodBlock('${b.k}',event)"><span>${b.i} ${b.l}</span><span class="wod-chev">\u25be</span></div><div class="wod-block-body">${wodBody(w[b.k])}</div></div>`;};
+  const blk=(k,fb)=>{const b=WOD_BLOCKS.find(x=>x.k===k);const content=has(k)?w[b.k]:(fb||'');if(!String(content).trim())return '';const cc=wc.has(b.k)?' collapsed':'';return `<div class="wod-block ${b.cls} wb-${b.k}${cc}"><div class="wod-block-h" onclick="toggleWodBlock('${b.k}',event)"><span>${b.i} ${b.l}</span><span class="wod-chev">\u25be</span></div><div class="wod-block-body">${wodBody(content)}</div></div>`;};
   const col=(cls,content)=>content?`<div class="wodv-col ${cls}">${content}</div>`:'';
   const ccol=/^#[0-9a-fA-F]{6}$/.test(w.custom_color||'')?w.custom_color:'#4ecdc4';
   const ccl=wc.has('custom')?' collapsed':'';
   const cust=(w.custom_body&&String(w.custom_body).trim())?`<div class="wod-block wb-custom${ccl}" style="border-left:4px solid ${ccol};"><div class="wod-block-h" style="color:${ccol};" onclick="toggleWodBlock('custom',event)"><span>${esc(w.custom_label||'Notes')}</span><span class="wod-chev">\u25be</span></div><div class="wod-block-body">${wodBody(w.custom_body)}</div></div>`:'';
   const c1=blk('purpose')+blk('warmup');
   const c2=blk('core');
-  const c3=blk('cool')+blk('bonus')+cust;
+  const c3=blk('cool',defaultCool(w))+blk('bonus')+cust;
   return `<div class="wodv"><div class="wodv-cols">${col('wodv-c1',c1)}${col('wodv-c2',c2)}${col('wodv-c3',c3)}</div></div>`;
 }
 function renderWOD(){

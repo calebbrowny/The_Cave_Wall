@@ -1,0 +1,95 @@
+# The Cave Wall — working notes for Claude
+
+A self-contained operations + member-engagement dashboard for **The Cave Gym, Toowoomba**
+(Australia's first HYROX HTCx). One `index.html` file — all HTML, CSS and JS inline, no build
+step — backed by Supabase and hosted on Netlify.
+
+## Stack & deploy
+
+- **Frontend:** vanilla HTML/CSS/JS in a single `index.html`. No framework, no bundler.
+- **Backend:** Supabase (Postgres + Auth + Storage). Project **`unfoqmfislfcnzxoivta`** ("cave-ops").
+  Tables: `leaderboard`, `achievements`, `events`, `todos`, `kpis`, `challenges`, `submissions`,
+  `wods`, `ads`, `boards`, `app_state`, `activity_log`.
+- **Hosting:** Netlify project `the-cave-wall` → https://the-cave-wall.netlify.app (deploys from `main`).
+
+### Deploy workflow (owner preference: autopublish)
+- **Commit straight to `main`.** Netlify auto-deploys `main` to production. The owner does **not**
+  want PRs / deploy previews for routine changes — just push and it goes live.
+- **Author commits as `caleb@theproswitch.com`** (`git config user.email`). Netlify's dev plan blocks
+  builds from unverified Git contributors ("Unrecognized Git contributor"), so commits authored by a
+  bot email (e.g. `noreply@anthropic.com`) will **fail to deploy**. Caleb's email is a verified team
+  member, so production builds.
+- Data changes (anything in Supabase) are **live instantly** — they don't need a deploy.
+
+## File structure (`index.html`)
+- `<style>` … one big stylesheet. Responsive: base styles are TV/large-screen first; a
+  `@media(max-width:760px)` block compacts the phone view; a landscape `min-width:1024px` block does
+  the 3-column WOD layout.
+- First `<script>` (small): theme cache + device zoom bootstrap.
+- Body: nav + the mode "tabs" (`#wod`, `#challenge`, `#submit`, `#display`, `#eventpage`, `#planner`
+  admin, timer) + modal + auth gate.
+- Main `<script>`: config (Supabase keys), `cache`/`DEFAULT_SETTINGS`, data layer
+  (`fetchAll`/`rowInsert`/`rowUpdate`/`stateUpdate`, localStorage fallback when not LIVE), demo data,
+  renderers per section, the WOD generator, the timer, auth, boot.
+
+## WOD data model (`wods` table)
+Fields: `date` (YYYY-MM-DD), `slot` ('a'/'b' for dual-WOD), `title`, `focus`
+(Strength/Engine/Endurance/Challenge/Partner/custom), `purpose`, `warmup`, `core`, `cool`, `bonus`,
+`custom_label`, `custom_color`, `custom_body`.
+
+### Section text conventions (the `wodBody` parser styles lines by prefix)
+- **Bold "key" lines:** `Part A …`, `Finisher …`, rep-scheme lines (`4 rounds…`, `21-15-9…`, `AMRAP…`,
+  `EMOM…`, `5 x 5`), and lines ending in `:`.
+- **Muted/indented secondary lines:** anything starting `RX:`, `Scaled:`, `Scale:`, `Note:`, `BUILD:`,
+  `PRO:`, `Coach cue:`, `Cue:`, `Tip:`, `Target:`, `Sub:`. Keep scaling/coaching notes on these
+  prefixes so they recede visually and the movements stand out (esp. on mobile).
+- Blank line = small gap.
+
+### Style guide for workout content (learned from the owner)
+- **Purpose:** one short, benefit-led line (~40–70 chars) — *why* you're doing it, not the structure.
+- **Core:** lean. Fold cues into the prescription; merge scale-down/scale-up into one
+  `Scale: … Pro: …` line; keep one `Coach cue:`. Never change the actual sets/reps/weights when
+  "simplifying" — only tighten wording.
+- **Cool-down:** every workout should have one. If `cool` is blank, the display now shows a
+  focus-matched **auto-cooldown** (`defaultCool(w)`), so it's optional in the data.
+
+## WOD generator (admin → WOD → "Generate workout 💫")
+No-API, built from The Cave's HYROX logic. Key pieces:
+- `DAYFOCUS` (by weekday) is the single source of truth for a day's focus; `buildWod`'s "Auto" derives
+  from it so the generated focus never disagrees with the WOD page.
+- `WG_LIFTS` — catalog of strength main lifts (name + rx + scaled + bodyweight variant + pattern).
+- `HYROX` — the 8 race stations in order (ski, sledpush, sledpull, burpee, row, carry, lunge, wallball)
+  with RX/scaled distances; `wgStationMove` renders one (equipment-aware), `wgStationKey` maps UI
+  labels → keys.
+- Builders: `wgStrength`, `wgEngine`, `wgComplete` (incl. full/half race sim), `wgAerobic`, `wgPartner`,
+  `wgBodyweight`, `wgStationCircuit`.
+- Panel controls (multi-select where noted): Focus, Length, **Strength movements** (multi),
+  **HYROX movements** (multi, the 8 + Run/Any), Equipment (Full/No barbell/Bodyweight), Gym context
+  (class size/kit), free-text notes. State vars: `wgFocus`, `wgLen`, `wgStrengths[]`, `wgStations[]`,
+  `wgEquip`, `wgCtxOn`, `wgClassSize`. Flow: `wgPick`/`wgToggleStation`/`wgToggleStrength` →
+  `genWod` (builds `ctx`) → `buildWod` → builders.
+
+## Recipe: a new batch of uploaded workouts
+The owner uploads via the WOD admin (rows land in `wods`). To give a batch the standard treatment:
+1. **Back up first:** `create table if not exists wods_backup_<note> as select * from wods;`
+2. Read the batch (`select … from wods where date between …`).
+3. For each: simplify the `core` (see style guide), add/keep a tailored `cool`, tighten `purpose`.
+   Update with dollar-quoted SQL (`update wods set core=$w$…$w$, cool=$w$…$w$ where id=…`) so quotes
+   and em-dashes don't need escaping. Wrap in `begin; … commit;`.
+4. Display formatting (muted notes, mobile compaction, bold headers, auto-cooldown) is automatic — no
+   code change needed as long as the section conventions above are followed.
+
+## Testing the generator without a browser
+Slice the generator out of `index.html` and run it in `vm` (it has no DOM deps):
+```js
+const slice = html.slice(html.indexOf('const WG_NAMES='), html.indexOf('function genWod('));
+const buildWod = vm.runInContext(slice + '\n;buildWod', {DAYFOCUS, console});
+```
+Sweep focus × day × length × stations × lifts × equipment and assert no `undefined`/`NaN`/`[object`
+in the output. Also run a quick inline-`<script>` syntax check (`new vm.Script(scriptText)`).
+
+## Misc
+- Admin sign-in: Supabase magic link + 6-digit OTP, restricted to an email allowlist (`ALLOWED_EMAILS`).
+- Activity log is password-gated client-side (low-sensitivity).
+- Appearance/theme, per-device display scaling, demo data, ads rotator, display "screens" (per-TV
+  links), monthly challenges, custom leaderboards and an event-page builder all live in the same file.
