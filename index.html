@@ -789,6 +789,13 @@ body.hc .wod-block-body{font-weight:600;}
 .mgen-foc{font-weight:700;white-space:nowrap;}
 .mgen-ttl{color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .mgen-ph{margin-left:auto;font-size:10.5px;color:var(--muted);white-space:nowrap;}
+.mgen-hint{font-size:11px;color:var(--muted);margin-bottom:8px;}
+.mgen-item.tap{cursor:pointer;}
+.mgen-item.tap:hover,.mgen-item.open{border-color:var(--blue);}
+.mgen-tag{margin-left:auto;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);background:var(--amber-d);border-radius:8px;padding:2px 7px;white-space:nowrap;}
+.mgen-edit{background:var(--bg-card);border:1px solid var(--blue);border-radius:9px;padding:11px 12px;margin:0 0 6px;}
+.mgen-erow{display:flex;gap:10px;align-items:flex-end;}
+.mgen-ow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;}
 .cave-undo{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);background:var(--bg-card);color:var(--text);border:1px solid var(--border);font-weight:600;font-size:13.5px;padding:9px 10px 9px 18px;border-radius:30px;box-shadow:0 8px 30px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:all .3s;z-index:320;display:flex;align-items:center;gap:12px;max-width:92vw;}
 .cave-undo.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 .cave-undo button{background:var(--blue);color:var(--dk);font-weight:800;font-size:13px;padding:7px 15px;border-radius:30px;cursor:pointer;white-space:nowrap;}
@@ -2264,52 +2271,87 @@ const MESO_PROG={
 };
 const MESO_DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MESO_DOW_LONG=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-let mesoGenOpts=null,mesoGenList=[];
+let mesoGenOpts=null,mesoGenList=[],mesoGenEditIdx=-1;
 function mesoBlockForDate(plan,dateStr){if(!plan||!plan.blocks||!plan.blocks.length)return null;const days=Math.floor((new Date(dateStr+'T00:00:00')-new Date((plan.start||todayKey())+'T00:00:00'))/864e5);if(days<0)return null;let cum=0;for(let i=0;i<plan.blocks.length;i++){const wd=(+plan.blocks[i].weeks||0)*7;if(days<cum+wd)return plan.blocks[i];cum+=wd;}return plan.blocks[plan.blocks.length-1];}
-function mesoOpenGen(){mesoSave();const today=todayKey();let end;if(mesoWork&&mesoWork.raceDate&&mesoWork.raceDate>today){end=(mesoWeeks(today,mesoWork.raceDate)>5)?mesoAddDays(today,34):mesoWork.raceDate;}else{end=mesoAddDays(today,27);}mesoGenOpts={from:today,to:end,days:[1,2,3,4,5,6],len:'60 min'};mesoGenList=[];openModal('mesogen');}
-function mesoGenHTML(){const o=mesoGenOpts||{from:todayKey(),to:mesoAddDays(todayKey(),27),days:[1,2,3,4,5,6],len:'60 min'};
+function mesoOpenGen(){mesoSave();const today=todayKey();let end;if(mesoWork&&mesoWork.raceDate&&mesoWork.raceDate>today){end=(mesoWeeks(today,mesoWork.raceDate)>5)?mesoAddDays(today,34):mesoWork.raceDate;}else{end=mesoAddDays(today,27);}mesoGenOpts={from:today,to:end,days:[1,2,3,4,5,6],len:'60 min',overwrite:false};mesoGenList=[];mesoGenEditIdx=-1;openModal('mesogen');}
+function mesoGenHTML(){const o=mesoGenOpts||{from:todayKey(),to:mesoAddDays(todayKey(),27),days:[1,2,3,4,5,6],len:'60 min',overwrite:false};
   const dayChips=MESO_DOW.map(function(d,i){return '<button class="mgen-day'+(o.days.indexOf(i)>=0?' on':'')+'" onclick="mesoGenToggleDay('+i+')">'+d+'</button>';}).join('');
   const lenChip=function(v){return '<button class="wg-chip'+(o.len===v?' on':'')+'" onclick="mesoGenSet(\'len\',\''+v+'\')">'+v+'</button>';};
   let prev='';
-  if(mesoGenList.length){const make=mesoGenList.filter(function(x){return !x.skip;}).length,skip=mesoGenList.length-make;
-    prev='<div class="meso-note ok" style="margin:14px 0 8px;">'+make+' workout'+(make===1?'':'s')+' ready'+(skip?' · '+skip+' day'+(skip===1?'':'s')+' already filled (left untouched)':'')+'</div><div class="mgen-prev">'+mesoGenList.map(function(it){return '<div class="mgen-item'+(it.skip?' skip':'')+'"><span class="mgen-date">'+esc(it.label)+'</span><span class="mgen-foc" style="color:'+esc(it.color)+'">'+esc(it.focus)+'</span><span class="mgen-ttl">'+esc(it.skip?'already has a workout':it.title)+'</span><span class="mgen-ph">'+esc(it.phase)+'</span></div>';}).join('')+'</div>'+(make?'<div class="meso-save"><button class="btn-full" onclick="mesoGenPublish()">Publish '+make+' workout'+(make===1?'':'s')+'</button><button class="btn-sm" onclick="mesoGenPreview()">Refresh</button></div>':'');
+  if(mesoGenList.length){const make=mesoGenList.filter(function(x){return !x.skip;}).length,ow=mesoGenList.filter(function(x){return !x.skip&&x.overwrite;}).length,skip=mesoGenList.length-make;
+    const head=make+' workout'+(make===1?'':'s')+' ready'+(ow?' · '+ow+' will replace existing':'')+(skip?' · '+skip+' kept (already filled)':'');
+    const rows=mesoGenList.map(function(it,idx){
+      const tag=it.skip?'<span class="mgen-ph">already filled</span>':(it.overwrite?'<span class="mgen-tag">replaces</span>':'<span class="mgen-ph">'+esc(it.phase)+'</span>');
+      let r='<div class="mgen-item'+(it.skip?' skip':' tap')+(idx===mesoGenEditIdx?' open':'')+'"'+(it.skip?'':' onclick="mesoGenToggleItem('+idx+')"')+'><span class="mgen-date">'+esc(it.label)+'</span><span class="mgen-foc" style="color:'+esc(it.color)+'">'+esc(it.focus)+'</span><span class="mgen-ttl">'+esc(it.skip?'already has a workout':(it.title||'Workout'))+'</span>'+tag+'</div>';
+      if(!it.skip&&idx===mesoGenEditIdx)r+=mesoGenEditHTML(it,idx);
+      return r;
+    }).join('');
+    prev='<div class="meso-note ok" style="margin:14px 0 6px;">'+head+'</div><div class="mgen-hint">Tap any day to reroll it, change its focus, or edit it before publishing.</div><div class="mgen-prev">'+rows+'</div>'+(make?'<div class="meso-save"><button class="btn-full" onclick="mesoGenPublish()">Publish '+make+' workout'+(make===1?'':'s')+'</button><button class="btn-sm" onclick="mesoGenPreview()">Rebuild all</button></div>':'');
   }
-  return '<div class="mgen-cap">Deep-builds a daily workout for every training day, programmed to match the mesocycle phase it lands in — base engine, strength-endurance, race-specific, peak sims, taper. It only fills <b>empty</b> days, so anything you’ve already written stays put. Pick a range to add the next block of sessions.</div>'+
+  const owToggle='<label class="mgen-ow">Overwrite days that already have a workout<button class="mgen-day'+(o.overwrite?' on':'')+'" onclick="mesoGenToggleOverwrite()">'+(o.overwrite?'On':'Off')+'</button></label>';
+  return '<div class="mgen-cap">Deep-builds a daily workout for every training day, programmed to match the mesocycle phase it lands in — base engine, strength-endurance, race-specific, peak sims, taper. By default it only fills <b>empty</b> days, so anything you’ve already written stays put.</div>'+
     '<div class="mgen-row"><label class="meso-f">From<input type="date" value="'+esc(o.from)+'" onchange="mesoGenSet(\'from\',this.value)"></label><label class="meso-f">To<input type="date" value="'+esc(o.to)+'" onchange="mesoGenSet(\'to\',this.value)"></label></div>'+
     '<div class="meso-f" style="margin-bottom:6px;">Training days</div><div class="mgen-days">'+dayChips+'</div>'+
     '<div class="meso-f" style="margin-bottom:6px;">Session length <span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0;">(taper auto-shortens)</span></div><div class="mgen-len">'+lenChip('45 min')+lenChip('60 min')+lenChip('75 min')+'</div>'+
+    owToggle+
     '<div class="meso-bar"><button class="wod-gen-btn magic" onclick="mesoGenPreview()">✨ Build preview</button><button class="btn-sm" onclick="openModal(\'meso\')">← Back to plan</button></div>'+
     prev;
 }
-function mesoGenSet(k,v){if(!mesoGenOpts)return;mesoGenOpts[k]=v;mesoGenList=[];mesoGenRerender();}
-function mesoGenToggleDay(i){if(!mesoGenOpts)return;const a=mesoGenOpts.days,p=a.indexOf(i);if(p>=0)a.splice(p,1);else a.push(i);mesoGenList=[];mesoGenRerender();}
+function mesoGenEditHTML(it,idx){const w=it.wod||{};
+  const fopts=['Strength','Engine','Endurance','HYROX sim','Partner','Challenge'].map(function(f){return '<option value="'+f+'"'+(it.focus===f?' selected':'')+'>'+f+'</option>';}).join('');
+  const ta=function(lbl,k,rows){return '<label class="meso-f" style="margin-top:8px;">'+lbl+'<textarea class="meso-focus" rows="'+rows+'" oninput="mesoGenEdit('+idx+',\''+k+'\',this.value)">'+esc(w[k]||'')+'</textarea></label>';};
+  return '<div class="mgen-edit" id="mgen-edit-open">'+
+    '<div class="mgen-erow"><label class="meso-f" style="flex:1;">Focus<select onchange="mesoGenItemFocus('+idx+',this.value)">'+fopts+'</select></label><button class="wod-gen-btn" style="padding:9px 15px;" onclick="mesoGenReroll('+idx+')">🔄 Reroll</button></div>'+
+    '<label class="meso-f" style="margin-top:8px;">Title<input value="'+esc(w.title||'')+'" oninput="mesoGenEdit('+idx+',\'title\',this.value)"></label>'+
+    ta('Purpose','purpose',2)+ta('Warm-up','warmup',2)+ta('Main','core',5)+ta('Cool-down','cool',2)+ta('Bonus','bonus',2)+
+  '</div>';
+}
+function mesoGenSet(k,v){if(!mesoGenOpts)return;mesoGenOpts[k]=v;mesoGenList=[];mesoGenEditIdx=-1;mesoGenRerender();}
+function mesoGenToggleDay(i){if(!mesoGenOpts)return;const a=mesoGenOpts.days,p=a.indexOf(i);if(p>=0)a.splice(p,1);else a.push(i);mesoGenList=[];mesoGenEditIdx=-1;mesoGenRerender();}
+function mesoGenToggleOverwrite(){if(!mesoGenOpts)return;mesoGenOpts.overwrite=!mesoGenOpts.overwrite;mesoGenList=[];mesoGenEditIdx=-1;mesoGenRerender();}
+function mesoGenToggleItem(idx){mesoGenEditIdx=(mesoGenEditIdx===idx)?-1:idx;mesoGenRerender();mesoGenScrollOpen();}
+function mesoBuildLen(phaseType,focus){return (phaseType==='taper'||phaseType==='deload')?'45 min':(focus==='HYROX sim'?'75 min':((mesoGenOpts&&mesoGenOpts.len)||'60 min'));}
+function mesoBuildDay(it){const dow=new Date(it.date+'T00:00:00').getDay();const w=buildWod(it.focus,mesoBuildLen(it.phaseType,it.focus),'Phase: '+it.phase,MESO_DOW_LONG[dow],[],{stations:['Any'],lifts:['Auto'],equip:'Full',on:false});if(w){it.wod=w;it.title=w.title;}}
+function mesoGenItemFocus(idx,f){const it=mesoGenList[idx];if(!it)return;it.focus=f;mesoBuildDay(it);mesoGenRerender();mesoGenScrollOpen();}
+function mesoGenReroll(idx){const it=mesoGenList[idx];if(!it)return;mesoBuildDay(it);mesoGenRerender();mesoGenScrollOpen();}
+function mesoGenEdit(idx,k,v){const it=mesoGenList[idx];if(!it)return;if(!it.wod)it.wod={};it.wod[k]=v;if(k==='title')it.title=v;}
+function mesoGenScrollOpen(){const e=document.getElementById('mgen-edit-open');if(e)e.scrollIntoView({behavior:'smooth',block:'nearest'});}
 function mesoGenRerender(){const b=document.getElementById('modal-body');if(b)b.innerHTML=mesoGenHTML();}
 function mesoGenPreview(){const o=mesoGenOpts;if(!o)return;const plan=mesoData();if(o.to<o.from){toast('“To” date is before “From”');return;}if(!o.days.length){toast('Pick at least one training day');return;}
   const seen={},list=[];let d=o.from,guard=0;
   while(d<=o.to&&guard++<400){const dow=new Date(d+'T00:00:00').getDay();
     if(o.days.indexOf(dow)>=0){const blk=mesoBlockForDate(plan,d);
-      if(blk){const focusArr=MESO_PROG[blk.type]||DAYFOCUS;const focus=focusArr[dow]||'Engine';
+      if(blk){const focus=(MESO_PROG[blk.type]||DAYFOCUS)[dow]||'Engine';
         const lbl=dateLabel(d,{weekday:'short',day:'numeric',month:'short'}),col=blk.color||(MESO_PHASES[blk.type]||MESO_PHASES.custom).color;
-        const ex=wodForDate(d,'a');
-        if(ex&&wodHasContent(ex)){list.push({date:d,label:lbl,focus:focus,phase:blk.name,color:col,skip:true});}
-        else{const len=(blk.type==='taper'||blk.type==='deload')?'45 min':(focus==='HYROX sim'?'75 min':o.len);
+        const ex=wodForDate(d,'a'),has=ex&&wodHasContent(ex);
+        const it={date:d,label:lbl,focus:focus,phase:blk.name,phaseType:blk.type,color:col};
+        if(has&&!o.overwrite){it.skip=true;list.push(it);}
+        else{it.skip=false;if(has){it.overwrite=true;it.existingId=ex.id;it.prevSnap=JSON.parse(JSON.stringify(ex));}
+          const len=(blk.type==='taper'||blk.type==='deload')?'45 min':(focus==='HYROX sim'?'75 min':o.len);
           let w=buildWod(focus,len,'Phase: '+blk.name,MESO_DOW_LONG[dow],[],{stations:['Any'],lifts:['Auto'],equip:'Full',on:false}),t=0;
           while(w&&seen[w.core.split('\n')[0]]&&t<6){w=buildWod(focus,len,'Phase: '+blk.name,MESO_DOW_LONG[dow],[],{stations:['Any'],lifts:['Auto'],equip:'Full',on:false});t++;}
-          if(w){seen[w.core.split('\n')[0]]=1;list.push({date:d,label:lbl,focus:focus,phase:blk.name,color:col,skip:false,wod:w,title:w.title});}}
+          if(w){seen[w.core.split('\n')[0]]=1;it.wod=w;it.title=w.title;list.push(it);}}
       }
     }
     d=mesoAddDays(d,1);
   }
-  mesoGenList=list;mesoGenRerender();
+  mesoGenList=list;mesoGenEditIdx=-1;mesoGenRerender();
   if(!list.length)toast('No training days fall inside your plan for that range');
 }
 async function mesoGenPublish(){const make=mesoGenList.filter(function(x){return !x.skip;});if(!make.length)return;
-  const ids=[];for(let i=0;i<make.length;i++){const it=make[i],w=it.wod;const row=await rowInsert('wods',{date:it.date,slot:'a',title:w.title||'',focus:w.focus||'',purpose:w.purpose||'',warmup:w.warmup||'',core:w.core||'',cool:w.cool||'',bonus:w.bonus||'',updated_at:new Date().toISOString()});if(row&&row.id)ids.push(row.id);}
+  const actions=[];
+  for(let i=0;i<make.length;i++){const it=make[i],w=it.wod||{};const f={title:w.title||'',focus:w.focus||'',purpose:w.purpose||'',warmup:w.warmup||'',core:w.core||'',cool:w.cool||'',bonus:w.bonus||'',updated_at:new Date().toISOString()};
+    if(it.existingId){await rowUpdate('wods',it.existingId,f);actions.push({type:'update',id:it.existingId,prev:it.prevSnap});}
+    else{const row=await rowInsert('wods',Object.assign({date:it.date,slot:'a'},f));if(row&&row.id)actions.push({type:'insert',id:row.id});}
+  }
   logActivity('wod_generated','Generated '+make.length+' workouts ('+dateLabel(make[0].date,{day:'numeric',month:'short'})+' – '+dateLabel(make[make.length-1].date,{day:'numeric',month:'short'})+')');
-  if(ids.length)pushUndo('Published '+ids.length+' workout'+(ids.length===1?'':'s'),function(){return mesoUndoBatch(ids);});
-  renderAll();toast(make.length+' workouts published ✓');mesoGenList=[];mesoGenRerender();
+  if(actions.length)pushUndo('Published '+actions.length+' workout'+(actions.length===1?'':'s'),function(){return mesoUndoBatch(actions);});
+  renderAll();toast(make.length+' workouts published ✓');mesoGenList=[];mesoGenEditIdx=-1;mesoGenRerender();
 }
-async function mesoUndoBatch(ids){for(let i=0;i<ids.length;i++){const id=ids[i];cache.wods=cache.wods.filter(function(w){return w.id!==id;});if(LIVE){const{error}=await sb.from('wods').delete().eq('id',id);if(error)reportError('db-batch-undo',error.message);}}if(!LIVE)lsSave();renderAll();}
+async function mesoUndoBatch(actions){for(let i=0;i<actions.length;i++){const a=actions[i];
+    if(a.type==='insert'){cache.wods=cache.wods.filter(function(w){return w.id!==a.id;});if(LIVE){const{error}=await sb.from('wods').delete().eq('id',a.id);if(error)reportError('db-batch-undo',error.message);}}
+    else if(a.type==='update'&&a.prev){const p=a.prev;await rowUpdate('wods',a.id,{title:p.title||'',focus:p.focus||'',purpose:p.purpose||'',warmup:p.warmup||'',core:p.core||'',cool:p.cool||'',bonus:p.bonus||'',custom_label:p.custom_label||'',custom_color:p.custom_color||'',custom_body:p.custom_body||'',updated_at:new Date().toISOString()});}
+  }if(!LIVE)lsSave();renderAll();}
 
 /* ---------- LIVE EVENT DAY ---------- */
 let evTimer=null;
