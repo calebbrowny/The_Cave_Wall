@@ -799,10 +799,10 @@ body.hc .wod-block-body{font-weight:600;}
 .cave-undo{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);background:var(--bg-card);color:var(--text);border:1px solid var(--border);font-weight:600;font-size:13.5px;padding:9px 10px 9px 18px;border-radius:30px;box-shadow:0 8px 30px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:all .3s;z-index:320;display:flex;align-items:center;gap:12px;max-width:92vw;}
 .cave-undo.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 .cave-undo button{background:var(--blue);color:var(--dk);font-weight:800;font-size:13px;padding:7px 15px;border-radius:30px;cursor:pointer;white-space:nowrap;}
-.undo-bar{display:flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:8px 10px 8px 12px;margin-bottom:12px;}
-.undo-bar .ub-btn{background:var(--blue);color:var(--dk);font-weight:800;font-size:13px;padding:8px 16px;border-radius:30px;cursor:pointer;flex-shrink:0;}
-.undo-bar .ub-last{font-size:12px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.undo-bar .ub-hist{background:var(--bg-light);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;padding:7px 12px;border-radius:30px;cursor:pointer;flex-shrink:0;}
+.undo-bar{display:inline-flex;align-items:center;gap:6px;}
+.undo-bar .ub-btn{background:var(--blue);color:var(--dk);font-weight:800;font-size:12px;padding:6px 13px;border-radius:999px;border:1px solid var(--blue);cursor:pointer;}
+.undo-bar .ub-btn[disabled]{opacity:.45;cursor:default;background:var(--bg-light);color:var(--muted);border-color:var(--border);}
+.undo-bar .ub-hist{background:var(--bg-light);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;cursor:pointer;}
 .hist-row{display:flex;align-items:center;gap:10px;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:6px;}
 .hist-body{flex:1;min-width:0;}
 .hist-label{font-size:13.5px;color:var(--text);font-weight:600;line-height:1.35;}
@@ -841,8 +841,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <!-- PLANNER -->
 <div class="tmr" id="timer"><div class="tmr-wrap" id="tmr-wrap"></div></div>
 <div class="planner w hidden" id="planner">
-<div id="undo-bar" class="undo-bar" style="display:none;"></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);"><span class="sw" id="demo-sw" onclick="toggleDemo()" title="Show sample data on this device only"></span><span>Demo data <span style="opacity:.7;">(this device only)</span></span></div><button class="btn-sm" onclick="openSettings()">⚙️ Display & sharing settings</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);"><span class="sw" id="demo-sw" onclick="toggleDemo()" title="Show sample data on this device only"></span><span>Demo data <span style="opacity:.7;">(this device only)</span></span></div><span id="undo-bar" class="undo-bar" style="display:none;"></span></div><button class="btn-sm" onclick="openSettings()">⚙️ Display & sharing settings</button></div>
 <div id="demo-banner" style="display:none;align-items:center;gap:10px;background:var(--amber-d);border:1px solid rgba(253,214,99,.35);color:var(--amber);border-radius:10px;padding:9px 13px;margin-bottom:14px;font-size:12.5px;font-weight:600;">Demo data is showing, only on this device. Real member submissions are unaffected.<button class="btn-sm" onclick="toggleDemo()" style="margin-left:auto;">Turn off</button></div>
 <div class="planner-grid" id="planner-grid">
 
@@ -1180,6 +1179,7 @@ async function applyHistoryUndo(id){const i=cache.history.findIndex(function(h){
     if(h.kind==='delete'){await rowRestore(D.table,D.row);}
     else if(h.kind==='settingsKey'){const s=settings();s[D.key]=D.prev;await stateUpdate({settings:s});}
     else if(h.kind==='boardDelete'){if(D.board)await rowRestore('boards',D.board);for(const e of (D.entries||[]))await rowRestore('leaderboard',e);}
+    else if(h.kind==='wodedit'){const p=D.prev||{};await rowUpdate('wods',D.id,{title:p.title||'',focus:p.focus||'',purpose:p.purpose||'',warmup:p.warmup||'',core:p.core||'',cool:p.cool||'',bonus:p.bonus||'',custom_label:p.custom_label||'',custom_color:p.custom_color||'',custom_body:p.custom_body||'',updated_at:new Date().toISOString()});}
     else if(h.kind==='wodbatch'){await mesoUndoBatch(D.actions||[]);}
     cache.history.splice(i,1);if(LIVE)sb.from('history').delete().eq('id',id).then(function(){},function(){});else lsSave();
     renderAll();renderHistoryList();toast('Undone — '+String(h.label||'change').toLowerCase());
@@ -1188,7 +1188,7 @@ async function applyHistoryUndo(id){const i=cache.history.findIndex(function(h){
 async function doUndo(){const ut=document.getElementById('cave-undo');if(ut)ut.classList.remove('show');if(!cache.history||!cache.history.length){toast('Nothing to undo');return;}await applyHistoryUndo(cache.history[0].id);}
 async function rowRestore(table,row){cache[table].push(row);if(LIVE){const{error}=await sb.from(table).insert(row);if(error)reportError('db-restore',error.message);}else lsSave();}
 function showUndoToast(label){let t=document.getElementById('cave-undo');if(!t){t=document.createElement('div');t.id='cave-undo';t.className='cave-undo';document.body.appendChild(t);}t.innerHTML='<span>'+esc(label)+'</span><button onclick="doUndo()">↩ Undo</button>';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},8000);}
-function renderUndoBar(){const el=document.getElementById('undo-bar');if(!el)return;if(!isOwner()||!cache.history||!cache.history.length){el.style.display='none';el.innerHTML='';return;}const last=cache.history[0];el.style.display='';el.innerHTML='<button class="ub-btn" onclick="doUndo()">↩ Undo</button><span class="ub-last">'+esc(last.label||'')+'</span><button class="ub-hist" onclick="openModal(\'history\')">🕘 History</button>';}
+function renderUndoBar(){const el=document.getElementById('undo-bar');if(!el)return;if(!isOwner()){el.style.display='none';el.innerHTML='';return;}const has=cache.history&&cache.history.length;el.style.display='';el.innerHTML='<button class="ub-btn" onclick="doUndo()"'+(has?'':' disabled')+'>↩ Undo</button><button class="ub-hist" onclick="openModal(\'history\')">🕘 History</button>';}
 function historyHTML(){if(!isOwner())return '<div class="act-empty">Owner-only.</div>';return '<div class="meso-cap">Every change from the last 2 weeks — tap Undo to roll one back. Older entries are forgotten automatically.</div><div id="history-list">'+historyListHTML()+'</div>';}
 function historyListHTML(){const h=cache.history||[];if(!h.length)return '<div class="act-empty">No changes recorded yet.</div>';return h.map(function(e){const d=new Date(e.created_at);const when=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});return '<div class="hist-row"><div class="hist-body"><div class="hist-label">'+esc(e.label||e.kind||'Change')+'</div><div class="hist-meta">'+esc(when)+(e.actor?' · '+esc(e.actor):'')+'</div></div><button class="btn-sm" onclick="applyHistoryUndo(\''+esc(e.id)+'\')">↩ Undo</button></div>';}).join('');}
 function renderHistoryList(){const el=document.getElementById('history-list');if(el)el.innerHTML=historyListHTML();}
@@ -1689,12 +1689,13 @@ async function applyFocusEditor(){
   await wodUpsert(adminWodDate,{focus:v},adminWodSlot);buildAdminStrip();renderFocusNote();if(adminWodDate===todayKey())renderDisplay();
 }
 async function saveWOD(){
-  const existed=!!wodForDate(adminWodDate,adminWodSlot);
+  const prior=wodForDate(adminWodDate,adminWodSlot);const existed=!!prior;const priorSnap=existed?JSON.parse(JSON.stringify(prior)):null;
   const fields={title:val('wod-title-in'),focus:document.getElementById('wod-focus-sel').value,purpose:val('wod-purpose'),warmup:val('wod-warmup'),core:val('wod-core'),cool:val('wod-cool'),bonus:val('wod-bonus'),custom_label:val('wod-custom-label'),custom_color:((document.getElementById('wod-custom-color')||{}).value||''),custom_body:val('wod-custom-body'),updated_at:new Date().toISOString()};
   await wodUpsert(adminWodDate,fields,adminWodSlot);
   const lbl=dateLabel(adminWodDate,{weekday:'short',day:'numeric',month:'short'})+(dualOn()?' \u00b7 '+wodLabel(adminWodSlot):'');
   if(wodGenApplied){logActivity('wod_generated','Generated workout saved for '+lbl);wodGenApplied=false;}
   else logActivity(existed?'wod_edit':'wod_new',(existed?'Workout updated for ':'New workout added for ')+lbl);
+  if(priorSnap){const sig=function(o){return ['title','focus','purpose','warmup','core','cool','bonus','custom_label','custom_color','custom_body'].map(function(k){return String(o[k]==null?'':o[k]);}).join('');};if(sig(priorSnap)!==sig(fields))recordHistory('wodedit','Edited workout for '+lbl,{id:priorSnap.id,prev:priorSnap});}
   const s=document.getElementById('wod-saved');s.classList.add('show');setTimeout(()=>s.classList.remove('show'),1800);
   loadWODForm();renderWOD();renderDisplay();
 }
