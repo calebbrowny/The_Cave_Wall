@@ -704,6 +704,13 @@ body.hc .wod-block-body{font-weight:600;}
 .act-sum{font-size:13.5px;color:var(--text);font-weight:600;line-height:1.4;}
 .act-meta{font-size:11px;color:var(--muted);margin-top:1px;}
 .act-empty{font-size:13px;color:var(--muted);padding:12px 0;}
+.act-grp{background:var(--bg-light);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;overflow:hidden;}
+.act-grp-head{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;cursor:pointer;user-select:none;}
+.act-grp-head .act-chev{align-self:center;flex-shrink:0;font-size:11px;color:var(--muted);transition:transform .2s;transform:rotate(-90deg);}
+.act-grp.open .act-grp-head .act-chev{transform:rotate(0deg);}
+.act-x{font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-d);border-radius:999px;padding:1px 7px;margin-left:4px;vertical-align:middle;}
+.act-sub{padding:2px 11px 8px 37px;border-top:1px solid var(--border);}
+.act-sub-row{font-size:12px;color:var(--muted);padding:3px 0;}
 .act-tabs{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
 .act-tab{background:var(--bg-light);color:var(--muted);font-size:12px;font-weight:700;padding:6px 14px;border-radius:14px;border:1px solid var(--border);cursor:pointer;}
 .act-tab.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
@@ -755,7 +762,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
       <button id="m-chal" onclick="setMode('chal')">🏅 Challenge</button>
       <button id="m-event" onclick="setMode('event')" style="display:none;">📅 Event</button>
       <button id="m-sub" onclick="setMode('submit')">✍️ Submit</button>
-      <button id="m-disp" onclick="setMode('disp')">📺 Display</button>
+      <button id="m-disp" onclick="setMode('disp')">📺 The Wall</button>
       <button id="m-timer" onclick="setMode('timer')" style="display:none;">⏱ Timer</button>
     </div>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
@@ -881,7 +888,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="planner-sec" data-sec="screens" data-size="full" draggable="true">
     <div class="panel">
       <div class="panel-h"><div class="panel-t"><span class="drag-handle">⋮⋮</span>🖥️ Display Screens</div><button class="btn-sm" onclick="openModal('screen')">+ New screen</button></div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Give every TV its own mix — one can run just the WOD, another just leaderboards and ads, another the live event. Each screen gets its own link: copy it and open it on that TV. The 📺 Display tab stays as your default mix.</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Give every TV its own mix — one can run just the WOD, another just leaderboards and ads, another the live event. Each screen gets its own link: copy it and open it on that TV. Your 📺 The Wall tab stays as the default mix.</div>
       <div id="screens-list"></div>
     </div>
   </div>
@@ -2068,7 +2075,7 @@ let activeScreenSlug=null;
 const SCREEN_KEYS=[['wod','🔥 WOD'],['strength','💪 Strength'],['hyrox','🏃 HYROX'],['challenge','🏅 Challenge'],['achievements','⭐ Achievements'],['events','🎉 Upcoming events'],['countdown','⏳ Countdown'],['quotes','💬 Quotes'],['ads','📣 Ads'],['event','📅 Event page / live']];
 function screenProfile(){if(!activeScreenSlug)return null;return (settings().screens||[]).find(p=>p.slug===activeScreenSlug)||null;}
 function slugify(n){let s=String(n||'screen').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'screen';const taken=(settings().screens||[]).filter(x=>x.id!==editId).map(x=>x.slug);let out=s,i=2;while(taken.includes(out))out=s+'-'+(i++);return out;}
-function renderScreens(){const el=document.getElementById('screens-list');if(!el)return;const scr=settings().screens||[];el.innerHTML=scr.length?scr.map(p=>{const on=Object.values(p.show||{}).filter(Boolean).length+(p.boards||[]).length;return `<div class="scr-card"><div style="min-width:0;"><div class="cb-title">${esc(p.name)}</div><div class="cb-sub">#display/${esc(p.slug)} · ${on} section${on===1?'':'s'}${p.rotate?' · '+p.rotate+'s rotation':''}</div></div><div class="cb-actions" style="margin:0;"><button class="btn-sm" onclick="shareLink('display/${esc(p.slug)}')">Copy link</button><button class="btn-sm" onclick="openModal('screen','${p.id}')">Edit</button><button class="btn-sm" onclick="delScreen('${p.id}')">Delete</button></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--muted);">No screen profiles yet. The 📺 Display tab shows your global mix; create profiles here to give each TV its own.</div>';}
+function renderScreens(){const el=document.getElementById('screens-list');if(!el)return;const scr=settings().screens||[];el.innerHTML=scr.length?scr.map(p=>{const on=Object.values(p.show||{}).filter(Boolean).length+(p.boards||[]).length;return `<div class="scr-card"><div style="min-width:0;"><div class="cb-title">${esc(p.name)}</div><div class="cb-sub">#display/${esc(p.slug)} · ${on} section${on===1?'':'s'}${p.rotate?' · '+p.rotate+'s rotation':''}</div></div><div class="cb-actions" style="margin:0;"><button class="btn-sm" onclick="shareLink('display/${esc(p.slug)}')">Copy link</button><button class="btn-sm" onclick="openModal('screen','${p.id}')">Edit</button><button class="btn-sm" onclick="delScreen('${p.id}')">Delete</button></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--muted);">No screen profiles yet. Your 📺 The Wall tab shows the global mix; create profiles here to give each TV its own.</div>';}
 async function saveScreen(){const name=val('f-scrname');if(!name)return;const show={};SCREEN_KEYS.forEach(([k])=>{const e=document.getElementById('scr-k-'+k);show[k]=!!(e&&e.checked);});const boards=cache.boards.filter(b=>{const e=document.getElementById('scr-b-'+b.id);return e&&e.checked;}).map(b=>b.id);const rot=parseInt(val('f-scrrot'))||null;const s=settings();const screens=(s.screens||[]).slice();if(editId!==null){const i=screens.findIndex(x=>x.id===editId);if(i>=0)screens[i]=Object.assign({},screens[i],{name,slug:slugify(name),show,boards,rotate:rot});}else{screens.push({id:uid(),name,slug:slugify(name),show,boards,rotate:rot});}s.screens=screens;await stateUpdate({settings:s});closeModal();renderScreens();toast('Screen saved ✓');}
 async function delScreen(id){const s=settings();const p=(s.screens||[]).find(x=>x.id===id);if(!confirm('Delete screen "'+(p?p.name:'')+'"? Any TV using its link will fall back to the default display.'))return;s.screens=(s.screens||[]).filter(x=>x.id!==id);await stateUpdate({settings:s});renderScreens();}
 
@@ -2132,7 +2139,7 @@ function renderSettings(){
     body=`<div class="set-section">Share a direct link</div><div class="set-sub" style="margin-bottom:8px;">Send members straight to a tab. The link opens it directly.</div>`+
       linkRow('submit','Submit page')+linkRow('wod','WOD of the day')+linkRow('challenge','Monthly challenge')+linkRow('display','Gym display screen')+
       `<div class="set-section">QR codes</div><div class="set-sub" style="margin-bottom:8px;">Download and print for the gym floor or comp day — scanning opens the page straight up. PNGs are high-res for printing.</div>`+
-      (typeof qrcode==='undefined'?`<div class="set-sub">QR library didn't load — check the internet connection and reopen settings.</div>`:`<div class="qr-grid">${[['submit','✍️ Submit a score'],['wod','🔥 WOD'],['challenge','🏅 Challenge'],['event','📅 Event page'],['display','📺 Display']].map(([qt,ql])=>`<div class="qr-card"><img src="${qrDataUrl(origin+'#'+qt,140)}" alt="QR"><div>${ql}</div><button class="btn-sm" onclick="downloadQR('${qt}')">Download PNG</button></div>`).join('')}</div>`)+
+      (typeof qrcode==='undefined'?`<div class="set-sub">QR library didn't load — check the internet connection and reopen settings.</div>`:`<div class="qr-grid">${[['submit','✍️ Submit a score'],['wod','🔥 WOD'],['challenge','🏅 Challenge'],['event','📅 Event page'],['display','📺 The Wall']].map(([qt,ql])=>`<div class="qr-card"><img src="${qrDataUrl(origin+'#'+qt,140)}" alt="QR"><div>${ql}</div><button class="btn-sm" onclick="downloadQR('${qt}')">Download PNG</button></div>`).join('')}</div>`)+
       `<div class="set-section">Race countdown</div>`+
       `<div class="set-row"><div><div class="set-lbl">Show countdown slide</div><div class="set-sub">A countdown to your big race on the gym screen</div></div><div class="sw ${c.on?'on':''}" onclick="toggleCountdown(this)"></div></div>`+
       `<div class="set-row"><div><div class="set-lbl">Race name</div></div><input class="set-num" style="width:130px;" value="${esc(c.label||'HYROX Melbourne')}" onchange="setCountdown('label',this.value)"></div>`+
@@ -2160,7 +2167,7 @@ async function setRotate(el){let v=parseInt(el.value)||8;v=Math.max(3,Math.min(6
 
 /* ---------- PASSWORD ---------- */
 /* ===== AUTHENTICATION (Supabase Auth — passwordless) ===== */
-const ALLOWED_EMAILS=['info@thecavegym.com.au','caleb@thecavegym.com.au','caleb@theproswitch.com','calebbrowny@gmail.com','monkeyfeetmovement@gmail.com'];
+const ALLOWED_EMAILS=['calebbrowny@gmail.com'];
 let currentUser=null,authEmail='';
 function adminEmails(){try{var s=settings();var a=(s&&Array.isArray(s.admin_emails))?s.admin_emails:[];return a.map(function(x){return String(x||'').trim().toLowerCase();}).filter(Boolean);}catch(e){return [];}}
 function emailAllowed(e){e=(e||'').trim().toLowerCase();return ALLOWED_EMAILS.includes(e)||adminEmails().indexOf(e)>=0;}
@@ -2370,11 +2377,23 @@ async function removeAdminEmail(e){
   const list=adminEmails().filter(function(x){return x!==e;});const s=settings();s.admin_emails=list;await stateUpdate({settings:s});
   logActivity('admin_removed','Removed admin '+e);renderAccess();toast('Admin removed');
 }
-async function loadActivity(){const box=document.getElementById('act-log');if(!box)return;let rows=[];try{if(LIVE){const{data}=await sb.from('activity_log').select('*').neq('event_type','view').order('created_at',{ascending:false}).limit(200);rows=data||[];}}catch(e){}
+let actGrpSeq=0;
+function actGrpToggle(id){const w=document.getElementById('agrp-'+id);if(!w)return;const s=document.getElementById('asub-'+id);if(!s)return;const open=s.style.display==='none'||!s.style.display;s.style.display=open?'block':'none';w.classList.toggle('open',open);}
+async function loadActivity(){const box=document.getElementById('act-log');if(!box)return;let rows=[];try{if(LIVE){const{data}=await sb.from('activity_log').select('*').neq('event_type','view').order('created_at',{ascending:false}).limit(300);rows=data||[];}}catch(e){}
   if(!rows.length){box.innerHTML='<div class="act-empty">Nothing logged yet. Logins, new and edited workouts, member submissions and approvals will show up here.</div>';return;}
   const IC={login:'\ud83d\udd13',logout:'\ud83d\udd12',wod_new:'\ud83d\udcdd',wod_edit:'\u270f\ufe0f',wod_clear:'\ud83d\uddd1\ufe0f',wod_generated:'\ud83d\udcab',submission_new:'\ud83d\udce5',submission_approved:'\u2705',submission_rejected:'\u274c',admin_added:'\u2795',admin_removed:'\u2796'};
-  let html='',cur='';
-  rows.forEach(function(r){const d=new Date(r.created_at);const day=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});if(day!==cur){cur=day;html+='<div class="act-day">'+day+'</div>';}const t=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});html+='<div class="act-row"><div class="act-ico">'+(IC[r.event_type]||'\u2022')+'</div><div class="act-body"><div class="act-sum">'+esc(r.summary||r.event_type||'')+'</div><div class="act-meta">'+t+(r.actor?' \u00b7 '+esc(r.actor):'')+'</div></div></div>';});
+  // Group by day, then collapse identical events (same type + actor + summary) into one expandable row.
+  const days=[],dayIdx={};
+  rows.forEach(function(r){const d=new Date(r.created_at);const lbl=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});let day=dayIdx[lbl];if(!day){day={label:lbl,groups:[],gIdx:{}};dayIdx[lbl]=day;days.push(day);}const key=(r.event_type||'')+'|'+(r.actor||'')+'|'+(r.summary||'');let g=day.gIdx[key];if(!g){g={type:r.event_type,actor:r.actor,summary:r.summary,times:[]};day.gIdx[key]=g;day.groups.push(g);}g.times.push(d);});
+  const fmtT=function(d){return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});};
+  let html='';
+  days.forEach(function(day){html+='<div class="act-day">'+esc(day.label)+'</div>';
+    day.groups.forEach(function(g){const ico=IC[g.type]||'\u2022';const sum=esc(g.summary||g.type||'');const who=g.actor?' \u00b7 '+esc(g.actor):'';
+      if(g.times.length<=1){html+='<div class="act-row"><div class="act-ico">'+ico+'</div><div class="act-body"><div class="act-sum">'+sum+'</div><div class="act-meta">'+fmtT(g.times[0])+who+'</div></div></div>';return;}
+      const id=actGrpSeq++;const newest=fmtT(g.times[0]),oldest=fmtT(g.times[g.times.length-1]);const range=(oldest===newest)?newest:(oldest+' \u2013 '+newest);
+      let sub='';g.times.forEach(function(t){sub+='<div class="act-sub-row">'+fmtT(t)+'</div>';});
+      html+='<div class="act-grp" id="agrp-'+id+'"><div class="act-grp-head" onclick="actGrpToggle('+id+')"><div class="act-ico">'+ico+'</div><div class="act-body"><div class="act-sum">'+sum+' <span class="act-x">\u00d7'+g.times.length+'</span></div><div class="act-meta">'+range+who+'</div></div><span class="act-chev">\u25be</span></div><div class="act-sub" id="asub-'+id+'" style="display:none;">'+sub+'</div></div>';});
+  });
   box.innerHTML=html;}
 async function loadStats(){
   const box=document.getElementById('stats-box');if(!box)return;
