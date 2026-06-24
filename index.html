@@ -762,7 +762,7 @@ body.hc .wod-block-body{font-weight:600;}
 .meso-col{width:30px;height:30px;padding:0;border:1px solid var(--border);border-radius:7px;background:none;cursor:pointer;flex-shrink:0;}
 .meso-name{flex:1;min-width:0;background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);font-size:15px;font-weight:800;font-family:inherit;outline:none;padding:2px 0;}
 .meso-name:focus{border-bottom-color:var(--blue);}
-.meso-when{font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+.meso-when{font-size:11.5px;color:var(--muted);margin:-2px 0 10px 38px;}
 .meso-mv{display:flex;gap:2px;flex-shrink:0;}
 .btn-ic{background:var(--bg-card);border:1px solid var(--border);color:var(--muted);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:13px;line-height:1;}
 .btn-ic.meso-x:hover{color:var(--red);border-color:var(--red);}
@@ -773,6 +773,25 @@ body.hc .wod-block-body{font-weight:600;}
 .meso-add{margin-top:10px;}
 .meso-save{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;}
 .meso-save .btn-full{flex:1;min-width:140px;margin-top:0;}
+.meso-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px;}
+.meso-bar .wod-gen-btn{padding:11px 18px;font-size:13.5px;}
+/* generate-from-plan panel */
+.mgen-cap{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;}
+.mgen-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;}
+.mgen-days{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.mgen-day{background:var(--bg-light);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:700;padding:7px 12px;border-radius:999px;cursor:pointer;}
+.mgen-day.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
+.mgen-len{display:flex;gap:6px;}
+.mgen-prev{margin-top:6px;display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;}
+.mgen-item{display:flex;gap:10px;align-items:baseline;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:8px 11px;font-size:13px;}
+.mgen-item.skip{opacity:.5;}
+.mgen-date{font-weight:800;color:var(--text);white-space:nowrap;min-width:96px;}
+.mgen-foc{font-weight:700;white-space:nowrap;}
+.mgen-ttl{color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mgen-ph{margin-left:auto;font-size:10.5px;color:var(--muted);white-space:nowrap;}
+.cave-undo{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);background:var(--bg-card);color:var(--text);border:1px solid var(--border);font-weight:600;font-size:13.5px;padding:9px 10px 9px 18px;border-radius:30px;box-shadow:0 8px 30px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:all .3s;z-index:320;display:flex;align-items:center;gap:12px;max-width:92vw;}
+.cave-undo.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
+.cave-undo button{background:var(--blue);color:var(--dk);font-weight:800;font-size:13px;padding:7px 15px;border-radius:30px;cursor:pointer;white-space:nowrap;}
 </style>
 <script>
 (function(){try{var t=JSON.parse(localStorage.getItem('cave_theme_cache')||'null');if(t){var r=document.documentElement.style;var m={'--bg':t.bg,'--bg-card':t.card,'--bg-light':t.lt,'--text':t.text,'--muted':t.muted,'--border':t.border,'--blue':t.accent,'--lb-score':t.score};for(var k in m){if(m[k])r.setProperty(k,m[k]);}}}catch(e){}
@@ -1134,7 +1153,15 @@ function subscribe(){
 }
 async function rowInsert(table,row){const r=Object.assign({id:uid()},row);cache[table].push(r);if(LIVE){if(table==='submissions'){const{error}=await sb.from(table).insert(r);if(error){alert('Submit failed: '+error.message);reportError('db-submit',error.message);}else{logActivity('submission_new','New submission from '+(r.name||'')+(r.category?' ('+r.category+')':''),'member');}}else{const{data,error}=await sb.from(table).insert(r).select().maybeSingle();if(error){alert('Save failed: '+error.message);reportError('db-insert',error.message);}else if(data){const i=cache[table].findIndex(x=>x.id===r.id);if(i>=0)cache[table][i]=data;}}}else lsSave();return r;}
 async function rowUpdate(table,id,patch){if(isDemo(id)){const dx=cache[table].find(r=>r.id===id);if(dx)Object.assign(dx,patch);return;}const x=cache[table].find(r=>r.id===id);if(x)Object.assign(x,patch);if(LIVE){const{error}=await sb.from(table).update(patch).eq('id',id);if(error){alert('Update failed: '+error.message);reportError('db-update',error.message);}}else lsSave();}
-async function rowDelete(table,id){if(isDemo(id)){cache[table]=cache[table].filter(r=>r.id!==id);return;}cache[table]=cache[table].filter(r=>r.id!==id);if(LIVE){const{error}=await sb.from(table).delete().eq('id',id);if(error){alert('Delete failed: '+error.message);reportError('db-delete',error.message);}}else lsSave();}
+async function rowDelete(table,id,noUndo){if(isDemo(id)){cache[table]=cache[table].filter(r=>r.id!==id);return;}const _snap=(function(){const r=cache[table].find(x=>x.id===id);return r?JSON.parse(JSON.stringify(r)):null;})();cache[table]=cache[table].filter(r=>r.id!==id);let _ok=true;if(LIVE){const{error}=await sb.from(table).delete().eq('id',id);if(error){_ok=false;alert('Delete failed: '+error.message);reportError('db-delete',error.message);}}else lsSave();if(_ok&&_snap&&!noUndo)pushUndo('Deleted '+undoNoun(table),async function(){await rowRestore(table,_snap);renderAll();});}
+/* ---------- UNDO (global safety net for accidental deletes) ---------- */
+let undoStack=[];
+const UNDO_NOUNS={wods:'workout',leaderboard:'leaderboard entry',achievements:'achievement',events:'event',boards:'leaderboard',submissions:'submission',challenges:'challenge',ads:'ad',todos:'to-do',kpis:'KPI'};
+function undoNoun(t){return UNDO_NOUNS[t]||'item';}
+function pushUndo(label,fn){undoStack.push({label:label,fn:fn});if(undoStack.length>20)undoStack.shift();showUndoToast(label);}
+async function doUndo(){const u=undoStack.pop();if(!u){toast('Nothing to undo');return;}const ut=document.getElementById('cave-undo');if(ut)ut.classList.remove('show');try{await u.fn();toast('Undone — '+u.label.toLowerCase());}catch(e){toast('Undo failed');reportError('undo',e&&e.message);}}
+async function rowRestore(table,row){cache[table].push(row);if(LIVE){const{error}=await sb.from(table).insert(row);if(error)reportError('db-restore',error.message);}else lsSave();}
+function showUndoToast(label){let t=document.getElementById('cave-undo');if(!t){t=document.createElement('div');t.id='cave-undo';t.className='cave-undo';document.body.appendChild(t);}t.innerHTML='<span>'+esc(label)+'</span><button onclick="doUndo()">↩ Undo</button>';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},8000);}
 async function stateUpdate(patch){Object.assign(cache.state,patch);if(LIVE){const{error}=await sb.from('app_state').update(patch).eq('id',1);if(error){alert('Save failed: '+error.message);reportError('state-save',error.message);}}else lsSave();}
 const ERR_ALERT={enabled:true,mode:'netlify',formName:'cave-error',webhook:'',email:'calebbrowny@gmail.com'};
 let _errSeen={},_errSent=0;
@@ -1273,7 +1300,7 @@ function cbRow(bid,x){const sc=`${esc(x.detail||'')}${x.score?(x.detail?' · ':'
 function cbEntries(b){const items=getBoard(b.id);const none='<div style="font-size:12px;color:var(--muted);">No entries yet.</div>';if(b.gender_split){const m=items.filter(x=>x.gender!=='f'),f=items.filter(x=>x.gender==='f');return '<div class="lb-sub-head">♂ Male</div>'+(m.length?m.map(x=>cbRow(b.id,x)).join(''):none)+'<div class="lb-sub-head">♀ Female</div>'+(f.length?f.map(x=>cbRow(b.id,x)).join(''):none);}return items.length?items.map(x=>cbRow(b.id,x)).join(''):none;}
 function renderCustomBoards(){const el=document.getElementById('customboards-list');if(!el)return;const _cbsw=document.getElementById('cb-live-sw');if(_cbsw)_cbsw.classList.toggle('on',customBoardsLive());const _cblbl=document.getElementById('cb-submit-label');if(_cblbl&&document.activeElement!==_cblbl)_cblbl.value=settings().customboard_submit_label||'Leaderboard';if(!cache.boards.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);">No custom leaderboards yet. Create one for your next event or member comp.</div>';return;}el.innerHTML=cache.boards.map(b=>{const on=b.show_in_display!==false;const cnt=getBoard(b.id).length;return `<div class="cb-card"><div class="cb-head"><div style="min-width:0;"><div class="cb-title">${esc(b.title)}</div><div class="cb-sub">${cnt} ${cnt===1?'entry':'entries'} · ${SORT_LBL[b.sort_type||'score']}${b.unit?' · '+esc(b.unit):''}${b.gender_split?' · split M/F':''}</div></div><div class="sw ${on?'on':''}" title="Show on display screen" onclick="toggleBoardDisplay('${b.id}',this)"></div></div><div class="cb-actions"><button class="btn-sm" onclick="openModal('board-entry',null,'${b.id}')">+ Add entry</button><button class="btn-sm" onclick="openModal('board','${b.id}')">Edit board</button><button class="btn-sm" onclick="delBoard('${b.id}')">Delete</button></div><div class="cb-entries">${cbEntries(b)}</div></div>`;}).join('');}
 async function toggleBoardDisplay(id,el){const b=cache.boards.find(x=>x.id===id);if(!b)return;const nv=!(b.show_in_display!==false);await rowUpdate('boards',id,{show_in_display:nv});if(el)el.classList.toggle('on',nv);renderDisplay();}
-async function delBoard(id){const b=cache.boards.find(x=>x.id===id);if(!confirm('Delete "'+(b?b.title:'this board')+'" and all of its entries? This cannot be undone.'))return;for(const e of getBoard(id).slice())await rowDelete('leaderboard',e.id);await rowDelete('boards',id);renderCustomBoards();renderDisplay();}
+async function delBoard(id){const b=cache.boards.find(x=>x.id===id);if(!confirm('Delete "'+(b?b.title:'this board')+'" and all of its entries?'))return;const entries=getBoard(id).slice();const boardSnap=b?JSON.parse(JSON.stringify(b)):null;const entrySnaps=entries.map(function(e){return JSON.parse(JSON.stringify(e));});for(const e of entries)await rowDelete('leaderboard',e.id,true);await rowDelete('boards',id,true);renderCustomBoards();renderDisplay();pushUndo('Deleted leaderboard',async function(){if(boardSnap)await rowRestore('boards',boardSnap);for(const es of entrySnaps)await rowRestore('leaderboard',es);renderAll();});}
 async function delBoardEntry(id){await rowDelete('leaderboard',id);renderCustomBoards();renderDisplay();}
 async function saveBoard(){const t=val('f-btitle');if(!t)return;const row={title:t,subtitle:val('f-bsub'),unit:val('f-bunit'),sort_type:val('f-bsort')||'score',gender_split:val('f-bsplit')==='1',show_in_display:val('f-bdisp')==='1'};if(editId!==null)await rowUpdate('boards',editId,row);else{row.sort=cache.boards.length;await rowInsert('boards',row);}closeModal();renderCustomBoards();renderDisplay();}
 async function saveBoardEntry(){const n=val('f-name');if(!n||!curBoardId)return;const photo=await resolvePhoto();const row={board:curBoardId,name:n,gender:val('f-gender')||'m',detail:val('f-detail'),score:val('f-score'),unit:val('f-unit'),photo_url:photo};if(editId!==null)await rowUpdate('leaderboard',editId,row);else await rowInsert('leaderboard',row);closeModal();renderCustomBoards();renderDisplay();}
@@ -1324,7 +1351,7 @@ function photoField(url){existingPhoto=url||null;pendingPhoto=null;const bg=url?
 function onPhotoPick(inp){const f=inp.files&&inp.files[0];if(!f)return;pendingPhoto=f;const url=URL.createObjectURL(f);document.getElementById('photo-prev').style.backgroundImage=`url('${url}')`;document.getElementById('photo-prev').textContent='';document.getElementById('photo-status').textContent=f.name;}
 function openModal(type,id,extra){
   const m=document.getElementById('modal'),t=document.getElementById('modal-title'),b=document.getElementById('modal-body');
-  m.classList.add('open');m.classList.toggle('meso',type==='meso');editId=(id!=null)?id:null;const ed=editId!==null;let rec={};
+  m.classList.add('open');m.classList.toggle('meso',type==='meso'||type==='mesogen');editId=(id!=null)?id:null;const ed=editId!==null;let rec={};
   if(type==='board-entry')curBoardId=extra||curBoardId;
   if(ed){if(type==='achievement')rec=cache.achievements.find(x=>x.id===editId)||{};else if(type==='strength'||type==='hyrox')rec=cache.leaderboard.find(x=>x.id===editId)||{};else if(type==='event')rec=cache.events.find(x=>x.id===editId)||{};else if(type==='board')rec=cache.boards.find(x=>x.id===editId)||{};else if(type==='board-entry')rec=cache.leaderboard.find(x=>x.id===editId)||{};}
   if(type==='event'){t.textContent=(ed?'Edit':'Add')+' Event';b.innerHTML=`<div class="fld"><label>Event name</label><input id="f-t" value="${ed?esc(rec.title):''}" placeholder="e.g. Cave Driathlon"></div><div class="fld"><label>Date</label><input id="f-date" type="date" value="${ed?esc(rec.date):''}"></div><div class="fld"><label>Note (optional)</label><input id="f-n" value="${ed?esc(rec.note||''):''}" placeholder="e.g. 20min ski/bike/row"></div><button class="btn-full" onclick="saveEvent()">${ed?'Save Changes':'Add Event'}</button>`;}
@@ -1346,7 +1373,8 @@ function openModal(type,id,extra){
     b.innerHTML=f+wsel+`<button class="btn-full" onclick="saveEvSection('${id}')">Save section</button>`;
     if(sec.type==='sponsors')renderSponsorEditor(id);
   }
-  else if(type==='meso'){mesoWork=mesoData();t.textContent='🗓️ Mesocycle planner';b.innerHTML=mesoEditorHTML();}
+  else if(type==='meso'){mesoWork=mesoData();mesoUndo=[];t.textContent='🗓️ Mesocycle planner';b.innerHTML=mesoEditorHTML();}
+  else if(type==='mesogen'){t.textContent='✨ Generate WODs';b.innerHTML=mesoGenHTML();}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -1466,7 +1494,7 @@ async function approveSubmission(id){
   else if(s.category==='challenge'){const c=await ensureActiveChallenge();const entries=(c.entries||[]).slice();entries.push({id:uid(),name:s.name,gender:s.gender||'m',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null,proof_url:s.proof_url||null});await rowUpdate('challenges',c.id,{entries});}
   else if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);if(bd){await rowInsert('leaderboard',{board:bd.id,name:s.name,gender:s.gender||'m',detail:'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}}
   if(s.category!=='challenge'){await deleteProofFile(s.proof_url);if(s.proof_url2)await deleteProofFile(s.proof_url2);if(s.proof_url3)await deleteProofFile(s.proof_url3);}
-  await rowDelete('submissions',id);
+  await rowDelete('submissions',id,true);
   logActivity('submission_approved','Approved '+(s.category||'')+' submission from '+(s.name||''));
   confettiBurst();
   renderSubmissions();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderChallengeMgmt();renderChallengeTab();renderCustomBoards();renderDisplay();
@@ -2110,7 +2138,7 @@ function screenProfile(){if(!activeScreenSlug)return null;return (settings().scr
 function slugify(n){let s=String(n||'screen').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'screen';const taken=(settings().screens||[]).filter(x=>x.id!==editId).map(x=>x.slug);let out=s,i=2;while(taken.includes(out))out=s+'-'+(i++);return out;}
 function renderScreens(){const el=document.getElementById('screens-list');if(!el)return;const scr=settings().screens||[];el.innerHTML=scr.length?scr.map(p=>{const on=Object.values(p.show||{}).filter(Boolean).length+(p.boards||[]).length;return `<div class="scr-card"><div style="min-width:0;"><div class="cb-title">${esc(p.name)}</div><div class="cb-sub">#display/${esc(p.slug)} · ${on} section${on===1?'':'s'}${p.rotate?' · '+p.rotate+'s rotation':''}</div></div><div class="cb-actions" style="margin:0;"><button class="btn-sm" onclick="shareLink('display/${esc(p.slug)}')">Copy link</button><button class="btn-sm" onclick="openModal('screen','${p.id}')">Edit</button><button class="btn-sm" onclick="delScreen('${p.id}')">Delete</button></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--muted);">No screen profiles yet. Your 📊 The Wall tab shows the global mix; create profiles here to give each TV its own.</div>';}
 async function saveScreen(){const name=val('f-scrname');if(!name)return;const show={};SCREEN_KEYS.forEach(([k])=>{const e=document.getElementById('scr-k-'+k);show[k]=!!(e&&e.checked);});const boards=cache.boards.filter(b=>{const e=document.getElementById('scr-b-'+b.id);return e&&e.checked;}).map(b=>b.id);const rot=parseInt(val('f-scrrot'))||null;const s=settings();const screens=(s.screens||[]).slice();if(editId!==null){const i=screens.findIndex(x=>x.id===editId);if(i>=0)screens[i]=Object.assign({},screens[i],{name,slug:slugify(name),show,boards,rotate:rot});}else{screens.push({id:uid(),name,slug:slugify(name),show,boards,rotate:rot});}s.screens=screens;await stateUpdate({settings:s});closeModal();renderScreens();toast('Screen saved ✓');}
-async function delScreen(id){const s=settings();const p=(s.screens||[]).find(x=>x.id===id);if(!confirm('Delete screen "'+(p?p.name:'')+'"? Any TV using its link will fall back to the default display.'))return;s.screens=(s.screens||[]).filter(x=>x.id!==id);await stateUpdate({settings:s});renderScreens();}
+async function delScreen(id){const s=settings();const p=(s.screens||[]).find(x=>x.id===id);if(!confirm('Delete screen "'+(p?p.name:'')+'"? Any TV using its link will fall back to the default display.'))return;const prev=JSON.parse(JSON.stringify(s.screens||[]));s.screens=(s.screens||[]).filter(x=>x.id!==id);await stateUpdate({settings:s});renderScreens();pushUndo('Deleted screen',async function(){const s2=settings();s2.screens=prev;await stateUpdate({settings:s2});renderScreens();});}
 
 /* ---------- MESOCYCLE PLANNER (visual only — does not touch the WOD generator) ---------- */
 // Periodization library. vol/int (0-100) drive the curves: volume high early then tapers,
@@ -2189,8 +2217,8 @@ function mesoEditorHTML(){
   const cards=blocks.map(function(b,i){const s0=mesoAddDays(w.start,cum*7),s1=mesoAddDays(w.start,(cum+(+b.weeks||0))*7);cum+=(+b.weeks||0);const col=b.color||(MESO_PHASES[b.type]||MESO_PHASES.custom).color;
     return '<div class="meso-blk" style="border-left-color:'+esc(col)+'">'+
       '<div class="meso-blk-head"><input type="color" class="meso-col" value="'+esc(col)+'" title="Block colour" onchange="mesoColor('+i+',this.value)"><input class="meso-name" value="'+esc(b.name||'')+'" oninput="mesoField('+i+",'name',this.value)\">"+
-      '<span class="meso-when">'+dateLabel(s0,{day:'numeric',month:'short'})+' – '+dateLabel(s1,{day:'numeric',month:'short'})+'</span>'+
       '<span class="meso-mv"><button class="btn-ic" title="Move up" onclick="mesoMove('+i+',-1)">↑</button><button class="btn-ic" title="Move down" onclick="mesoMove('+i+',1)">↓</button><button class="btn-ic meso-x" title="Remove" onclick="mesoDel('+i+')">✕</button></span></div>'+
+      '<div class="meso-when">'+dateLabel(s0,{day:'numeric',month:'short'})+' – '+dateLabel(s1,{day:'numeric',month:'short'})+' · '+(+b.weeks||0)+'w</div>'+
       '<div class="meso-grid"><label class="meso-f">Phase<select onchange="mesoType('+i+',this.value)">'+phaseOpts(b.type)+'</select></label>'+
       '<label class="meso-f">Weeks<input type="number" min="1" max="16" value="'+(+b.weeks||0)+'" onchange="mesoNum('+i+',this.value)"></label>'+
       '<label class="meso-f">Volume <b id="meso-vol-'+i+'">'+(+b.vol||0)+'</b><input type="range" min="0" max="100" value="'+(+b.vol||0)+'" oninput="mesoField('+i+",'vol',this.value)\"></label>"+
@@ -2204,21 +2232,84 @@ function mesoEditorHTML(){
    '<div class="meso-note '+note[0]+'">'+esc(note[1])+'</div>'+
    '<div class="meso-blocks">'+cards+'</div>'+
    '<button class="btn-sm meso-add" onclick="mesoAdd()">+ Add block</button>'+
+   '<div class="meso-bar"><button class="wod-gen-btn magic" onclick="mesoOpenGen()">✨ Generate WODs from this plan</button><span style="font-size:11.5px;color:var(--muted);">Turn the blocks into phase-matched daily sessions</span></div>'+
    '<label class="meso-f" style="margin-top:14px;display:block;">Notes for the team (optional)<textarea class="meso-focus" rows="3" placeholder="Why this plan, key test days, deloads, anything to flag…" oninput="mesoMeta(\'notes\',this.value)">'+esc(w.notes||'')+'</textarea></label>'+
-   '<div class="meso-save"><button class="btn-full" onclick="mesoSave()">Save plan</button><button class="btn-sm" onclick="mesoSmart()">✨ Smart auto-plan</button><button class="btn-sm" onclick="closeModal()">Done</button></div>';
+   '<div class="meso-save"><button class="btn-full" onclick="mesoSave()">Save plan</button><button class="btn-sm" onclick="mesoUndoPop()">↩ Undo</button><button class="btn-sm" onclick="mesoSmart()">✨ Smart auto-plan</button><button class="btn-sm" onclick="closeModal()">Done</button></div>';
 }
 function mesoRerender(){const b=document.getElementById('modal-body');if(b)b.innerHTML=mesoEditorHTML();}
 function mesoRedrawGraph(){const g=document.getElementById('meso-graph');if(g)g.innerHTML=mesoSvg(mesoWork);}
+let mesoUndo=[];
+function mesoPush(){try{mesoUndo.push(JSON.stringify(mesoWork));if(mesoUndo.length>40)mesoUndo.shift();}catch(e){}}
+function mesoUndoPop(){if(!mesoUndo.length){toast('Nothing to undo');return;}try{mesoWork=JSON.parse(mesoUndo.pop());mesoRerender();toast('Undone');}catch(e){}}
 function mesoField(i,k,v){const b=mesoWork.blocks[i];if(!b)return;if(k==='vol'||k==='int'){v=Math.max(0,Math.min(100,parseInt(v)||0));b[k]=v;const el=document.getElementById('meso-'+k+'-'+i);if(el)el.textContent=v;mesoRedrawGraph();}else{b[k]=v;}}
-function mesoNum(i,v){const b=mesoWork.blocks[i];if(!b)return;b.weeks=Math.max(1,Math.min(16,parseInt(v)||1));mesoRerender();}
-function mesoType(i,t){const b=mesoWork.blocks[i];if(!b)return;const p=MESO_PHASES[t]||MESO_PHASES.custom;b.type=t;b.color=p.color;b.vol=p.vol;b.int=p.int;if(t!=='custom'){b.name=p.label;b.focus=p.blurb;}mesoRerender();}
-function mesoColor(i,v){const b=mesoWork.blocks[i];if(!b)return;b.color=v;mesoRerender();}
-function mesoMove(i,d){const a=mesoWork.blocks,j=i+d;if(j<0||j>=a.length)return;const t=a[i];a[i]=a[j];a[j]=t;mesoRerender();}
-function mesoDel(i){if(mesoWork.blocks.length<=1){toast('Keep at least one block');return;}mesoWork.blocks.splice(i,1);mesoRerender();}
-function mesoAdd(){const p=MESO_PHASES.custom;mesoWork.blocks.push({id:uid(),type:'custom',name:'New block',weeks:4,focus:'',vol:p.vol,int:p.int,color:p.color});mesoRerender();}
-function mesoMeta(k,v){mesoWork[k]=v;if(k==='raceDate'||k==='start')mesoRerender();}
-function mesoSmart(){if(!confirm('Replace the blocks with a smart HYROX build to your race date? Your race name, date and notes stay.'))return;mesoWork.blocks=mesoSmartPlan(mesoWork.start,mesoWork.raceDate);mesoRerender();}
+function mesoNum(i,v){const b=mesoWork.blocks[i];if(!b)return;mesoPush();b.weeks=Math.max(1,Math.min(16,parseInt(v)||1));mesoRerender();}
+function mesoType(i,t){const b=mesoWork.blocks[i];if(!b)return;mesoPush();const p=MESO_PHASES[t]||MESO_PHASES.custom;b.type=t;b.color=p.color;b.vol=p.vol;b.int=p.int;if(t!=='custom'){b.name=p.label;b.focus=p.blurb;}mesoRerender();}
+function mesoColor(i,v){const b=mesoWork.blocks[i];if(!b)return;mesoPush();b.color=v;mesoRerender();}
+function mesoMove(i,d){const a=mesoWork.blocks,j=i+d;if(j<0||j>=a.length)return;mesoPush();const t=a[i];a[i]=a[j];a[j]=t;mesoRerender();}
+function mesoDel(i){if(mesoWork.blocks.length<=1){toast('Keep at least one block');return;}mesoPush();mesoWork.blocks.splice(i,1);mesoRerender();}
+function mesoAdd(){mesoPush();const p=MESO_PHASES.custom;mesoWork.blocks.push({id:uid(),type:'custom',name:'New block',weeks:4,focus:'',vol:p.vol,int:p.int,color:p.color});mesoRerender();}
+function mesoMeta(k,v){if(k==='raceDate'||k==='start'){mesoPush();mesoWork[k]=v;mesoRerender();}else{mesoWork[k]=v;}}
+function mesoSmart(){if(!confirm('Replace the blocks with a smart HYROX build to your race date? Your race name, date and notes stay.'))return;mesoPush();mesoWork.blocks=mesoSmartPlan(mesoWork.start,mesoWork.raceDate);mesoRerender();}
 async function mesoSave(){const s=settings();s.mesocycle=mesoWork;await stateUpdate({settings:s});toast('Mesocycle plan saved ✓');}
+
+/* ----- Generate WODs from the plan (phase-matched daily sessions) ----- */
+const MESO_PROG={
+  base:    ['Challenge','Strength','Engine','Engine','Endurance','Strength','Partner'],
+  build:   ['Challenge','Strength','Engine','Strength','Endurance','Strength','Partner'],
+  specific:['Challenge','Strength','HYROX sim','Engine','Endurance','HYROX sim','Partner'],
+  peak:    ['Challenge','HYROX sim','Engine','Strength','HYROX sim','Engine','Partner'],
+  taper:   ['Engine','Engine','Strength','Engine','HYROX sim','Engine','Partner'],
+  deload:  ['Engine','Engine','Engine','Engine','Endurance','Engine','Engine'],
+  custom:  DAYFOCUS.slice()
+};
+const MESO_DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MESO_DOW_LONG=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+let mesoGenOpts=null,mesoGenList=[];
+function mesoBlockForDate(plan,dateStr){if(!plan||!plan.blocks||!plan.blocks.length)return null;const days=Math.floor((new Date(dateStr+'T00:00:00')-new Date((plan.start||todayKey())+'T00:00:00'))/864e5);if(days<0)return null;let cum=0;for(let i=0;i<plan.blocks.length;i++){const wd=(+plan.blocks[i].weeks||0)*7;if(days<cum+wd)return plan.blocks[i];cum+=wd;}return plan.blocks[plan.blocks.length-1];}
+function mesoOpenGen(){mesoSave();const today=todayKey();let end;if(mesoWork&&mesoWork.raceDate&&mesoWork.raceDate>today){end=(mesoWeeks(today,mesoWork.raceDate)>5)?mesoAddDays(today,34):mesoWork.raceDate;}else{end=mesoAddDays(today,27);}mesoGenOpts={from:today,to:end,days:[1,2,3,4,5,6],len:'60 min'};mesoGenList=[];openModal('mesogen');}
+function mesoGenHTML(){const o=mesoGenOpts||{from:todayKey(),to:mesoAddDays(todayKey(),27),days:[1,2,3,4,5,6],len:'60 min'};
+  const dayChips=MESO_DOW.map(function(d,i){return '<button class="mgen-day'+(o.days.indexOf(i)>=0?' on':'')+'" onclick="mesoGenToggleDay('+i+')">'+d+'</button>';}).join('');
+  const lenChip=function(v){return '<button class="wg-chip'+(o.len===v?' on':'')+'" onclick="mesoGenSet(\'len\',\''+v+'\')">'+v+'</button>';};
+  let prev='';
+  if(mesoGenList.length){const make=mesoGenList.filter(function(x){return !x.skip;}).length,skip=mesoGenList.length-make;
+    prev='<div class="meso-note ok" style="margin:14px 0 8px;">'+make+' workout'+(make===1?'':'s')+' ready'+(skip?' · '+skip+' day'+(skip===1?'':'s')+' already filled (left untouched)':'')+'</div><div class="mgen-prev">'+mesoGenList.map(function(it){return '<div class="mgen-item'+(it.skip?' skip':'')+'"><span class="mgen-date">'+esc(it.label)+'</span><span class="mgen-foc" style="color:'+esc(it.color)+'">'+esc(it.focus)+'</span><span class="mgen-ttl">'+esc(it.skip?'already has a workout':it.title)+'</span><span class="mgen-ph">'+esc(it.phase)+'</span></div>';}).join('')+'</div>'+(make?'<div class="meso-save"><button class="btn-full" onclick="mesoGenPublish()">Publish '+make+' workout'+(make===1?'':'s')+'</button><button class="btn-sm" onclick="mesoGenPreview()">Refresh</button></div>':'');
+  }
+  return '<div class="mgen-cap">Deep-builds a daily workout for every training day, programmed to match the mesocycle phase it lands in — base engine, strength-endurance, race-specific, peak sims, taper. It only fills <b>empty</b> days, so anything you’ve already written stays put. Pick a range to add the next block of sessions.</div>'+
+    '<div class="mgen-row"><label class="meso-f">From<input type="date" value="'+esc(o.from)+'" onchange="mesoGenSet(\'from\',this.value)"></label><label class="meso-f">To<input type="date" value="'+esc(o.to)+'" onchange="mesoGenSet(\'to\',this.value)"></label></div>'+
+    '<div class="meso-f" style="margin-bottom:6px;">Training days</div><div class="mgen-days">'+dayChips+'</div>'+
+    '<div class="meso-f" style="margin-bottom:6px;">Session length <span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0;">(taper auto-shortens)</span></div><div class="mgen-len">'+lenChip('45 min')+lenChip('60 min')+lenChip('75 min')+'</div>'+
+    '<div class="meso-bar"><button class="wod-gen-btn magic" onclick="mesoGenPreview()">✨ Build preview</button><button class="btn-sm" onclick="openModal(\'meso\')">← Back to plan</button></div>'+
+    prev;
+}
+function mesoGenSet(k,v){if(!mesoGenOpts)return;mesoGenOpts[k]=v;mesoGenList=[];mesoGenRerender();}
+function mesoGenToggleDay(i){if(!mesoGenOpts)return;const a=mesoGenOpts.days,p=a.indexOf(i);if(p>=0)a.splice(p,1);else a.push(i);mesoGenList=[];mesoGenRerender();}
+function mesoGenRerender(){const b=document.getElementById('modal-body');if(b)b.innerHTML=mesoGenHTML();}
+function mesoGenPreview(){const o=mesoGenOpts;if(!o)return;const plan=mesoData();if(o.to<o.from){toast('“To” date is before “From”');return;}if(!o.days.length){toast('Pick at least one training day');return;}
+  const seen={},list=[];let d=o.from,guard=0;
+  while(d<=o.to&&guard++<400){const dow=new Date(d+'T00:00:00').getDay();
+    if(o.days.indexOf(dow)>=0){const blk=mesoBlockForDate(plan,d);
+      if(blk){const focusArr=MESO_PROG[blk.type]||DAYFOCUS;const focus=focusArr[dow]||'Engine';
+        const lbl=dateLabel(d,{weekday:'short',day:'numeric',month:'short'}),col=blk.color||(MESO_PHASES[blk.type]||MESO_PHASES.custom).color;
+        const ex=wodForDate(d,'a');
+        if(ex&&wodHasContent(ex)){list.push({date:d,label:lbl,focus:focus,phase:blk.name,color:col,skip:true});}
+        else{const len=(blk.type==='taper'||blk.type==='deload')?'45 min':(focus==='HYROX sim'?'75 min':o.len);
+          let w=buildWod(focus,len,'Phase: '+blk.name,MESO_DOW_LONG[dow],[],{stations:['Any'],lifts:['Auto'],equip:'Full',on:false}),t=0;
+          while(w&&seen[w.core.split('\n')[0]]&&t<6){w=buildWod(focus,len,'Phase: '+blk.name,MESO_DOW_LONG[dow],[],{stations:['Any'],lifts:['Auto'],equip:'Full',on:false});t++;}
+          if(w){seen[w.core.split('\n')[0]]=1;list.push({date:d,label:lbl,focus:focus,phase:blk.name,color:col,skip:false,wod:w,title:w.title});}}
+      }
+    }
+    d=mesoAddDays(d,1);
+  }
+  mesoGenList=list;mesoGenRerender();
+  if(!list.length)toast('No training days fall inside your plan for that range');
+}
+async function mesoGenPublish(){const make=mesoGenList.filter(function(x){return !x.skip;});if(!make.length)return;
+  const ids=[];for(let i=0;i<make.length;i++){const it=make[i],w=it.wod;const row=await rowInsert('wods',{date:it.date,slot:'a',title:w.title||'',focus:w.focus||'',purpose:w.purpose||'',warmup:w.warmup||'',core:w.core||'',cool:w.cool||'',bonus:w.bonus||'',updated_at:new Date().toISOString()});if(row&&row.id)ids.push(row.id);}
+  logActivity('wod_generated','Generated '+make.length+' workouts ('+dateLabel(make[0].date,{day:'numeric',month:'short'})+' – '+dateLabel(make[make.length-1].date,{day:'numeric',month:'short'})+')');
+  if(ids.length)pushUndo('Published '+ids.length+' workout'+(ids.length===1?'':'s'),function(){return mesoUndoBatch(ids);});
+  renderAll();toast(make.length+' workouts published ✓');mesoGenList=[];mesoGenRerender();
+}
+async function mesoUndoBatch(ids){for(let i=0;i<ids.length;i++){const id=ids[i];cache.wods=cache.wods.filter(function(w){return w.id!==id;});if(LIVE){const{error}=await sb.from('wods').delete().eq('id',id);if(error)reportError('db-batch-undo',error.message);}}if(!LIVE)lsSave();renderAll();}
 
 /* ---------- LIVE EVENT DAY ---------- */
 let evTimer=null;
