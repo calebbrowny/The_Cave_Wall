@@ -704,6 +704,14 @@ body.hc .wod-block-body{font-weight:600;}
 .act-sum{font-size:13.5px;color:var(--text);font-weight:600;line-height:1.4;}
 .act-meta{font-size:11px;color:var(--muted);margin-top:1px;}
 .act-empty{font-size:13px;color:var(--muted);padding:12px 0;}
+.act-tabs{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.act-tab{background:var(--bg-light);color:var(--muted);font-size:12px;font-weight:700;padding:6px 14px;border-radius:14px;border:1px solid var(--border);cursor:pointer;}
+.act-tab.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.stat-card{background:var(--bg-light);border:1px solid var(--border);border-radius:12px;padding:14px 15px;}
+.stat-n{font-size:26px;font-weight:800;color:var(--text);line-height:1.05;}
+.stat-l{font-size:12px;color:var(--muted);font-weight:600;margin-top:5px;}
+.stat-sub{font-size:11px;color:var(--muted);opacity:.8;margin-top:3px;}
 </style>
 <script>
 (function(){try{var t=JSON.parse(localStorage.getItem('cave_theme_cache')||'null');if(t){var r=document.documentElement.style;var m={'--bg':t.bg,'--bg-card':t.card,'--bg-light':t.lt,'--text':t.text,'--muted':t.muted,'--border':t.border,'--blue':t.accent,'--lb-score':t.score};for(var k in m){if(m[k])r.setProperty(k,m[k]);}}}catch(e){}
@@ -2174,7 +2182,9 @@ function lockPlanner(){signOut();}
 /* ---------- MODE ---------- */
 function setMode(mode){if(mode==='plan'&&!isUnlocked()){showPwGate();return;}if(mode==='disp')activeScreenSlug=null;_setMode(mode);clearTimeout(navTimer);navTimer=setTimeout(hideNav,2500);}
 function applyHashRoute(){const h=(location.hash||'').replace('#','').toLowerCase();if(!h)return false;const parts=h.split('/');const map={submit:'submit',wod:'wod',challenge:'chal',event:'event',display:'disp',board:'disp'};if(map[parts[0]]){activeScreenSlug=(parts[0]==='display'||parts[0]==='board')?(parts[1]||null):activeScreenSlug;_setMode(map[parts[0]]);return true;}return false;}
+let currentMode='wod';
 function _setMode(mode){
+  currentMode=mode;
   document.getElementById('m-plan').classList.toggle('on',mode==='plan');
   document.getElementById('m-wod').classList.toggle('on',mode==='wod');
   document.getElementById('m-chal').classList.toggle('on',mode==='chal');
@@ -2297,19 +2307,50 @@ function tmrWakeOff(){try{if(TMR.wake){TMR.wake.release();TMR.wake=null;}}catch(
 /* ===== ACTIVITY LOG (password gated, very bottom of admin) ===== */
 const ACT_PW='CaveGym2021';
 function logActivity(type,summary,actor){try{if(!LIVE)return;sb.from('activity_log').insert({event_type:type,summary:summary,actor:actor||(currentUser&&currentUser.email)||'member'}).then(function(){},function(){});}catch(e){}}
+function logView(){try{if(!LIVE||isUnlocked())return;var m=currentMode||'wod';if(m==='plan')return;var lbl={wod:'WOD',submit:'Submit',disp:'Display',chal:'Challenge',event:'Event',timer:'Timer'}[m]||m;logActivity('view','Viewed '+lbl+(activeScreenSlug?' · '+activeScreenSlug:''),'member');}catch(e){}}
 function actUnlocked(){try{return sessionStorage.getItem('cave_act_ok')==='1';}catch(e){return false;}}
 function toggleActivity(){const p=document.getElementById('act-panel');if(!p)return;const open=!(p.style.display&&p.style.display!=='none');p.style.display=open?'block':'none';const ch=document.getElementById('act-chev');if(ch)ch.style.transform=open?'rotate(0deg)':'rotate(-90deg)';if(open)renderActivity();}
+let actTab='feed';
+function setActTab(t){actTab=t;renderActivity();}
 function renderActivity(){const p=document.getElementById('act-panel');if(!p)return;
   if(!actUnlocked()){p.innerHTML='<div class="act-lock"><div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;">Enter the activity log password.</div><input type="password" id="act-pw" placeholder="Password" onkeydown="if(event.key===\'Enter\')actCheck()"><div style="margin-top:10px;"><button class="btn-sm" onclick="actCheck()">Unlock</button></div><div id="act-pw-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div></div>';const i=document.getElementById('act-pw');if(i)i.focus();return;}
-  p.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><div style="font-size:12px;color:var(--muted);">Recent activity across the app.</div><div><button class="btn-sm" onclick="loadActivity()">Refresh</button> <button class="btn-sm" onclick="actLock()">Lock</button></div></div><div id="act-log" style="margin-top:10px;"><div class="act-empty">Loading\u2026</div></div>';loadActivity();}
+  const tabs='<div class="act-tabs"><button class="act-tab'+(actTab==='stats'?'':' on')+'" onclick="setActTab(\'feed\')">Activity</button><button class="act-tab'+(actTab==='stats'?' on':'')+'" onclick="setActTab(\'stats\')">\ud83d\udcca Stats</button><button class="btn-sm" style="margin-left:auto;" onclick="'+(actTab==='stats'?'loadStats()':'loadActivity()')+'">Refresh</button><button class="btn-sm" onclick="actLock()">Lock</button></div>';
+  if(actTab==='stats'){p.innerHTML=tabs+'<div id="stats-box"><div class="act-empty">Crunching numbers\u2026</div></div>';loadStats();}
+  else{p.innerHTML=tabs+'<div id="act-log" style="margin-top:4px;"><div class="act-empty">Loading\u2026</div></div>';loadActivity();}
+}
 function actCheck(){const v=(document.getElementById('act-pw')||{}).value||'';if(v===ACT_PW){try{sessionStorage.setItem('cave_act_ok','1');}catch(e){}renderActivity();}else{const e=document.getElementById('act-pw-err');if(e)e.textContent='Wrong password, try again.';}}
 function actLock(){try{sessionStorage.removeItem('cave_act_ok');}catch(e){}renderActivity();}
-async function loadActivity(){const box=document.getElementById('act-log');if(!box)return;let rows=[];try{if(LIVE){const{data}=await sb.from('activity_log').select('*').order('created_at',{ascending:false}).limit(200);rows=data||[];}}catch(e){}
+async function loadActivity(){const box=document.getElementById('act-log');if(!box)return;let rows=[];try{if(LIVE){const{data}=await sb.from('activity_log').select('*').neq('event_type','view').order('created_at',{ascending:false}).limit(200);rows=data||[];}}catch(e){}
   if(!rows.length){box.innerHTML='<div class="act-empty">Nothing logged yet. Logins, new and edited workouts, member submissions and approvals will show up here.</div>';return;}
   const IC={login:'\ud83d\udd13',logout:'\ud83d\udd12',wod_new:'\ud83d\udcdd',wod_edit:'\u270f\ufe0f',wod_clear:'\ud83d\uddd1\ufe0f',wod_generated:'\ud83d\udcab',submission_new:'\ud83d\udce5',submission_approved:'\u2705',submission_rejected:'\u274c'};
   let html='',cur='';
   rows.forEach(function(r){const d=new Date(r.created_at);const day=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});if(day!==cur){cur=day;html+='<div class="act-day">'+day+'</div>';}const t=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});html+='<div class="act-row"><div class="act-ico">'+(IC[r.event_type]||'\u2022')+'</div><div class="act-body"><div class="act-sum">'+esc(r.summary||r.event_type||'')+'</div><div class="act-meta">'+t+(r.actor?' \u00b7 '+esc(r.actor):'')+'</div></div></div>';});
   box.innerHTML=html;}
+async function loadStats(){
+  const box=document.getElementById('stats-box');if(!box)return;
+  const lb=cache.leaderboard||[];
+  const strength=lb.filter(function(x){return x.board==='strength';}).length;
+  const hyrox=lb.filter(function(x){return x.board==='hyrox';}).length;
+  const custom=lb.filter(function(x){return x.board&&x.board!=='strength'&&x.board!=='hyrox';}).length;
+  const achN=(cache.achievements||[]).length;
+  const ch=activeChallenge();const chEntries=(ch&&ch.entries)?ch.entries.length:0;
+  const tk=todayKey();
+  const wodsSaved=(cache.wods||[]).filter(function(w){return wodHasContent(w);}).length;
+  const upWods=(cache.wods||[]).filter(function(w){return w.date>=tk&&wodHasContent(w);}).length;
+  const now0=new Date();now0.setHours(0,0,0,0);
+  const upEvents=(cache.events||[]).filter(function(e){return new Date(e.date)>=now0;}).length;
+  const ads=(cache.ads||[]).length;
+  const pending=(cache.submissions||[]).length;
+  let viewsAll=0,views7=0,subAll=0,sub7=0,appAll=0,rejAll=0,act7=0;
+  if(LIVE){
+    const weekAgo=new Date(Date.now()-7*864e5).toISOString();
+    const cnt=function(q){return q.then(function(r){return r.count||0;},function(){return 0;});};
+    const A=function(){return sb.from('activity_log').select('*',{count:'exact',head:true});};
+    try{const res=await Promise.all([cnt(A().eq('event_type','view')),cnt(A().eq('event_type','view').gte('created_at',weekAgo)),cnt(A().eq('event_type','submission_new')),cnt(A().eq('event_type','submission_new').gte('created_at',weekAgo)),cnt(A().eq('event_type','submission_approved')),cnt(A().eq('event_type','submission_rejected')),cnt(A().gte('created_at',weekAgo))]);viewsAll=res[0];views7=res[1];subAll=res[2];sub7=res[3];appAll=res[4];rejAll=res[5];act7=res[6];}catch(e){}
+  }
+  const card=function(n,l,sub){return '<div class="stat-card"><div class="stat-n">'+n+'</div><div class="stat-l">'+l+'</div>'+(sub?'<div class="stat-sub">'+esc(sub)+'</div>':'')+'</div>';};
+  box.innerHTML='<div class="stat-grid">'+card(viewsAll,'Page views',views7+' this week')+card(subAll,'Submissions',sub7+' this week')+card(appAll+' / '+rejAll,'Approved / rejected','all time')+card(pending,'Pending now','awaiting review')+card(strength+hyrox+custom,'Board entries',strength+' str · '+hyrox+' hyrox · '+custom+' custom')+card(achN,'Achievements','')+card(chEntries,'Challenge entries',ch?(ch.title||'active'):'none active')+card(wodsSaved,'Workouts saved',upWods+' upcoming')+card(upEvents,'Upcoming events','')+card(ads,'Ads loaded','')+card(act7,'Admin actions','last 7 days')+'</div>'+(LIVE?'':'<div class="act-empty" style="margin-top:10px;">Live stats need Supabase (local mode now).</div>');
+}
 
 /* ---------- BOOT ---------- */
 async function boot(){
@@ -2324,6 +2365,7 @@ async function boot(){
   applyDemo();
   renderAll();
   if(!applyHashRoute() && !isUnlocked())_setMode('wod'); // gym-safe default
+  logView();
   window.addEventListener('hashchange',applyHashRoute);
   document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
   document.getElementById('pw-gate').addEventListener('click',e=>{if(e.target.id==='pw-gate')hidePwGate();});
