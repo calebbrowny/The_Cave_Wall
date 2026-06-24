@@ -9,7 +9,12 @@ step — backed by Supabase and hosted on Netlify.
 - **Frontend:** vanilla HTML/CSS/JS in a single `index.html`. No framework, no bundler.
 - **Backend:** Supabase (Postgres + Auth + Storage). Project **`unfoqmfislfcnzxoivta`** ("cave-ops").
   Tables: `leaderboard`, `achievements`, `events`, `todos`, `kpis`, `challenges`, `submissions`,
-  `wods`, `ads`, `boards`, `app_state`, `activity_log`.
+  `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`.
+  - `history` = the undo / version-history log (admin-only RLS). Each row is a reversible change
+    (`kind` ∈ delete/settingsKey/boardDelete/wodbatch + serializable `data`). `recordHistory()`
+    writes one; `applyHistoryUndo()`/`doUndo()` reverse + delete it; `loadHistory()` prunes rows
+    older than 14 days on each admin sign-in. Owner-only undo bar sits at the top of the planner,
+    plus a 🕘 Version history modal. The mesocycle plan lives in `app_state.settings.mesocycle`.
 - **Hosting:** Netlify project `the-cave-wall` → https://the-cave-wall.netlify.app (deploys from `main`).
 
 ### Deploy workflow (owner preference: autopublish)

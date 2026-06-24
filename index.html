@@ -799,6 +799,14 @@ body.hc .wod-block-body{font-weight:600;}
 .cave-undo{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);background:var(--bg-card);color:var(--text);border:1px solid var(--border);font-weight:600;font-size:13.5px;padding:9px 10px 9px 18px;border-radius:30px;box-shadow:0 8px 30px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:all .3s;z-index:320;display:flex;align-items:center;gap:12px;max-width:92vw;}
 .cave-undo.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 .cave-undo button{background:var(--blue);color:var(--dk);font-weight:800;font-size:13px;padding:7px 15px;border-radius:30px;cursor:pointer;white-space:nowrap;}
+.undo-bar{display:flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:8px 10px 8px 12px;margin-bottom:12px;}
+.undo-bar .ub-btn{background:var(--blue);color:var(--dk);font-weight:800;font-size:13px;padding:8px 16px;border-radius:30px;cursor:pointer;flex-shrink:0;}
+.undo-bar .ub-last{font-size:12px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.undo-bar .ub-hist{background:var(--bg-light);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;padding:7px 12px;border-radius:30px;cursor:pointer;flex-shrink:0;}
+.hist-row{display:flex;align-items:center;gap:10px;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:6px;}
+.hist-body{flex:1;min-width:0;}
+.hist-label{font-size:13.5px;color:var(--text);font-weight:600;line-height:1.35;}
+.hist-meta{font-size:11px;color:var(--muted);margin-top:1px;}
 </style>
 <script>
 (function(){try{var t=JSON.parse(localStorage.getItem('cave_theme_cache')||'null');if(t){var r=document.documentElement.style;var m={'--bg':t.bg,'--bg-card':t.card,'--bg-light':t.lt,'--text':t.text,'--muted':t.muted,'--border':t.border,'--blue':t.accent,'--lb-score':t.score};for(var k in m){if(m[k])r.setProperty(k,m[k]);}}}catch(e){}
@@ -833,6 +841,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <!-- PLANNER -->
 <div class="tmr" id="timer"><div class="tmr-wrap" id="tmr-wrap"></div></div>
 <div class="planner w hidden" id="planner">
+<div id="undo-bar" class="undo-bar" style="display:none;"></div>
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);"><span class="sw" id="demo-sw" onclick="toggleDemo()" title="Show sample data on this device only"></span><span>Demo data <span style="opacity:.7;">(this device only)</span></span></div><button class="btn-sm" onclick="openSettings()">⚙️ Display & sharing settings</button></div>
 <div id="demo-banner" style="display:none;align-items:center;gap:10px;background:var(--amber-d);border:1px solid rgba(253,214,99,.35);color:var(--amber);border-radius:10px;padding:9px 13px;margin-bottom:14px;font-size:12.5px;font-weight:600;">Demo data is showing, only on this device. Real member submissions are unaffected.<button class="btn-sm" onclick="toggleDemo()" style="margin-left:auto;">Turn off</button></div>
 <div class="planner-grid" id="planner-grid">
@@ -1044,7 +1053,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
-const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
+const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
 const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
@@ -1160,15 +1169,29 @@ function subscribe(){
 }
 async function rowInsert(table,row){const r=Object.assign({id:uid()},row);cache[table].push(r);if(LIVE){if(table==='submissions'){const{error}=await sb.from(table).insert(r);if(error){alert('Submit failed: '+error.message);reportError('db-submit',error.message);}else{logActivity('submission_new','New submission from '+(r.name||'')+(r.category?' ('+r.category+')':''),'member');}}else{const{data,error}=await sb.from(table).insert(r).select().maybeSingle();if(error){alert('Save failed: '+error.message);reportError('db-insert',error.message);}else if(data){const i=cache[table].findIndex(x=>x.id===r.id);if(i>=0)cache[table][i]=data;}}}else lsSave();return r;}
 async function rowUpdate(table,id,patch){if(isDemo(id)){const dx=cache[table].find(r=>r.id===id);if(dx)Object.assign(dx,patch);return;}const x=cache[table].find(r=>r.id===id);if(x)Object.assign(x,patch);if(LIVE){const{error}=await sb.from(table).update(patch).eq('id',id);if(error){alert('Update failed: '+error.message);reportError('db-update',error.message);}}else lsSave();}
-async function rowDelete(table,id,noUndo){if(isDemo(id)){cache[table]=cache[table].filter(r=>r.id!==id);return;}const _snap=(function(){const r=cache[table].find(x=>x.id===id);return r?JSON.parse(JSON.stringify(r)):null;})();cache[table]=cache[table].filter(r=>r.id!==id);let _ok=true;if(LIVE){const{error}=await sb.from(table).delete().eq('id',id);if(error){_ok=false;alert('Delete failed: '+error.message);reportError('db-delete',error.message);}}else lsSave();if(_ok&&_snap&&!noUndo)pushUndo('Deleted '+undoNoun(table),async function(){await rowRestore(table,_snap);renderAll();});}
-/* ---------- UNDO (global safety net for accidental deletes) ---------- */
-let undoStack=[];
+async function rowDelete(table,id,noUndo){if(isDemo(id)){cache[table]=cache[table].filter(r=>r.id!==id);return;}const _snap=(function(){const r=cache[table].find(x=>x.id===id);return r?JSON.parse(JSON.stringify(r)):null;})();cache[table]=cache[table].filter(r=>r.id!==id);let _ok=true;if(LIVE){const{error}=await sb.from(table).delete().eq('id',id);if(error){_ok=false;alert('Delete failed: '+error.message);reportError('db-delete',error.message);}}else lsSave();if(_ok&&_snap&&!noUndo)recordHistory('delete','Deleted '+undoNoun(table),{table:table,row:_snap});}
+/* ---------- UNDO + VERSION HISTORY (persisted, auto-forgets after 2 weeks) ---------- */
 const UNDO_NOUNS={wods:'workout',leaderboard:'leaderboard entry',achievements:'achievement',events:'event',boards:'leaderboard',submissions:'submission',challenges:'challenge',ads:'ad',todos:'to-do',kpis:'KPI'};
 function undoNoun(t){return UNDO_NOUNS[t]||'item';}
-function pushUndo(label,fn){undoStack.push({label:label,fn:fn});if(undoStack.length>20)undoStack.shift();showUndoToast(label);}
-async function doUndo(){const u=undoStack.pop();if(!u){toast('Nothing to undo');return;}const ut=document.getElementById('cave-undo');if(ut)ut.classList.remove('show');try{await u.fn();toast('Undone — '+u.label.toLowerCase());}catch(e){toast('Undo failed');reportError('undo',e&&e.message);}}
+function recordHistory(kind,label,data){const entry={id:uid(),created_at:new Date().toISOString(),actor:(currentUser&&currentUser.email)||'admin',label:label,kind:kind,data:data};cache.history.unshift(entry);if(cache.history.length>200)cache.history.length=200;showUndoToast(label);renderUndoBar();if(LIVE){sb.from('history').insert(entry).then(function(){},function(){});}else lsSave();}
+async function loadHistory(){if(!LIVE||!currentUser)return;const cutoff=new Date(Date.now()-14*864e5).toISOString();try{sb.from('history').delete().lt('created_at',cutoff).then(function(){},function(){});}catch(e){}try{const{data}=await sb.from('history').select('*').gte('created_at',cutoff).order('created_at',{ascending:false}).limit(200);cache.history=data||[];}catch(e){cache.history=[];}renderUndoBar();}
+async function applyHistoryUndo(id){const i=cache.history.findIndex(function(h){return h.id===id;});if(i<0){toast('Already undone');return;}const h=cache.history[i],D=h.data||{};
+  try{
+    if(h.kind==='delete'){await rowRestore(D.table,D.row);}
+    else if(h.kind==='settingsKey'){const s=settings();s[D.key]=D.prev;await stateUpdate({settings:s});}
+    else if(h.kind==='boardDelete'){if(D.board)await rowRestore('boards',D.board);for(const e of (D.entries||[]))await rowRestore('leaderboard',e);}
+    else if(h.kind==='wodbatch'){await mesoUndoBatch(D.actions||[]);}
+    cache.history.splice(i,1);if(LIVE)sb.from('history').delete().eq('id',id).then(function(){},function(){});else lsSave();
+    renderAll();renderHistoryList();toast('Undone — '+String(h.label||'change').toLowerCase());
+  }catch(e){toast('Undo failed');reportError('history-undo',e&&e.message);}
+}
+async function doUndo(){const ut=document.getElementById('cave-undo');if(ut)ut.classList.remove('show');if(!cache.history||!cache.history.length){toast('Nothing to undo');return;}await applyHistoryUndo(cache.history[0].id);}
 async function rowRestore(table,row){cache[table].push(row);if(LIVE){const{error}=await sb.from(table).insert(row);if(error)reportError('db-restore',error.message);}else lsSave();}
 function showUndoToast(label){let t=document.getElementById('cave-undo');if(!t){t=document.createElement('div');t.id='cave-undo';t.className='cave-undo';document.body.appendChild(t);}t.innerHTML='<span>'+esc(label)+'</span><button onclick="doUndo()">↩ Undo</button>';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},8000);}
+function renderUndoBar(){const el=document.getElementById('undo-bar');if(!el)return;if(!isOwner()||!cache.history||!cache.history.length){el.style.display='none';el.innerHTML='';return;}const last=cache.history[0];el.style.display='';el.innerHTML='<button class="ub-btn" onclick="doUndo()">↩ Undo</button><span class="ub-last">'+esc(last.label||'')+'</span><button class="ub-hist" onclick="openModal(\'history\')">🕘 History</button>';}
+function historyHTML(){if(!isOwner())return '<div class="act-empty">Owner-only.</div>';return '<div class="meso-cap">Every change from the last 2 weeks — tap Undo to roll one back. Older entries are forgotten automatically.</div><div id="history-list">'+historyListHTML()+'</div>';}
+function historyListHTML(){const h=cache.history||[];if(!h.length)return '<div class="act-empty">No changes recorded yet.</div>';return h.map(function(e){const d=new Date(e.created_at);const when=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});return '<div class="hist-row"><div class="hist-body"><div class="hist-label">'+esc(e.label||e.kind||'Change')+'</div><div class="hist-meta">'+esc(when)+(e.actor?' · '+esc(e.actor):'')+'</div></div><button class="btn-sm" onclick="applyHistoryUndo(\''+esc(e.id)+'\')">↩ Undo</button></div>';}).join('');}
+function renderHistoryList(){const el=document.getElementById('history-list');if(el)el.innerHTML=historyListHTML();}
 async function stateUpdate(patch){Object.assign(cache.state,patch);if(LIVE){const{error}=await sb.from('app_state').update(patch).eq('id',1);if(error){alert('Save failed: '+error.message);reportError('state-save',error.message);}}else lsSave();}
 const ERR_ALERT={enabled:true,mode:'netlify',formName:'cave-error',webhook:'',email:'calebbrowny@gmail.com'};
 let _errSeen={},_errSent=0;
@@ -1307,7 +1330,7 @@ function cbRow(bid,x){const sc=`${esc(x.detail||'')}${x.score?(x.detail?' · ':'
 function cbEntries(b){const items=getBoard(b.id);const none='<div style="font-size:12px;color:var(--muted);">No entries yet.</div>';if(b.gender_split){const m=items.filter(x=>x.gender!=='f'),f=items.filter(x=>x.gender==='f');return '<div class="lb-sub-head">♂ Male</div>'+(m.length?m.map(x=>cbRow(b.id,x)).join(''):none)+'<div class="lb-sub-head">♀ Female</div>'+(f.length?f.map(x=>cbRow(b.id,x)).join(''):none);}return items.length?items.map(x=>cbRow(b.id,x)).join(''):none;}
 function renderCustomBoards(){const el=document.getElementById('customboards-list');if(!el)return;const _cbsw=document.getElementById('cb-live-sw');if(_cbsw)_cbsw.classList.toggle('on',customBoardsLive());const _cblbl=document.getElementById('cb-submit-label');if(_cblbl&&document.activeElement!==_cblbl)_cblbl.value=settings().customboard_submit_label||'Leaderboard';if(!cache.boards.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);">No custom leaderboards yet. Create one for your next event or member comp.</div>';return;}el.innerHTML=cache.boards.map(b=>{const on=b.show_in_display!==false;const cnt=getBoard(b.id).length;return `<div class="cb-card"><div class="cb-head"><div style="min-width:0;"><div class="cb-title">${esc(b.title)}</div><div class="cb-sub">${cnt} ${cnt===1?'entry':'entries'} · ${SORT_LBL[b.sort_type||'score']}${b.unit?' · '+esc(b.unit):''}${b.gender_split?' · split M/F':''}</div></div><div class="sw ${on?'on':''}" title="Show on display screen" onclick="toggleBoardDisplay('${b.id}',this)"></div></div><div class="cb-actions"><button class="btn-sm" onclick="openModal('board-entry',null,'${b.id}')">+ Add entry</button><button class="btn-sm" onclick="openModal('board','${b.id}')">Edit board</button><button class="btn-sm" onclick="delBoard('${b.id}')">Delete</button></div><div class="cb-entries">${cbEntries(b)}</div></div>`;}).join('');}
 async function toggleBoardDisplay(id,el){const b=cache.boards.find(x=>x.id===id);if(!b)return;const nv=!(b.show_in_display!==false);await rowUpdate('boards',id,{show_in_display:nv});if(el)el.classList.toggle('on',nv);renderDisplay();}
-async function delBoard(id){const b=cache.boards.find(x=>x.id===id);if(!confirm('Delete "'+(b?b.title:'this board')+'" and all of its entries?'))return;const entries=getBoard(id).slice();const boardSnap=b?JSON.parse(JSON.stringify(b)):null;const entrySnaps=entries.map(function(e){return JSON.parse(JSON.stringify(e));});for(const e of entries)await rowDelete('leaderboard',e.id,true);await rowDelete('boards',id,true);renderCustomBoards();renderDisplay();pushUndo('Deleted leaderboard',async function(){if(boardSnap)await rowRestore('boards',boardSnap);for(const es of entrySnaps)await rowRestore('leaderboard',es);renderAll();});}
+async function delBoard(id){const b=cache.boards.find(x=>x.id===id);if(!confirm('Delete "'+(b?b.title:'this board')+'" and all of its entries?'))return;const entries=getBoard(id).slice();const boardSnap=b?JSON.parse(JSON.stringify(b)):null;const entrySnaps=entries.map(function(e){return JSON.parse(JSON.stringify(e));});for(const e of entries)await rowDelete('leaderboard',e.id,true);await rowDelete('boards',id,true);renderCustomBoards();renderDisplay();recordHistory('boardDelete','Deleted leaderboard',{board:boardSnap,entries:entrySnaps});}
 async function delBoardEntry(id){await rowDelete('leaderboard',id);renderCustomBoards();renderDisplay();}
 async function saveBoard(){const t=val('f-btitle');if(!t)return;const row={title:t,subtitle:val('f-bsub'),unit:val('f-bunit'),sort_type:val('f-bsort')||'score',gender_split:val('f-bsplit')==='1',show_in_display:val('f-bdisp')==='1'};if(editId!==null)await rowUpdate('boards',editId,row);else{row.sort=cache.boards.length;await rowInsert('boards',row);}closeModal();renderCustomBoards();renderDisplay();}
 async function saveBoardEntry(){const n=val('f-name');if(!n||!curBoardId)return;const photo=await resolvePhoto();const row={board:curBoardId,name:n,gender:val('f-gender')||'m',detail:val('f-detail'),score:val('f-score'),unit:val('f-unit'),photo_url:photo};if(editId!==null)await rowUpdate('leaderboard',editId,row);else await rowInsert('leaderboard',row);closeModal();renderCustomBoards();renderDisplay();}
@@ -1382,6 +1405,7 @@ function openModal(type,id,extra){
   }
   else if(type==='meso'){mesoWork=mesoData();mesoUndo=[];t.textContent='🗓️ Mesocycle planner';b.innerHTML=mesoEditorHTML();}
   else if(type==='mesogen'){t.textContent='✨ Generate WODs';b.innerHTML=mesoGenHTML();}
+  else if(type==='history'){t.textContent='🕘 Version history';b.innerHTML=historyHTML();}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -2145,7 +2169,7 @@ function screenProfile(){if(!activeScreenSlug)return null;return (settings().scr
 function slugify(n){let s=String(n||'screen').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'screen';const taken=(settings().screens||[]).filter(x=>x.id!==editId).map(x=>x.slug);let out=s,i=2;while(taken.includes(out))out=s+'-'+(i++);return out;}
 function renderScreens(){const el=document.getElementById('screens-list');if(!el)return;const scr=settings().screens||[];el.innerHTML=scr.length?scr.map(p=>{const on=Object.values(p.show||{}).filter(Boolean).length+(p.boards||[]).length;return `<div class="scr-card"><div style="min-width:0;"><div class="cb-title">${esc(p.name)}</div><div class="cb-sub">#display/${esc(p.slug)} · ${on} section${on===1?'':'s'}${p.rotate?' · '+p.rotate+'s rotation':''}</div></div><div class="cb-actions" style="margin:0;"><button class="btn-sm" onclick="shareLink('display/${esc(p.slug)}')">Copy link</button><button class="btn-sm" onclick="openModal('screen','${p.id}')">Edit</button><button class="btn-sm" onclick="delScreen('${p.id}')">Delete</button></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--muted);">No screen profiles yet. Your 📊 The Wall tab shows the global mix; create profiles here to give each TV its own.</div>';}
 async function saveScreen(){const name=val('f-scrname');if(!name)return;const show={};SCREEN_KEYS.forEach(([k])=>{const e=document.getElementById('scr-k-'+k);show[k]=!!(e&&e.checked);});const boards=cache.boards.filter(b=>{const e=document.getElementById('scr-b-'+b.id);return e&&e.checked;}).map(b=>b.id);const rot=parseInt(val('f-scrrot'))||null;const s=settings();const screens=(s.screens||[]).slice();if(editId!==null){const i=screens.findIndex(x=>x.id===editId);if(i>=0)screens[i]=Object.assign({},screens[i],{name,slug:slugify(name),show,boards,rotate:rot});}else{screens.push({id:uid(),name,slug:slugify(name),show,boards,rotate:rot});}s.screens=screens;await stateUpdate({settings:s});closeModal();renderScreens();toast('Screen saved ✓');}
-async function delScreen(id){const s=settings();const p=(s.screens||[]).find(x=>x.id===id);if(!confirm('Delete screen "'+(p?p.name:'')+'"? Any TV using its link will fall back to the default display.'))return;const prev=JSON.parse(JSON.stringify(s.screens||[]));s.screens=(s.screens||[]).filter(x=>x.id!==id);await stateUpdate({settings:s});renderScreens();pushUndo('Deleted screen',async function(){const s2=settings();s2.screens=prev;await stateUpdate({settings:s2});renderScreens();});}
+async function delScreen(id){const s=settings();const p=(s.screens||[]).find(x=>x.id===id);if(!confirm('Delete screen "'+(p?p.name:'')+'"? Any TV using its link will fall back to the default display.'))return;const prev=JSON.parse(JSON.stringify(s.screens||[]));s.screens=(s.screens||[]).filter(x=>x.id!==id);await stateUpdate({settings:s});renderScreens();recordHistory('settingsKey','Deleted screen',{key:'screens',prev:prev});}
 
 /* ---------- MESOCYCLE PLANNER (visual only — does not touch the WOD generator) ---------- */
 // Periodization library. vol/int (0-100) drive the curves: volume high early then tapers,
@@ -2345,7 +2369,7 @@ async function mesoGenPublish(){const make=mesoGenList.filter(function(x){return
     else{const row=await rowInsert('wods',Object.assign({date:it.date,slot:'a'},f));if(row&&row.id)actions.push({type:'insert',id:row.id});}
   }
   logActivity('wod_generated','Generated '+make.length+' workouts ('+dateLabel(make[0].date,{day:'numeric',month:'short'})+' – '+dateLabel(make[make.length-1].date,{day:'numeric',month:'short'})+')');
-  if(actions.length)pushUndo('Published '+actions.length+' workout'+(actions.length===1?'':'s'),function(){return mesoUndoBatch(actions);});
+  if(actions.length)recordHistory('wodbatch','Published '+actions.length+' workout'+(actions.length===1?'':'s'),{actions:actions});
   renderAll();toast(make.length+' workouts published ✓');mesoGenList=[];mesoGenEditIdx=-1;mesoGenRerender();
 }
 async function mesoUndoBatch(actions){for(let i=0;i<actions.length;i++){const a=actions[i];
@@ -2481,7 +2505,7 @@ function handleSession(session){
   if(u&&!emailAllowed(u.email)){if(LIVE)sb.auth.signOut();currentUser=null;setUnlocked(false);toast('That email is not authorised.');return;}
   const was=isUnlocked();currentUser=u;const now=isUnlocked();
   setUnlocked(now);
-  if(now&&!was){hidePwGate();logActivity('login','Signed in',u&&u.email);fetchAll().then(()=>{renderAll();_setMode('plan');});}
+  if(now&&!was){hidePwGate();logActivity('login','Signed in',u&&u.email);fetchAll().then(()=>{loadHistory();renderAll();_setMode('plan');});}
 }
 function lockPlanner(){signOut();}
 
@@ -2542,7 +2566,7 @@ function initDrag(){document.querySelectorAll('.planner-sec').forEach(sec=>{
 
 /* ---------- RENDER ALL ---------- */
 function renderLive(){applyScales();applyAppearance();renderFocusNote();renderDualControls();renderEvents();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();buildAdminStrip();renderWOD();if(document.getElementById('eventpage').classList.contains('active'))renderEventPage();if(document.getElementById('display').classList.contains('active'))renderDisplay();}
-function renderAll(){applyScales();applyAppearance();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();loadWODForm();renderWOD();applyOrder();initDrag();}
+function renderAll(){applyScales();applyAppearance();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();loadWODForm();renderWOD();applyOrder();initDrag();renderUndoBar();}
 
 /* ===================== TIMER (SmartWOD-style, off by default) ===================== */
 const TMR_COL={amrap:'#fda942',fortime:'#5b8cff',emom:'#b06bff',tabata:'#22c598',mix:'#8ab4f8',rest:'#9aa0a6',work:'#22c598',ready:'#8ab4f8'};
@@ -2717,7 +2741,7 @@ async function boot(){
   if(LIVE){if(dot)dot.classList.add('on');if(txt)txt.textContent='Live';
     sb.auth.onAuthStateChange((event,session)=>handleSession(session));
     try{const{data}=await sb.auth.getSession();const u=data&&data.session&&data.session.user;if(u&&emailAllowed(u.email))currentUser=u;}catch(e){console.error(e);}
-    try{await fetchAll();subscribe();}catch(e){console.error(e);}}
+    try{await fetchAll();subscribe();loadHistory();}catch(e){console.error(e);}}
   else{if(txt)txt.textContent='Local';lsLoad();if(!cache.leaderboard.length){seedLocal();lsSave();}}
   setUnlocked(isUnlocked());
   applyDemo();
