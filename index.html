@@ -2331,7 +2331,8 @@ function tmrWakeOff(){try{if(TMR.wake){TMR.wake.release();TMR.wake=null;}}catch(
 /* ===== ACTIVITY LOG (password gated, very bottom of admin) ===== */
 function logActivity(type,summary,actor){try{if(!LIVE)return;sb.from('activity_log').insert({event_type:type,summary:summary,actor:actor||(currentUser&&currentUser.email)||'member'}).then(function(){},function(){});}catch(e){}}
 function logView(){try{if(!LIVE||isUnlocked())return;var m=currentMode||'wod';if(m==='plan')return;var lbl={wod:'WOD',submit:'Submit',disp:'Display',chal:'Challenge',event:'Event',timer:'Timer'}[m]||m;logActivity('view','Viewed '+lbl+(activeScreenSlug?' · '+activeScreenSlug:''),'member');}catch(e){}}
-function isOwner(){return !!currentUser && ALLOWED_EMAILS.includes((currentUser.email||'').trim().toLowerCase());}
+const SUPER_ADMINS=['calebbrowny@gmail.com'];
+function isOwner(){return !!currentUser && SUPER_ADMINS.includes((currentUser.email||'').trim().toLowerCase());}
 function toggleActivity(){const p=document.getElementById('act-panel');if(!p)return;const open=!(p.style.display&&p.style.display!=='none');p.style.display=open?'block':'none';const ch=document.getElementById('act-chev');if(ch)ch.style.transform=open?'rotate(0deg)':'rotate(-90deg)';if(open)renderActivity();}
 let saOpen={stats:true,feed:false,access:false};
 function saToggle(sec){saOpen[sec]=!saOpen[sec];renderActivity();}
