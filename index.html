@@ -779,10 +779,10 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
         <div class="wg-chips" id="wg-focus"><button class="wg-chip on" data-v="Auto" onclick="wgPick('focus',this)">Auto (fit the day)</button><button class="wg-chip" data-v="Strength" onclick="wgPick('focus',this)">Strength</button><button class="wg-chip" data-v="Engine" onclick="wgPick('focus',this)">Engine</button><button class="wg-chip" data-v="Endurance" onclick="wgPick('focus',this)">Endurance</button><button class="wg-chip" data-v="HYROX sim" onclick="wgPick('focus',this)">HYROX sim</button><button class="wg-chip" data-v="Partner" onclick="wgPick('focus',this)">Partner</button></div>
         <div class="wg-q">Length</div>
         <div class="wg-chips" id="wg-len"><button class="wg-chip" data-v="45 min" onclick="wgPick('len',this)">45 min</button><button class="wg-chip on" data-v="60 min" onclick="wgPick('len',this)">60 min</button><button class="wg-chip" data-v="75 min" onclick="wgPick('len',this)">75 min</button></div>
-        <div class="wg-q">Target stations <span style="opacity:.6;font-weight:400;">(optional — pick any)</span></div>
-        <div class="wg-chips" id="wg-station"><button class="wg-chip on" data-v="Any" onclick="wgToggleStation(this)">Any</button><button class="wg-chip" data-v="Run" onclick="wgToggleStation(this)">Run</button><button class="wg-chip" data-v="Ski" onclick="wgToggleStation(this)">Ski</button><button class="wg-chip" data-v="Row" onclick="wgToggleStation(this)">Row</button><button class="wg-chip" data-v="Sled" onclick="wgToggleStation(this)">Sled</button><button class="wg-chip" data-v="Wall balls" onclick="wgToggleStation(this)">Wall balls</button><button class="wg-chip" data-v="Burpees" onclick="wgToggleStation(this)">Burpees</button><button class="wg-chip" data-v="Carry" onclick="wgToggleStation(this)">Carry</button><button class="wg-chip" data-v="Lunges" onclick="wgToggleStation(this)">Lunges</button></div>
-        <div class="wg-q">Strength main lift <span style="opacity:.6;font-weight:400;">(on strength days)</span></div>
-        <div class="wg-chips" id="wg-lift"><button class="wg-chip on" data-v="Auto" onclick="wgPick('lift',this)">Auto</button><button class="wg-chip" data-v="Squat" onclick="wgPick('lift',this)">Squat</button><button class="wg-chip" data-v="Deadlift" onclick="wgPick('lift',this)">Deadlift</button><button class="wg-chip" data-v="RDL" onclick="wgPick('lift',this)">RDL</button><button class="wg-chip" data-v="Bench Press" onclick="wgPick('lift',this)">Bench Press</button><button class="wg-chip" data-v="Push Press" onclick="wgPick('lift',this)">Push Press</button><button class="wg-chip" data-v="Strict Press" onclick="wgPick('lift',this)">Strict Press</button><button class="wg-chip" data-v="Pull-up" onclick="wgPick('lift',this)">Pull-up</button><button class="wg-chip" data-v="BB Row" onclick="wgPick('lift',this)">BB Row</button></div>
+        <div class="wg-q">Strength movements <span style="opacity:.6;font-weight:400;">(strength days — pick any)</span></div>
+        <div class="wg-chips" id="wg-lift"><button class="wg-chip on" data-v="Auto" onclick="wgToggleStrength(this)">Auto</button><button class="wg-chip" data-v="Squat" onclick="wgToggleStrength(this)">Squat</button><button class="wg-chip" data-v="Deadlift" onclick="wgToggleStrength(this)">Deadlift</button><button class="wg-chip" data-v="RDL" onclick="wgToggleStrength(this)">RDL</button><button class="wg-chip" data-v="Bench Press" onclick="wgToggleStrength(this)">Bench Press</button><button class="wg-chip" data-v="Push Press" onclick="wgToggleStrength(this)">Push Press</button><button class="wg-chip" data-v="Strict Press" onclick="wgToggleStrength(this)">Strict Press</button><button class="wg-chip" data-v="Pull-up" onclick="wgToggleStrength(this)">Pull-up</button><button class="wg-chip" data-v="BB Row" onclick="wgToggleStrength(this)">BB Row</button></div>
+        <div class="wg-q">HYROX movements <span style="opacity:.6;font-weight:400;">(pick any)</span></div>
+        <div class="wg-chips" id="wg-station"><button class="wg-chip on" data-v="Any" onclick="wgToggleStation(this)">Any</button><button class="wg-chip" data-v="Run" onclick="wgToggleStation(this)">Run</button><button class="wg-chip" data-v="SkiErg" onclick="wgToggleStation(this)">SkiErg</button><button class="wg-chip" data-v="Sled Push" onclick="wgToggleStation(this)">Sled Push</button><button class="wg-chip" data-v="Sled Pull" onclick="wgToggleStation(this)">Sled Pull</button><button class="wg-chip" data-v="Row" onclick="wgToggleStation(this)">Row</button><button class="wg-chip" data-v="Burpee Broad Jump" onclick="wgToggleStation(this)">Burpee Broad Jump</button><button class="wg-chip" data-v="Farmers Carry" onclick="wgToggleStation(this)">Farmers Carry</button><button class="wg-chip" data-v="Sandbag Lunge" onclick="wgToggleStation(this)">Sandbag Lunge</button><button class="wg-chip" data-v="Wall Balls" onclick="wgToggleStation(this)">Wall Balls</button></div>
         <div class="wg-q">Equipment</div>
         <div class="wg-chips" id="wg-equip"><button class="wg-chip on" data-v="Full" onclick="wgPick('equip',this)">Full kit</button><button class="wg-chip" data-v="NoBar" onclick="wgPick('equip',this)">No barbell</button><button class="wg-chip" data-v="BW" onclick="wgPick('equip',this)">Bodyweight</button></div>
         <div class="wg-q">Gym context</div>
@@ -1569,10 +1569,11 @@ async function saveWOD(){
   loadWODForm();renderWOD();renderDisplay();
 }
 let wgFocus='Auto',wgLen='60 min',wodGenLast=null,wgLastCore='',wodGenApplied=false;
-let wgCtxOn=false,wgClassSize=12,wgStations=['Any'],wgEquip='Full',wgLift='Auto';
+let wgCtxOn=false,wgClassSize=12,wgStations=['Any'],wgEquip='Full',wgStrengths=['Auto'];
 function openWodGen(){const p=document.getElementById('wod-gen-panel');if(!p)return;p.style.display=(p.style.display==='none'||!p.style.display)?'block':'none';if(p.style.display==='block')p.scrollIntoView({behavior:'smooth',block:'nearest'});}
-function wgPick(group,el){const wrap=el.parentNode;wrap.querySelectorAll('.wg-chip').forEach(b=>b.classList.remove('on'));el.classList.add('on');if(group==='focus')wgFocus=el.dataset.v;else if(group==='class')wgClassSize=parseInt(el.dataset.v,10);else if(group==='lift')wgLift=el.dataset.v;else if(group==='equip')wgEquip=el.dataset.v;else wgLen=el.dataset.v;}
+function wgPick(group,el){const wrap=el.parentNode;wrap.querySelectorAll('.wg-chip').forEach(b=>b.classList.remove('on'));el.classList.add('on');if(group==='focus')wgFocus=el.dataset.v;else if(group==='class')wgClassSize=parseInt(el.dataset.v,10);else if(group==='equip')wgEquip=el.dataset.v;else wgLen=el.dataset.v;}
 function wgToggleStation(el){const v=el.dataset.v;if(v==='Any'){wgStations=['Any'];}else{wgStations=wgStations.filter(function(x){return x!=='Any';});const i=wgStations.indexOf(v);if(i>=0)wgStations.splice(i,1);else wgStations.push(v);if(!wgStations.length)wgStations=['Any'];}el.parentNode.querySelectorAll('.wg-chip').forEach(function(b){b.classList.toggle('on',wgStations.indexOf(b.dataset.v)>=0);});}
+function wgToggleStrength(el){const v=el.dataset.v;if(v==='Auto'){wgStrengths=['Auto'];}else{wgStrengths=wgStrengths.filter(function(x){return x!=='Auto';});const i=wgStrengths.indexOf(v);if(i>=0)wgStrengths.splice(i,1);else wgStrengths.push(v);if(!wgStrengths.length)wgStrengths=['Auto'];}el.parentNode.querySelectorAll('.wg-chip').forEach(function(b){b.classList.toggle('on',wgStrengths.indexOf(b.dataset.v)>=0);});}
 function wgToggleCtx(el){wgCtxOn=el.checked;const d=document.getElementById('wg-ctx-detail');if(d)d.style.display=wgCtxOn?'block':'none';}
 /* ===== LOCAL WORKOUT GENERATOR — no API, built on The Cave's HYROX class logic ===== */
 const WG_NAMES=['QUARRY','AVALANCHE','BEDROCK','TREMOR','GRANITE','OBSIDIAN','BASALT','RUMBLE','FAULTLINE','MAGMA','CRATER','BOULDER','SLATE','FLINT','GRIT','TURBINE','FORGE','ANVIL','CINDER','RICHTER','LANDSLIDE','SUMMIT','RIDGELINE','THE QUARRY','SANDSTORM','SCREE','SHALE','TALUS','MANTLE','BACKDRAFT','GEYSER','TECTONIC','EPICENTRE','MONOLITH','UNDERTOW','BRIMSTONE','STALACTITE'];
@@ -1586,7 +1587,7 @@ const HYROX=[
   {k:'carry',n:'Farmers Carry',rx:'200m farmers carry, 24/32 kg',sc:'100m farmers carry, lighter'},
   {k:'lunge',n:'Sandbag Lunges',rx:'100m sandbag lunge, 20/30 kg',sc:'50m walking lunge'},
   {k:'wallball',n:'Wall Balls',rx:'75/100 wall balls, 6/9 kg',sc:'40 wall balls, lighter'}];
-function wgStationKey(s){return {Ski:'ski',Sled:'sledpush',Row:'row','Wall balls':'wallball',Burpees:'burpee',Carry:'carry',Lunges:'lunge',Run:'run'}[s]||null;}
+function wgStationKey(s){return {Ski:'ski',SkiErg:'ski',Sled:'sledpush','Sled Push':'sledpush','Sled Pull':'sledpull',Row:'row','Wall balls':'wallball','Wall Balls':'wallball',Burpees:'burpee','Burpee Broad Jump':'burpee',Carry:'carry','Farmers Carry':'carry',Lunges:'lunge','Sandbag Lunge':'lunge',Run:'run'}[s]||null;}
 function wgStationMove(key,want){const bw=want.bodyweight;return {
   ski:'15/12 cal ski',row:'15/12 cal row',bike:'15/12 cal bike',
   sledpush:bw?'40m bear crawl':'25m sled push',
@@ -1643,15 +1644,29 @@ function wgStrength(want,len){
     lower:[{n:'Tempo squat',rx:'3s down, 1s pause, bodyweight or light goblet',sc:'box squat to a comfy depth'},{n:'Bulgarian split squat',rx:'pause at the bottom, tall torso',sc:'hold the rig for balance'},{n:'Walking lunge',rx:'long steps, back knee kisses the floor',sc:'shorter steps, hold support'}],
     upper:[{n:'Tempo push-up',rx:'3s lower, chest to the floor',sc:'incline push-ups on a box'},{n:'Strict pull-up',rx:'full hang to chin over the bar',sc:'ring rows or banded pull-ups'},{n:'Pike push-up',rx:'head to the floor, push tall',sc:'box pike push-ups'}],
     posterior:[{n:'Single-leg glute bridge',rx:'pause at the top, squeeze hard',sc:'two-leg glute bridge'},{n:'Nordic curl negative',rx:'lower as slowly as you can',sc:'banded hamstring curl'},{n:'Single-leg RDL',rx:'slow, balanced, bodyweight or light DB',sc:'hold a wall for balance'}]};
-  let pat,lift;
-  if(want.lift&&WG_LIFTS[want.lift]){const L=WG_LIFTS[want.lift];pat=L.pat;if(want.bodyweight)lift={n:L.bw||L.sc,rx:'tough but clean, full control',sc:L.sc};else if(want.noBarbell)lift={n:L.sc,rx:L.rx,sc:L.bw||L.sc};else lift={n:L.n,rx:L.rx,sc:L.sc};}
-  else{pat=want.pattern&&pats[want.pattern]?want.pattern:wgRand(['lower','upper','posterior']);const list=want.bodyweight?bwPats[pat]:(want.noBarbell?noBarPats[pat]:pats[pat]);lift=wgRand(list);}
   const scheme=want.bodyweight
     ?wgRand(['5 x 8, controlled tempo','4 x 12, smooth and strict','6 x 6 with a 3-second lower','5 sets of a tough 10'])
     :wgRand(['5 x 5, building across the sets','5 x 3, building to a heavy triple','4 x 6 across at the same tough weight','6 x 2 on a 90-second clock, fast and crisp','wave of 5, 3, 1, 5, 3, 1, building each wave','5-4-3-2-1 ascending in weight','3 x 8 then 3 x 3, volume into a heavy finish']);
   const partAmin=len==='45 min'?'18':(len==='75 min'?'26':'22');
   const rest=len==='45 min'?'rest about 90 seconds':'rest about 2 minutes';
-  const a='PART A - Strength (~'+partAmin+' min)\n'+lift.n+': '+scheme+', '+rest+' between sets.\nRX: '+lift.rx+'.\nScaled: '+lift.sc+'.';
+  const chosenLifts=(want.lifts||[]).map(function(k){return WG_LIFTS[k];}).filter(Boolean);
+  const liftName=function(L){return want.bodyweight?(L.bw||L.sc):(want.noBarbell?L.sc:L.n);};
+  const liftScale=function(L){return want.bodyweight?L.sc:(want.noBarbell?(L.bw||L.sc):L.sc);};
+  let pat,a;
+  if(chosenLifts.length){
+    pat=chosenLifts[0].pat;
+    if(chosenLifts.length>1){
+      a='PART A - Strength (main lifts)\n'+chosenLifts.map(function(L){return liftName(L)+': '+scheme;}).join('\n')+'\nStraight sets, '+rest+'. Heavy but clean, leave 1-2 in the tank; alternate the lifts if short on time.\nScaled: '+chosenLifts.map(liftScale).join('; ')+'.';
+    }else{
+      const L=chosenLifts[0];
+      a='PART A - Strength (~'+partAmin+' min)\n'+liftName(L)+': '+scheme+', '+rest+' between sets.\nRX: '+L.rx+'.\nScaled: '+liftScale(L)+'.';
+    }
+  }else{
+    pat=want.pattern&&pats[want.pattern]?want.pattern:wgRand(['lower','upper','posterior']);
+    const list=want.bodyweight?bwPats[pat]:(want.noBarbell?noBarPats[pat]:pats[pat]);
+    const L=wgRand(list);
+    a='PART A - Strength (~'+partAmin+' min)\n'+L.n+': '+scheme+', '+rest+' between sets.\nRX: '+L.rx+'.\nScaled: '+L.sc+'.';
+  }
   const stings=[
     {t:'8 rounds: 30s machine sprint (ski, row, bike or runner, your pick), 90s easy.',rx:'hard, hold the same calories every round',sc:'20s on, 100s easy'},
     {t:'10 min AMRAP: 12 KB swings, 10 burpees, '+wgRun(want,'200m')+'.',rx:'unbroken swings, steady run',sc:'8 swings, 6 burpees'},
@@ -1809,7 +1824,7 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
   if(focus==='Auto'){const idx=DAY_IDX[dayName];F=(idx==null?'Engine':DAYFOCUS[idx]);if(F==='Strength')want.pattern=STR_PATTERN[idx]||wgRand(['lower','upper','posterior']);}
   if(focus==='HYROX sim'){F='Challenge';want.hyroxSim=true;}
   if(want.partner)F='Partner';
-  if(ctx&&ctx.lift&&ctx.lift!=='Auto')want.lift=ctx.lift;
+  if(ctx&&ctx.lifts){const ls=ctx.lifts.filter(function(x){return x&&x!=='Auto';});if(ls.length)want.lifts=ls;}
   let out;const multiSt=want.stations&&want.stations.length>=2;
   if(multiSt&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgStationCircuit(want,length);out.focus=F;}
   else if(want.bodyweight&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgBodyweight(want,length);out.focus=F;}
@@ -1826,7 +1841,7 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
 function genWod(surprise){
   const res=document.getElementById('wod-gen-result');if(!res)return;
   const focus=surprise?'Auto':(wgFocus||'Auto');const length=surprise?'60 min':(wgLen||'60 min');const notes=surprise?'':val('wg-notes');
-  const ctx={on:wgCtxOn,size:wgClassSize,stations:surprise?['Any']:wgStations,equip:surprise?'Full':wgEquip,lift:surprise?'Auto':wgLift};
+  const ctx={on:wgCtxOn,size:wgClassSize,stations:surprise?['Any']:wgStations,equip:surprise?'Full':wgEquip,lifts:surprise?['Auto']:wgStrengths};
   res.innerHTML='<div class="wg-loading"><span class="wg-spin"></span>Building your workout…</div>';
   setTimeout(()=>{
     try{
