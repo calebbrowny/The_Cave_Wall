@@ -74,6 +74,34 @@ No-API, built from The Cave's HYROX logic. Key pieces:
   `wgEquip`, `wgCtxOn`, `wgClassSize`. Flow: `wgPick`/`wgToggleStation`/`wgToggleStrength` →
   `genWod` (builds `ctx`) → `buildWod` → builders.
 
+## Mesocycle planner & phase-matched batch generation (admin → WOD → "🗓️ Mesocycles")
+- Visual periodization planner. Plan = `app_state.settings.mesocycle` =
+  `{race, raceDate, start, notes, blocks:[{id,type,name,weeks,focus,vol,int,color}]}`. `MESO_PHASES`
+  (base/build/specific/peak/taper/deload/custom) give each block its default colour + vol/int curve;
+  `mesoSmartPlan(start,race)` auto-fits 4–8-week blocks to the runway. `mesoSvg()` draws the volume area +
+  intensity line + phase bands + today/race markers (theme-aware via `cssVar`). Editor = wide modal
+  (`openModal('meso')`); in-modal undo stack (`mesoPush`/`mesoUndoPop`). Visual only — does not change manual generation.
+- **Generate WODs from the plan** (`openModal('mesogen')`): for each selected training day,
+  `MESO_PROG[phaseType][weekday]` picks a focus → `buildWod` → preview. Fills **empty days only** unless the
+  "Overwrite" toggle is on. Tap a preview row to reroll / change focus / hand-edit it. Publish inserts (or
+  updates, if overwriting) `wods`; the whole batch is a single reversible `history` entry.
+
+## Undo, version history, owner controls & tab names
+- **Undo is durable, not session-only.** `rowDelete`, board/screen deletes, published WOD batches and WOD
+  **edits** (`saveWOD`, only when content changed) call `recordHistory(kind,label,data)` → writes a reversible
+  row to `history` + shows a "↩ Undo" toast (any admin). `applyHistoryUndo(id)`/`doUndo()` reverse + delete.
+  `kind` ∈ delete / settingsKey / boardDelete / wodedit / wodbatch.
+- **Owner-only UI** (gated by `isOwner()` = `calebbrowny@gmail.com`, the sole owner): an **undo bar** in the
+  planner top row (next to ⚙️ settings) — `renderUndoBar()`, always shown for the owner, Undo greys out when
+  empty; a **🕘 Version history** modal (`openModal('history')`) listing the last 14 days.
+- **Owner controls** accordion (bottom of planner, `#owner-wrap`, owner-only): Demo data (device),
+  Reduce motion (device → `body.reduce-motion`), Accept member submissions (`settings.submissions_open`,
+  gates the public Submit page), Log page views (`settings.analytics_on`, gates `logView`).
+- **Tab names** (Super Admin → 🏷️ Tab names, owner-only): rename nav tabs via `settings.tab_names` →
+  `applyTabNames()` sets the `.tl` span inside each `#m-*` button (live preview on type, save on blur). Emoji-on-tabs
+  toggle = `appearance.tab_emojis` → `body.no-tab-emoji`; nav labels live in `.tl`, emoji in `.te`. On phones the
+  Cave logo is hidden (`@media(max-width:760px) .nav .logo{display:none}`) so tabs get full width.
+
 ## Recipe: a new batch of uploaded workouts
 The owner uploads via the WOD admin (rows land in `wods`). To give a batch the standard treatment:
 1. **Back up first:** `create table if not exists wods_backup_<note> as select * from wods;`
@@ -102,7 +130,7 @@ in the output. Also run a quick inline-`<script>` syntax check (`new vm.Script(s
   put a real secret in client JS — it's all viewable in the console. There is no shared password (the old
   client-side activity-log password was removed); access = the OTP email login.
 - **Super Admin** (bottom of the admin panel, owner-only via `isOwner()`): collapsible Stats / Activity
-  tracker / Admin access sections. Page views are logged per public load (`logView`), tagged by surface,
+  tracker / Admin access / Tab names sections. Page views are logged per public load (`logView`), tagged by surface,
   and excluded from the activity feed (they power the Stats tab).
 - Appearance/theme, per-device display scaling, demo data, ads rotator, display "screens" (per-TV
   links), monthly challenges, custom leaderboards and an event-page builder all live in the same file.
