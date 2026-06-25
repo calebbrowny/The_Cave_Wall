@@ -1159,7 +1159,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
-const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
+const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
 const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
@@ -1271,11 +1271,12 @@ async function fetchAll(){
   ]);
   cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];cache.row500=(rw&&rw.data)||[];cache.benchmarks=(bm&&bm.data)||[];applyDemo();
   if(st.data)cache.state={wod:st.data.wod||{},settings:st.data.settings||{},focus_override:st.data.focus_override||null,challenge_title:st.data.challenge_title||'Monthly Challenge',event_page:st.data.event_page||{enabled:false,title:'Event',subtitle:'',sections:[]}};
+  if(currentUser){try{const{data:bp}=await sb.from('benchmark_phones').select('*');cache.benchmark_phones=bp||[];}catch(e){}}
 }
 function subscribe(){
   sb.channel('cave-live').on('postgres_changes',{event:'*',schema:'public'},async()=>{await fetchAll();renderLive();}).subscribe();
 }
-async function rowInsert(table,row){const r=Object.assign({id:uid()},row);cache[table].push(r);if(LIVE){if(table==='submissions'){const{error}=await sb.from(table).insert(r);if(error){alert('Submit failed: '+error.message);reportError('db-submit',error.message);}else{logActivity('submission_new','New submission from '+(r.name||'')+(r.category?' ('+r.category+')':''),'member');}}else{const{data,error}=await sb.from(table).insert(r).select().maybeSingle();if(error){alert('Save failed: '+error.message);reportError('db-insert',error.message);}else if(data){const i=cache[table].findIndex(x=>x.id===r.id);if(i>=0)cache[table][i]=data;}}}else lsSave();return r;}
+async function rowInsert(table,row){const r=Object.assign({id:uid()},row);cache[table].push(r);if(LIVE){if(table==='submissions'){const{error}=await sb.from(table).insert(r);if(error){alert('Submit failed: '+error.message);reportError('db-submit',error.message);}else{logActivity('submission_new','New submission from '+(r.name||'')+(r.category?' ('+r.category+')':''),'member');}}else if(table==='benchmarks'){const{error}=await sb.from(table).insert(r);if(error){alert('Save failed: '+error.message);reportError('db-insert',error.message);}}else{const{data,error}=await sb.from(table).insert(r).select().maybeSingle();if(error){alert('Save failed: '+error.message);reportError('db-insert',error.message);}else if(data){const i=cache[table].findIndex(x=>x.id===r.id);if(i>=0)cache[table][i]=data;}}}else lsSave();return r;}
 async function rowUpdate(table,id,patch){if(isDemo(id)){const dx=cache[table].find(r=>r.id===id);if(dx)Object.assign(dx,patch);return;}const x=cache[table].find(r=>r.id===id);if(x)Object.assign(x,patch);if(LIVE){const{error}=await sb.from(table).update(patch).eq('id',id);if(error){alert('Update failed: '+error.message);reportError('db-update',error.message);}}else lsSave();}
 async function rowDelete(table,id,noUndo){if(isDemo(id)){cache[table]=cache[table].filter(r=>r.id!==id);return;}const _snap=(function(){const r=cache[table].find(x=>x.id===id);return r?JSON.parse(JSON.stringify(r)):null;})();cache[table]=cache[table].filter(r=>r.id!==id);let _ok=true;if(LIVE){const{error}=await sb.from(table).delete().eq('id',id);if(error){_ok=false;alert('Delete failed: '+error.message);reportError('db-delete',error.message);}}else lsSave();if(_ok&&_snap&&!noUndo)recordHistory('delete','Deleted '+undoNoun(table),{table:table,row:_snap});}
 /* ---------- UNDO + VERSION HISTORY (persisted, auto-forgets after 2 weeks) ---------- */
@@ -2745,7 +2746,8 @@ function bmCycleInfo(){const c=bmConfig();if(!c.start)return {valid:false};const
   if(diff<0)return {valid:true,before:true,active:false,cycleKey:null,nextStart:c.start};
   const idx=Math.floor(diff/len);const cycleStart=mesoAddDays(c.start,idx*len);
   return {valid:true,before:false,active:((diff-idx*len)<7),cycleKey:cycleStart,idx:idx,nextStart:mesoAddDays(c.start,(idx+1)*len),prevKey:idx>0?mesoAddDays(c.start,(idx-1)*len):null};}
-function bmKey(e){const p=(e.phone||'').replace(/\D/g,'');return p||(e.name||'').trim().toLowerCase();}
+function bmKey(e){return (e.name||'').trim().toLowerCase();}
+function bmFmtPhone(v){var d=String(v==null?'':v).replace(/\D/g,'').slice(0,10);if(d.length<=4)return d;if(d.length<=7)return d.slice(0,4)+' '+d.slice(4);return d.slice(0,4)+' '+d.slice(4,7)+' '+d.slice(7);}
 function bmRealCycle(k){return (cache.benchmarks||[]).filter(function(e){return e.cycle===k;});}
 function bmSampleOn(){try{return localStorage.getItem('cave_bm_sample')==='1';}catch(e){return false;}}
 function bmSamples(){const info=bmCycleInfo();if(!info.valid||info.before)return [];const c=bmConfig();const low=c.dir==='low';const ppl=['Caleb B','Tim R','Em K','Jordan K','Sara T','Mick D'];const sx=['m','m','f','m','f','m'];const back=[14,6,-4,9,0,5];const out=[];ppl.forEach(function(nm,i){const phone='sample'+i;const cur=low?(540+i*22):(128-i*9);const prev=low?(cur+back[i]):(cur-back[i]);out.push({id:'bms-c'+i,name:nm,phone:phone,sex:sx[i],score:cur,cycle:info.cycleKey});if(info.prevKey)out.push({id:'bms-p'+i,name:nm,phone:phone,sex:sx[i],score:prev,cycle:info.prevKey});});return out;}
@@ -2772,7 +2774,7 @@ function renderBenchmark(){const wrap=document.getElementById('wod-benchmark');i
   h+='</div>';wrap.innerHTML=h;
 }
 function bmScoreFieldHTML(){const c=bmConfig();if(c.dir==='low')return '<div class="fld"><label>Your time</label><div class="rtime"><input id="bm-min" inputmode="numeric" maxlength="2" placeholder="min"><span class="rtime-c">:</span><input id="bm-sec" inputmode="numeric" maxlength="2" placeholder="sec"></div></div>';return '<div class="fld"><label>Your score'+(c.unit?(' ('+esc(c.unit)+')'):'')+'</label><input id="bm-num" inputmode="numeric" maxlength="5" placeholder="e.g. 120"></div>';}
-function bmFormHTML(){return '<div class="bm-form"><div class="bm-form-h">Log your score</div><div class="fld"><label>Name</label><input id="bm-name" placeholder="Your name"></div><div class="fld"><label>Sex</label><div class="rsex"><button type="button" class="rsex-btn'+(bmSexPick==='m'?' on':'')+'" onclick="bmPickSex(\'m\',this)">Male</button><button type="button" class="rsex-btn'+(bmSexPick==='f'?' on':'')+'" onclick="bmPickSex(\'f\',this)">Female</button></div></div><div class="fld"><label>Phone <span style="opacity:.6;">(optional — links your scores over time)</span></label><input id="bm-phone" inputmode="tel" placeholder="0400 000 000"></div>'+bmScoreFieldHTML()+'<button class="btn-full" onclick="bmSubmit()">Submit my score</button><div id="bm-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div></div>';}
+function bmFormHTML(){return '<div class="bm-form"><div class="bm-form-h">Log your score</div><div class="fld"><label>Name</label><input id="bm-name" placeholder="Your name"></div><div class="fld"><label>Sex</label><div class="rsex"><button type="button" class="rsex-btn'+(bmSexPick==='m'?' on':'')+'" onclick="bmPickSex(\'m\',this)">Male</button><button type="button" class="rsex-btn'+(bmSexPick==='f'?' on':'')+'" onclick="bmPickSex(\'f\',this)">Female</button></div></div><div class="fld"><label>Phone <span style="opacity:.6;">(optional — kept private, coaches only)</span></label><input id="bm-phone" inputmode="tel" maxlength="12" placeholder="0412 345 678" oninput="this.value=bmFmtPhone(this.value)"></div>'+bmScoreFieldHTML()+'<button class="btn-full" onclick="bmSubmit()">Submit my score</button><div id="bm-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div></div>';}
 function bmToggleBoard(){bmBoardOpen=!bmBoardOpen;renderBenchmark();}
 function bmCardCollapsed(){try{return localStorage.getItem('cave_bm_collapsed')==='1';}catch(e){return false;}}
 function bmToggleCard(){try{localStorage.setItem('cave_bm_collapsed',bmCardCollapsed()?'0':'1');}catch(e){}renderBenchmark();}
@@ -2784,11 +2786,14 @@ function bmLastResultHTML(c){const r=bmLastResult;if(!r)return '';let msg=r.rank
 async function bmSubmit(){const c=bmConfig();const info=bmCycleInfo();const err=document.getElementById('bm-err');
   if(!info.valid||!info.active){if(err)err.textContent='Submissions are closed right now.';return;}
   const name=val('bm-name');if(!name){if(err)err.textContent='Enter your name.';return;}
-  const phone=val('bm-phone');let score=null;
+  const phoneDigits=val('bm-phone').replace(/\D/g,'');
+  if(phoneDigits&&!/^04\d{8}$/.test(phoneDigits)){if(err)err.textContent='Enter a valid Australian mobile (04xx xxx xxx) or leave it blank.';return;}
+  const phone=phoneDigits?bmFmtPhone(phoneDigits):null;let score=null;
   if(c.dir==='low'){const M=parseInt(val('bm-min'),10)||0,S=parseInt(val('bm-sec'),10);if(isNaN(S)&&!M){if(err)err.textContent='Enter your time.';return;}const sc=isNaN(S)?0:S;if(sc>59){if(err)err.textContent='Seconds must be 0–59.';return;}score=M*60+sc;if(!(score>0)){if(err)err.textContent='Enter a valid time.';return;}}
   else{const n=parseInt(val('bm-num'),10);if(!(n>0)){if(err)err.textContent='Enter your score.';return;}score=n;}
-  await rowInsert('benchmarks',{name:name,phone:phone||null,score:score,sex:bmSexPick,cycle:info.cycleKey});
-  const k=bmKey({name:name,phone:phone});
+  const r=await rowInsert('benchmarks',{name:name,score:score,sex:bmSexPick,cycle:info.cycleKey});
+  if(phone&&LIVE){try{sb.from('benchmark_phones').insert({ref:r&&r.id,name:name,phone:phone}).then(function(){},function(){});}catch(e){}}
+  const k=bmKey({name:name});
   const board=bmBest(bmCycleEntries(info.cycleKey),c);
   const myBest=bmBestScore(bmCycleEntries(info.cycleKey).filter(function(e){return bmKey(e)===k;}),c);
   const rank=board.findIndex(function(e){return bmKey(e)===k;})+1;
@@ -2810,13 +2815,14 @@ function bmAdminHTML(){const c=bmConfig();const info=bmCycleInfo();
   if(info.valid&&!info.before){const list=bmRealCycle(info.cycleKey).slice().sort(function(a,b){return (c.dir==='low')?(a.score-b.score):(b.score-a.score);});h+='<div class="set-section" style="margin:8px 0 6px;">Entries this cycle ('+list.length+')</div><div id="bm-admin-list">'+bmAdminListHTML(list,c)+'</div>';}
   return h;
 }
-function bmAdminListHTML(list,c){if(!list.length)return '<div class="bm-empty">No entries yet.</div>';return list.map(function(e){return '<div class="rlist-row"><span class="rl-name">'+esc(e.name||'')+(e.phone?' · '+esc(e.phone):'')+'</span><span class="rl-sex">'+((e.sex||'m')==='f'?'F':'M')+'</span><span class="rl-time">'+bmFmt(e.score,c)+'</span><button class="rl-x" onclick="bmDelEntry(\''+e.id+'\')">del</button></div>';}).join('');}
+function bmPhoneFor(id){const p=(cache.benchmark_phones||[]).find(function(x){return x.ref===id;});return p&&p.phone?p.phone:'';}
+function bmAdminListHTML(list,c){if(!list.length)return '<div class="bm-empty">No entries yet.</div>';return list.map(function(e){const ph=bmPhoneFor(e.id);return '<div class="rlist-row"><span class="rl-name">'+esc(e.name||'')+(ph?' · '+esc(ph):'')+'</span><span class="rl-sex">'+((e.sex||'m')==='f'?'F':'M')+'</span><span class="rl-time">'+bmFmt(e.score,c)+'</span><button class="rl-x" onclick="bmDelEntry(\''+e.id+'\')">del</button></div>';}).join('');}
 function renderBmAdmin(){const mb=document.getElementById('modal-body');if(mb&&document.getElementById('modal').classList.contains('open'))mb.innerHTML=bmAdminHTML();}
 async function bmSet(k,v){const s=settings();const b=Object.assign({},s.benchmark||{});if(b.body==null)b.body=(b.dir==='high'?BM_DEFAULT_BODY_REPS:BM_DEFAULT_BODY);
   if(k==='dir'){if(v==='high'&&b.body===BM_DEFAULT_BODY)b.body=BM_DEFAULT_BODY_REPS;else if(v==='low'&&b.body===BM_DEFAULT_BODY_REPS)b.body=BM_DEFAULT_BODY;}
   b[k]=v;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();}
 async function bmToggleOn(){const s=settings();const b=Object.assign({},s.benchmark||{});b.on=!(b.on===true);if(b.body==null)b.body=BM_DEFAULT_BODY;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();toast(b.on?'Benchmark test live':'Benchmark test off');}
-async function bmDelEntry(id){if(String(id).indexOf('bms-')===0)return;if(!confirm('Delete this entry?'))return;await rowDelete('benchmarks',id);renderBmAdmin();renderBenchmark();}
+async function bmDelEntry(id){if(String(id).indexOf('bms-')===0)return;if(!confirm('Delete this entry?'))return;await rowDelete('benchmarks',id);if(LIVE){try{sb.from('benchmark_phones').delete().eq('ref',id).then(function(){},function(){});}catch(e){}}cache.benchmark_phones=(cache.benchmark_phones||[]).filter(function(x){return x.ref!==id;});renderBmAdmin();renderBenchmark();}
 
 /* ---------- HOVER NAV ---------- */
 let navTimer=null;
