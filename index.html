@@ -2733,7 +2733,8 @@ async function toggleMaintenance(){const s=settings();s.maintenance_on=!(s.maint
 
 /* ---------- RECURRING BENCHMARK TEST (bottom of the WOD page) ---------- */
 const BM_DEFAULT_BODY='For Time:\n\n1 km Run\n750 m Ski Erg\n40 Sandbag Lunges (22.5/15 kg)\n30 Burpees over the Sandbag\n1 km Run\n\nScale: drop the runs to 600 m and reps to 30/20 if needed.\nSame test every cycle — chase your last time.';
-function bmConfig(){const s=settings();const b=(s&&s.benchmark)||{};return {on:b.on===true,title:b.title||'The Cave Benchmark',start:b.start||'',weeks:Math.max(1,+b.weeks||6),body:(b.body!=null?b.body:BM_DEFAULT_BODY),dir:b.dir||'low',unit:b.unit||'reps'};}
+const BM_DEFAULT_BODY_REPS='AMRAP in 14 minutes:\n\n200 m Run\n12 Sandbag Lunges (22.5/15 kg)\n12 Burpees over the Sandbag\n12/10 Cal Ski Erg\n\nScore = total reps. Count each lunge, burpee and cal as 1; each 200 m run = 12.\nScale weight/cals to keep moving. Same test every cycle — beat your reps.';
+function bmConfig(){const s=settings();const b=(s&&s.benchmark)||{};return {on:b.on===true,title:b.title||'The Cave Benchmark',start:b.start||'',weeks:Math.max(1,+b.weeks||6),body:(b.body!=null?b.body:(b.dir==='high'?BM_DEFAULT_BODY_REPS:BM_DEFAULT_BODY)),dir:b.dir||'low',unit:b.unit||'reps'};}
 function bmOn(){return bmConfig().on;}
 function bmFmt(score,c){c=c||bmConfig();if(score==null)return '—';return (c.dir==='low')?rowSecToMMSS(score):(score+(c.unit?(' '+c.unit):''));}
 function bmCycleInfo(){const c=bmConfig();if(!c.start)return {valid:false};const dayMs=864e5;const diff=Math.floor((new Date(todayKey()+'T00:00:00')-new Date(c.start+'T00:00:00'))/dayMs);const len=c.weeks*7;
@@ -2804,7 +2805,9 @@ function bmAdminHTML(){const c=bmConfig();const info=bmCycleInfo();
 }
 function bmAdminListHTML(list,c){if(!list.length)return '<div class="bm-empty">No entries yet.</div>';return list.map(function(e){return '<div class="rlist-row"><span class="rl-name">'+esc(e.name||'')+(e.phone?' · '+esc(e.phone):'')+'</span><span class="rl-time">'+bmFmt(e.score,c)+'</span><button class="rl-x" onclick="bmDelEntry(\''+e.id+'\')">del</button></div>';}).join('');}
 function renderBmAdmin(){const mb=document.getElementById('modal-body');if(mb&&document.getElementById('modal').classList.contains('open'))mb.innerHTML=bmAdminHTML();}
-async function bmSet(k,v){const s=settings();const b=Object.assign({},s.benchmark||{});if(b.body==null)b.body=BM_DEFAULT_BODY;b[k]=v;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();}
+async function bmSet(k,v){const s=settings();const b=Object.assign({},s.benchmark||{});if(b.body==null)b.body=(b.dir==='high'?BM_DEFAULT_BODY_REPS:BM_DEFAULT_BODY);
+  if(k==='dir'){if(v==='high'&&b.body===BM_DEFAULT_BODY)b.body=BM_DEFAULT_BODY_REPS;else if(v==='low'&&b.body===BM_DEFAULT_BODY_REPS)b.body=BM_DEFAULT_BODY;}
+  b[k]=v;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();}
 async function bmToggleOn(){const s=settings();const b=Object.assign({},s.benchmark||{});b.on=!(b.on===true);if(b.body==null)b.body=BM_DEFAULT_BODY;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();toast(b.on?'Benchmark test live':'Benchmark test off');}
 async function bmDelEntry(id){if(String(id).indexOf('bms-')===0)return;if(!confirm('Delete this entry?'))return;await rowDelete('benchmarks',id);renderBmAdmin();renderBenchmark();}
 
