@@ -902,7 +902,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="planner-sec" data-sec="wod" data-size="full" draggable="true">
     <div class="panel">
       <div class="panel-h"><div class="panel-t"><span class="drag-handle">⋮⋮</span>🔥 Workout of the Day</div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-sm" onclick="openModal('meso')">🗓️ Mesocycles</button><button class="btn-sm" onclick="openWodArchive()">📚 View Archive</button></div></div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Plan up to 4 weeks ahead. Page through with the arrows, pick a day, write the session, save. The dot marks planned days.</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Plan up to 12 weeks ahead. Page through with the arrows, pick a day, write the session, save. The dot marks planned days.</div>
       <div class="dual-bar">
         <div class="dual-toggle-row"><div><div class="set-lbl">WODs live</div><div class="set-sub">Master switch for all workouts. Off shows members a coming soon teaser instead.</div></div><div class="sw on" id="wods-live-sw" onclick="toggleWodsLive(this)"></div></div>
         <div class="dual-toggle-row"><div><div class="set-lbl">Programming start date</div><div class="set-sub">Days before this show the teaser, leave blank to go live straight away. Handy if the build runs late.</div></div><input type="date" id="prog-start-in" class="prog-start" onchange="setProgrammingStart(this.value)"></div>
@@ -1720,9 +1720,9 @@ function buildAdminStrip(){
   const s=addDays(start),e=addDays(start+6);
   setTxt('wod-week-label',adminWeekOffset===0?'This week':dateLabel(s,{day:'numeric',month:'short'})+' – '+dateLabel(e,{day:'numeric',month:'short'}));
   const pv=document.getElementById('wod-week-prev'),nx=document.getElementById('wod-week-next');
-  if(pv)pv.disabled=adminWeekOffset<=0;if(nx)nx.disabled=adminWeekOffset>=3;
+  if(pv)pv.disabled=adminWeekOffset<=0;if(nx)nx.disabled=adminWeekOffset>=12;
 }
-function adminWeekShift(d){adminWeekOffset=Math.max(0,Math.min(3,adminWeekOffset+d));buildAdminStrip();}
+function adminWeekShift(d){adminWeekOffset=Math.max(0,Math.min(12,adminWeekOffset+d));buildAdminStrip();}
 function renderDualControls(){
   const on=dualOn();
   const sw=document.getElementById('dual-wod-sw');if(sw)sw.classList.toggle('on',on);
