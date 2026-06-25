@@ -330,9 +330,11 @@ body.no-tab-emoji .te{display:none;}
 .draw-actions .btn-full{max-width:220px;margin-top:0;}
 /* recurring benchmark test (bottom of WOD) */
 .bm-card{max-width:680px;margin:14px auto 44px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:18px 18px 16px;text-align:left;}
-.bm-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
-.bm-eyebrow{font-size:16px;font-weight:800;color:var(--text);}
-.bm-badge{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--dk);background:var(--green);border-radius:999px;padding:3px 9px;}
+.bm-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;user-select:none;}
+.bm-card.collapsed .bm-top{margin-bottom:0;}
+.bm-eyebrow{font-size:16px;font-weight:800;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bm-badge{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--dk);background:var(--green);border-radius:999px;padding:3px 9px;flex-shrink:0;}
+.bm-chev{color:var(--muted);font-size:13px;flex-shrink:0;}
 .bm-sub{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
 .bm-body{font-size:14.5px;line-height:1.65;color:var(--text);background:var(--bg-light);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
 .bm-form{background:var(--bg-light);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;}
@@ -2756,8 +2758,9 @@ function bmPickSex(s,el){bmSexPick=s;if(el&&el.parentNode){el.parentNode.querySe
 function nl2brBM(t){return esc(t).replace(/\n/g,'<br>');}
 function renderBenchmark(){const wrap=document.getElementById('wod-benchmark');if(!wrap)return;const c=bmConfig();
   if(!c.on){wrap.innerHTML='';return;}
-  const info=bmCycleInfo();
-  let h='<div class="bm-card"><div class="bm-top"><span class="bm-eyebrow">🏅 '+esc(c.title)+'</span>'+(info.active?'<span class="bm-badge">TEST WEEK</span>':'')+'</div>';
+  const info=bmCycleInfo();const collapsed=bmCardCollapsed();
+  let h='<div class="bm-card'+(collapsed?' collapsed':'')+'"><div class="bm-top" onclick="bmToggleCard()"><span class="bm-eyebrow">🏅 '+esc(c.title)+'</span>'+(info.active?'<span class="bm-badge">TEST WEEK</span>':'')+'<span class="bm-chev">'+(collapsed?'▸':'▾')+'</span></div>';
+  if(collapsed){wrap.innerHTML=h+'</div>';return;}
   if(!info.valid){h+='<div class="bm-sub">Set a start date in admin to schedule the test.</div></div>';wrap.innerHTML=h;return;}
   if(info.before){h+='<div class="bm-sub">First test starts '+dateLabel(info.nextStart,{weekday:'short',day:'numeric',month:'short'})+'.</div></div>';wrap.innerHTML=h;return;}
   if(info.active){h+='<div class="bm-body">'+nl2brBM(c.body)+'</div>'+bmFormHTML();}
@@ -2771,6 +2774,8 @@ function renderBenchmark(){const wrap=document.getElementById('wod-benchmark');i
 function bmScoreFieldHTML(){const c=bmConfig();if(c.dir==='low')return '<div class="fld"><label>Your time</label><div class="rtime"><input id="bm-min" inputmode="numeric" maxlength="2" placeholder="min"><span class="rtime-c">:</span><input id="bm-sec" inputmode="numeric" maxlength="2" placeholder="sec"></div></div>';return '<div class="fld"><label>Your score'+(c.unit?(' ('+esc(c.unit)+')'):'')+'</label><input id="bm-num" inputmode="numeric" maxlength="5" placeholder="e.g. 120"></div>';}
 function bmFormHTML(){return '<div class="bm-form"><div class="bm-form-h">Log your score</div><div class="fld"><label>Name</label><input id="bm-name" placeholder="Your name"></div><div class="fld"><label>Sex</label><div class="rsex"><button type="button" class="rsex-btn'+(bmSexPick==='m'?' on':'')+'" onclick="bmPickSex(\'m\',this)">Male</button><button type="button" class="rsex-btn'+(bmSexPick==='f'?' on':'')+'" onclick="bmPickSex(\'f\',this)">Female</button></div></div><div class="fld"><label>Phone <span style="opacity:.6;">(optional — links your scores over time)</span></label><input id="bm-phone" inputmode="tel" placeholder="0400 000 000"></div>'+bmScoreFieldHTML()+'<button class="btn-full" onclick="bmSubmit()">Submit my score</button><div id="bm-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div></div>';}
 function bmToggleBoard(){bmBoardOpen=!bmBoardOpen;renderBenchmark();}
+function bmCardCollapsed(){try{return localStorage.getItem('cave_bm_collapsed')==='1';}catch(e){return false;}}
+function bmToggleCard(){try{localStorage.setItem('cave_bm_collapsed',bmCardCollapsed()?'0':'1');}catch(e){}renderBenchmark();}
 function bmBoardHTML(c,info){const entries=bmCycleEntries(info.cycleKey);const meKey=bmLastResult?bmLastResult.key:null;const prevBy={};if(info.prevKey)bmBest(bmCycleEntries(info.prevKey),c).forEach(function(e){prevBy[bmKey(e)]=e.score;});
   const sect=function(sex,label){const list=bmBest(entries.filter(function(e){return (e.sex||'m')===sex;}),c);const rows=list.length?list.map(function(e,i){const k=bmKey(e);const pv=prevBy[k];let delta='';if(pv!=null){const imp=(c.dir==='low')?(pv-e.score):(e.score-pv);if(imp>0)delta='<span class="bm-up">▲'+(c.dir==='low'?rowSecToMMSS(imp):imp)+'</span>';else if(imp<0)delta='<span class="bm-down">▼</span>';else delta='<span class="bm-same">=</span>';}return '<div class="bm-row'+(i===0?' first':'')+(k&&k===meKey?' me':'')+'"><span class="bm-rank">'+(i===0?'🥇':(i+1))+'</span><span class="bm-name">'+esc(e.name||'')+'</span>'+delta+'<span class="bm-score">'+bmFmt(e.score,c)+'</span></div>';}).join(''):'<div class="bm-empty">No scores yet.</div>';return '<div class="bm-colh">'+label+'</div>'+rows;};
   return sect('m','Men')+sect('f','Women');
