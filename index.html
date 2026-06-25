@@ -315,6 +315,15 @@ body.no-tab-emoji .te{display:none;}
 .maint-ico{font-size:54px;}
 .maint-h{font-size:24px;font-weight:800;color:var(--text);margin-top:10px;}
 .maint-p{font-size:15px;color:var(--muted);margin-top:8px;line-height:1.5;}
+.draw{position:fixed;inset:0;z-index:420;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:24px;}
+.draw.show{display:flex;}
+.draw-card{text-align:center;max-width:92vw;}
+.draw-label{font-size:clamp(15px,3vw,24px);font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--blue);}
+.draw-reel{font-size:clamp(34px,8vw,84px);font-weight:900;color:#fff;margin:18px 0;min-height:1.2em;line-height:1.1;word-break:break-word;}
+.draw-reel.win{color:var(--blue);transform:scale(1.06);transition:transform .35s;}
+.draw-win{font-size:20px;font-weight:800;color:var(--green);width:100%;margin-bottom:12px;}
+.draw-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.draw-actions .btn-full{max-width:220px;margin-top:0;}
 
 /* ----- Event page (public) ----- */
 .eventpage{display:none;min-height:100vh;}
@@ -868,6 +877,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
       <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
       <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span><span class="tl">The Wall</span></button>
       <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span><span class="tl">Submit</span></button>
+      <button id="m-row" onclick="setMode('row')" style="display:none;"><span class="te">🚣 </span><span class="tl">Row</span></button>
       <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
     </div>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
@@ -1058,6 +1068,9 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <!-- MAINTENANCE OVERLAY (owner toggle; admins bypass) -->
 <div class="maint" id="maint"><div class="maint-card"><div class="maint-ico">🛠️</div><div class="maint-h">Quick upgrade in progress</div><div class="maint-p">The Cave Wall is getting a tune-up — back in a few minutes. Thanks for your patience!</div></div></div>
 
+<!-- LUCKY DRAW SPINNER (row challenge) -->
+<div class="draw" id="rowdraw"><div class="draw-card"><div class="draw-label">🎉 Lucky Door Prize</div><div class="draw-reel" id="draw-reel">—</div><div class="draw-actions" id="draw-actions"></div></div></div>
+
 <!-- WOD TAB -->
 <div class="wod active" id="wod">
   <div class="disp-head"><div class="disp-logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><div class="disp-clock" id="wod-clock"></div></div>
@@ -1115,7 +1128,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -1408,11 +1421,11 @@ async function evpSetSections(sections){await evpSave({sections});}
 function rawVal(id){const e=document.getElementById(id);return e?e.value:'';}
 function nl2br(s){return esc(s).replace(/\n/g,'<br>');}
 function parseLines(text,keys){return String(text||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const parts=l.split('|').map(p=>p.trim());const o={id:uid()};keys.forEach((k,i)=>o[k]=parts[i]||'');return o;});}
-const TAB_DEFAULTS={wod:'WOD',chal:'Challenge',sub:'Submit',disp:'The Wall',timer:'Timer'};
+const TAB_DEFAULTS={wod:'WOD',chal:'Challenge',sub:'Submit',disp:'The Wall',row:'Row',timer:'Timer'};
 function tabNames(){const s=settings();return (s&&s.tab_names)||{};}
 function tabName(k){const n=tabNames()[k];return (n&&String(n).trim())||TAB_DEFAULTS[k]||k;}
 function applyTabNames(){Object.keys(TAB_DEFAULTS).forEach(function(k){const btn=document.getElementById('m-'+k);if(!btn)return;const tl=btn.querySelector('.tl');if(tl)tl.textContent=tabName(k);});}
-function refreshNav(){applyTabNames();const cb=document.getElementById('m-chal');if(cb)cb.style.display=challengeOn()?'':'none';const btn=document.getElementById('m-event');if(btn){const ep=evp();btn.style.display=ep.enabled?'':'none';btn.innerHTML='<span class="te">📅 </span>'+esc(ep.title||'Event');}var mt=document.getElementById('m-timer');if(mt)mt.style.display=settings().show_timer?'':'none';}
+function refreshNav(){applyTabNames();const cb=document.getElementById('m-chal');if(cb)cb.style.display=challengeOn()?'':'none';const btn=document.getElementById('m-event');if(btn){const ep=evp();btn.style.display=ep.enabled?'':'none';btn.innerHTML='<span class="te">📅 </span>'+esc(ep.title||'Event');}var mt=document.getElementById('m-timer');if(mt)mt.style.display=settings().show_timer?'':'none';var mr=document.getElementById('m-row');if(mr)mr.style.display=(settings().row500_tab===true&&row500On())?'':'none';}
 async function evToggleEnabled(el){const nv=!evp().enabled;await evpSave({enabled:nv});if(el)el.classList.toggle('on',nv);refreshNav();renderEventPage();}
 async function evSaveMeta(){await evpSave({title:val('f-evtitle')||'Event',subtitle:val('f-evsub')});refreshNav();renderEventPage();}
 async function evAddSection(type){const base=Object.assign({id:uid(),type},EV_DEFAULTS[type]||{heading:'Section',body:''});const sections=(evp().sections||[]).concat([base]);await evpSetSections(sections);renderEventAdmin();renderEventPage();openModal('evsection',base.id);}
@@ -2595,6 +2608,7 @@ function _setMode(mode){
   document.getElementById('m-sub').classList.toggle('on',mode==='submit');
   document.getElementById('m-disp').classList.toggle('on',mode==='disp');
   var _mt=document.getElementById('m-timer');if(_mt)_mt.classList.toggle('on',mode==='timer');
+  var _mr2=document.getElementById('m-row');if(_mr2)_mr2.classList.toggle('on',mode==='row');
   document.getElementById('planner').classList.toggle('hidden',mode!=='plan');
   document.getElementById('wod').classList.toggle('active',mode==='wod');
   document.getElementById('challenge').classList.toggle('active',mode==='chal');
@@ -2627,7 +2641,7 @@ let rowEditId=null,rowSexPick='m',rowCoachKeyTry='';
 function renderRowBoard(){const wrap=document.getElementById('rb-cols');if(!wrap)return;
   if(!row500On()){wrap.innerHTML='<div class="rb-empty" style="padding:60px 18px;">The row challenge isn’t live right now.</div>';return;}
   const col=function(sex,label){const list=rowEntries(sex);const rows=list.length?list.map(function(r,i){return '<div class="rb-row'+(i===0?' first':'')+'"><div class="rb-rank">'+(i===0?'🥇':(i+1))+'</div><div class="rb-name">'+esc(r.name||'')+'</div><div class="rb-time">'+rowSecToMMSS(r.seconds)+'</div></div>';}).join(''):'<div class="rb-empty">No times yet.</div>';return '<div><div class="rb-col-h">'+label+'</div>'+rows+'</div>';};
-  wrap.innerHTML='<div class="rb-cols">'+col('m','Men')+col('f','Women')+'</div>';
+  wrap.innerHTML='<div class="rb-cols">'+col('m','Men')+col('f','Women')+'</div>'+((cache.row500||[]).length?'<div style="text-align:center;padding:6px 0 34px;"><button class="wod-gen-btn" onclick="rowDraw()">🎲 Lucky draw</button></div>':'');
 }
 function rowMiniBoardHTML(){const mini=function(sex,label){const list=rowEntries(sex);return '<div class="rb-col-h" style="margin-top:8px;">'+label+'</div>'+(list.length?list.slice(0,10).map(function(r,i){return '<div class="rlist-row"><span class="rl-name">'+(i+1)+'. '+esc(r.name||'')+'</span><span class="rl-time">'+rowSecToMMSS(r.seconds)+'</span></div>';}).join(''):'<div class="rb-empty" style="padding:6px;">No times yet.</div>');};return mini('m','Men')+mini('f','Women');}
 function renderRowCoach(){const card=document.getElementById('rowcoach-card');if(!card)return;const bd=document.getElementById('rowcoach-board');
@@ -2657,8 +2671,10 @@ async function rowDeleteEntry(id){const r=(cache.row500||[]).find(function(x){re
 function rowAdminListHTML(){const list=function(sex,label){const l=rowEntries(sex);return '<div class="rb-col-h" style="text-align:left;margin:12px 0 6px;">'+label+' ('+l.length+')</div>'+(l.length?l.map(function(r,i){return '<div class="rlist-row"><span class="rl-name">'+(i+1)+'. '+esc(r.name||'')+'</span><span class="rl-sex">'+((r.sex||'m')==='f'?'F':'M')+'</span><span class="rl-time">'+rowSecToMMSS(r.seconds)+'</span><button class="btn-sm" onclick="rowEditEntry(\''+r.id+'\')">edit</button><button class="rl-x" onclick="rowDeleteEntry(\''+r.id+'\')">del</button></div>';}).join(''):'<div class="rb-empty" style="padding:6px 0;text-align:left;">No times yet.</div>');};return list('m','Men')+list('f','Women');}
 function rowAdminHTML(){const on=row500On();const origin=location.origin+location.pathname;const boardLink=origin+'#row';const coachLink=rowKey()?(origin+'#rowcoach/'+rowKey()):'';
   let h='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Event live</div><div class="ot-sub">Turn on for opening night. Off = leaderboard & coach link show “not live”.</div></div><span class="sw'+(on?' on':'')+'" onclick="rowToggleOn()"></span></div>';
+  h+='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Show as a nav tab</div><div class="ot-sub">Adds a “Row” tab to the menu (while the event is live) so members can open the leaderboard. Rename it in Super Admin → Tab names.</div></div><span class="sw'+(settings().row500_tab===true?' on':'')+'" onclick="rowToggleTab()"></span></div>';
   if(on){h+='<div class="fld" style="margin-bottom:12px;"><label>📺 Leaderboard link (open on the TV)</label><div style="display:flex;gap:8px;"><input readonly value="'+esc(boardLink)+'" style="flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:12px;"><button class="btn-sm" onclick="rowCopy(\''+esc(boardLink)+'\')">Copy</button><button class="btn-sm" onclick="location.hash=\'#row\'">Open</button></div></div>';
     h+='<div class="fld" style="margin-bottom:14px;"><label>🔑 Coach link (secret — for coaches\' phones)</label><div style="display:flex;gap:8px;"><input readonly value="'+esc(coachLink)+'" style="flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:12px;"><button class="btn-sm" onclick="rowCopy(\''+esc(coachLink)+'\')">Copy</button><button class="btn-sm" onclick="rowNewKey()">New</button></div><div class="ot-sub" style="margin-top:4px;">Anyone with this link can add results (not edit/delete, no admin). “New” invalidates the old link.</div></div>';}
+  if(on&&(cache.row500||[]).length){h+='<button class="wod-gen-btn" style="width:100%;margin-bottom:14px;" onclick="rowDraw()">🎲 Draw a lucky winner</button>';}
   h+='<div class="set-section" style="margin:6px 0 8px;">Add / edit a result</div><div id="row-form">'+rowFormHTML('admin')+'</div>';
   h+='<div class="set-section" style="margin:16px 0 4px;">Entries</div><div id="row-admin-list">'+rowAdminListHTML()+'</div>';
   return h;
@@ -2667,6 +2683,10 @@ function renderRowAdmin(){const mb=document.getElementById('modal-body');if(mb&&
 function rowCopy(url){if(!url)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){toast('Copied ✓');},function(){prompt('Copy this link:',url);});}else prompt('Copy this link:',url);}
 async function rowToggleOn(){const s=settings();const turningOn=!(s.row500_on===true);s.row500_on=turningOn;if(turningOn&&!s.row500_key)s.row500_key=rowGenKey();await stateUpdate({settings:s});renderRowAdmin();toast(turningOn?'Row challenge is LIVE':'Row challenge off');}
 async function rowNewKey(){if(!confirm('Make a new coach link? The current one will stop working.'))return;const s=settings();s.row500_key=rowGenKey();await stateUpdate({settings:s});renderRowAdmin();toast('New coach link created');}
+async function rowToggleTab(){const s=settings();s.row500_tab=!(s.row500_tab===true);await stateUpdate({settings:s});refreshNav();renderRowAdmin();toast(s.row500_tab?'Row tab will show while live':'Row tab hidden');}
+function rowDrawPool(){const names={},pool=[];(cache.row500||[]).forEach(function(r){const k=(r.name||'').trim().toLowerCase();if(k&&!names[k]){names[k]=1;pool.push(String(r.name).trim());}});return pool;}
+function rowDraw(){const pool=rowDrawPool();if(!pool.length){toast('No entries to draw from yet');return;}const ov=document.getElementById('rowdraw');if(!ov)return;const reel=document.getElementById('draw-reel'),acts=document.getElementById('draw-actions');ov.classList.add('show');reel.classList.remove('win');acts.innerHTML='';const winner=pool[Math.floor(Math.random()*pool.length)];let ticks=0;const total=26+Math.floor(Math.random()*10);(function step(){reel.textContent=pool[Math.floor(Math.random()*pool.length)];ticks++;if(ticks>=total){reel.textContent=winner;reel.classList.add('win');confettiBurst();acts.innerHTML='<div class="draw-win">🏆 Winner!</div><button class="btn-full" onclick="rowDraw()">Draw again</button><button class="btn-sm" onclick="rowDrawClose()">Close</button>';return;}setTimeout(step,40+ticks*ticks*0.8);})();}
+function rowDrawClose(){const ov=document.getElementById('rowdraw');if(ov)ov.classList.remove('show');}
 
 /* ---------- MAINTENANCE MODE (owner toggle; admins keep full access) ---------- */
 function maintOn(){return settings().maintenance_on===true;}
@@ -2810,7 +2830,7 @@ function renderActivity(){const p=document.getElementById('act-panel');if(!p)ret
   if(saOpen.tabs)renderTabNames();
 }
 function renderTabNames(){const box=document.getElementById('tabs-box');if(!box)return;
-  const defs=[['wod','WOD'],['chal','Challenge'],['sub','Submit'],['disp','The Wall'],['timer','Timer']];
+  const defs=[['wod','WOD'],['chal','Challenge'],['sub','Submit'],['disp','The Wall'],['row','Row'],['timer','Timer']];
   let h='<div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">Rename the nav tabs members see. Leave a box blank to use the default. The Event tab takes its name from your event page title.</div>';
   defs.forEach(function(d){const cur=tabNames()[d[0]]||'';h+='<div class="acc-row" style="gap:10px;"><span class="acc-mail" style="flex:0 0 86px;color:var(--muted);">'+esc(d[1])+'</span><input type="text" maxlength="24" value="'+esc(cur)+'" placeholder="'+esc(d[1])+'" oninput="tabNamePreview(\''+d[0]+'\',this.value)" onchange="setTabName(\''+d[0]+'\',this.value)" style="flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:8px 11px;color:var(--text);font-size:13px;outline:none;"></div>';});
   box.innerHTML=h;
