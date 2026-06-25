@@ -527,6 +527,7 @@ body.wod-fill .wod-block.bonus{background:rgba(187,134,252,.14);border-color:rgb
   .lb-split{grid-template-columns:1fr;gap:18px;}
   .nav-i{flex-wrap:nowrap;height:auto;padding:10px 14px;gap:10px;}
   .logo{font-size:14px;flex-shrink:0;}
+  .nav .logo{display:none;}/* hide logo on phones so the tabs get the full width */
   .nav-right{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:8px;}
   .mode-toggle{flex:0 1 auto;min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;justify-content:flex-start;}
   .mode-toggle::-webkit-scrollbar{display:none;}
@@ -830,12 +831,12 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div>
   <div class="nav-right">
     <div class="mode-toggle">
-      <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span>WOD</button>
-      <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span>Challenge</button>
+      <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span><span class="tl">WOD</span></button>
+      <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span><span class="tl">Challenge</span></button>
       <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
-      <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span>The Wall</button>
-      <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span>Submit</button>
-      <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span>Timer</button>
+      <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span><span class="tl">The Wall</span></button>
+      <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span><span class="tl">Submit</span></button>
+      <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
     </div>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
     <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
@@ -1353,7 +1354,11 @@ async function evpSetSections(sections){await evpSave({sections});}
 function rawVal(id){const e=document.getElementById(id);return e?e.value:'';}
 function nl2br(s){return esc(s).replace(/\n/g,'<br>');}
 function parseLines(text,keys){return String(text||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const parts=l.split('|').map(p=>p.trim());const o={id:uid()};keys.forEach((k,i)=>o[k]=parts[i]||'');return o;});}
-function refreshNav(){const cb=document.getElementById('m-chal');if(cb)cb.style.display=challengeOn()?'':'none';const btn=document.getElementById('m-event');if(!btn)return;const ep=evp();btn.style.display=ep.enabled?'':'none';btn.innerHTML='<span class="te">📅 </span>'+esc(ep.title||'Event');var mt=document.getElementById('m-timer');if(mt)mt.style.display=settings().show_timer?'':'none';}
+const TAB_DEFAULTS={wod:'WOD',chal:'Challenge',sub:'Submit',disp:'The Wall',timer:'Timer'};
+function tabNames(){const s=settings();return (s&&s.tab_names)||{};}
+function tabName(k){const n=tabNames()[k];return (n&&String(n).trim())||TAB_DEFAULTS[k]||k;}
+function applyTabNames(){Object.keys(TAB_DEFAULTS).forEach(function(k){const btn=document.getElementById('m-'+k);if(!btn)return;const tl=btn.querySelector('.tl');if(tl)tl.textContent=tabName(k);});}
+function refreshNav(){applyTabNames();const cb=document.getElementById('m-chal');if(cb)cb.style.display=challengeOn()?'':'none';const btn=document.getElementById('m-event');if(btn){const ep=evp();btn.style.display=ep.enabled?'':'none';btn.innerHTML='<span class="te">📅 </span>'+esc(ep.title||'Event');}var mt=document.getElementById('m-timer');if(mt)mt.style.display=settings().show_timer?'':'none';}
 async function evToggleEnabled(el){const nv=!evp().enabled;await evpSave({enabled:nv});if(el)el.classList.toggle('on',nv);refreshNav();renderEventPage();}
 async function evSaveMeta(){await evpSave({title:val('f-evtitle')||'Event',subtitle:val('f-evsub')});refreshNav();renderEventPage();}
 async function evAddSection(type){const base=Object.assign({id:uid(),type},EV_DEFAULTS[type]||{heading:'Section',body:''});const sections=(evp().sections||[]).concat([base]);await evpSetSections(sections);renderEventAdmin();renderEventPage();openModal('evsection',base.id);}
@@ -2667,16 +2672,25 @@ function renderOwnerTools(){const p=document.getElementById('owner-panel');if(!p
     row(submissionsOpen(),'Accept member submissions','When off, the public Submit page shows a friendly “paused” message instead of the form.','toggleSubmissionsOpen();')+
     row(analyticsOn(),'Log page views','Counts views for the Stats tab. Turn off to pause analytics on the public pages.','toggleAnalytics();');
 }
-let saOpen={stats:true,feed:false,access:false};
+let saOpen={stats:true,feed:false,access:false,tabs:false};
 function saToggle(sec){saOpen[sec]=!saOpen[sec];renderActivity();}
 function renderActivity(){const p=document.getElementById('act-panel');if(!p)return;
   if(!isOwner()){p.innerHTML='<div class="act-empty">Super Admin is owner-only \u2014 sign in with an owner email.</div>';return;}
   const sec=function(key,icon,label,bodyId){const open=!!saOpen[key];return '<div class="sa-sec"><div class="sa-head'+(open?' open':'')+'" onclick="saToggle(\''+key+'\')"><span>'+icon+' '+label+'</span><span class="wod-chev">\u25be</span></div><div class="sa-body" id="'+bodyId+'" style="'+(open?'':'display:none;')+'"><div class="act-empty">\u2026</div></div></div>';};
-  p.innerHTML='<div class="sa-top"><div style="font-size:11.5px;color:var(--muted);">Owner tools \u2014 secured by your email sign-in.</div><button class="btn-sm" onclick="toggleActivity()">Close</button></div>'+sec('stats','\ud83d\udcca','Stats','stats-box')+sec('feed','\ud83d\udccb','Activity tracker','act-log')+sec('access','\ud83d\udc65','Admin access','access-box');
+  p.innerHTML='<div class="sa-top"><div style="font-size:11.5px;color:var(--muted);">Owner tools \u2014 secured by your email sign-in.</div><button class="btn-sm" onclick="toggleActivity()">Close</button></div>'+sec('stats','\ud83d\udcca','Stats','stats-box')+sec('feed','\ud83d\udccb','Activity tracker','act-log')+sec('access','\ud83d\udc65','Admin access','access-box')+sec('tabs','\ud83c\udff7\ufe0f','Tab names','tabs-box');
   if(saOpen.stats)loadStats();
   if(saOpen.feed)loadActivity();
   if(saOpen.access)renderAccess();
+  if(saOpen.tabs)renderTabNames();
 }
+function renderTabNames(){const box=document.getElementById('tabs-box');if(!box)return;
+  const defs=[['wod','WOD'],['chal','Challenge'],['sub','Submit'],['disp','The Wall'],['timer','Timer']];
+  let h='<div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">Rename the nav tabs members see. Leave a box blank to use the default. The Event tab takes its name from your event page title.</div>';
+  defs.forEach(function(d){const cur=tabNames()[d[0]]||'';h+='<div class="acc-row" style="gap:10px;"><span class="acc-mail" style="flex:0 0 86px;color:var(--muted);">'+esc(d[1])+'</span><input type="text" maxlength="24" value="'+esc(cur)+'" placeholder="'+esc(d[1])+'" oninput="tabNamePreview(\''+d[0]+'\',this.value)" onchange="setTabName(\''+d[0]+'\',this.value)" style="flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:8px 11px;color:var(--text);font-size:13px;outline:none;"></div>';});
+  box.innerHTML=h;
+}
+function tabNamePreview(k,v){const btn=document.getElementById('m-'+k);if(!btn)return;const tl=btn.querySelector('.tl');if(tl)tl.textContent=(v&&v.trim())||TAB_DEFAULTS[k]||k;}
+async function setTabName(k,v){v=(v||'').trim();const s=settings();const tn=Object.assign({},s.tab_names||{});if(v)tn[k]=v;else delete tn[k];s.tab_names=tn;await stateUpdate({settings:s});applyTabNames();toast('Tab renamed');}
 function renderAccess(){
   const box=document.getElementById('access-box');if(!box)return;
   const base=ALLOWED_EMAILS.map(function(x){return String(x).toLowerCase();});
