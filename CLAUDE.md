@@ -9,7 +9,14 @@ step — backed by Supabase and hosted on Netlify.
 - **Frontend:** vanilla HTML/CSS/JS in a single `index.html`. No framework, no bundler.
 - **Backend:** Supabase (Postgres + Auth + Storage). Project **`unfoqmfislfcnzxoivta`** ("cave-ops").
   Tables: `leaderboard`, `achievements`, `events`, `todos`, `kpis`, `challenges`, `submissions`,
-  `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`, `row500`.
+  `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`, `row500`, `benchmarks`.
+  - `benchmarks` = recurring benchmark test (public read+insert, admin edit/delete, realtime). Cols:
+    name, phone (optional, links a member across cycles), score (seconds for time / reps), cycle
+    (the cycle-start date). Config in `settings.benchmark` {on,title,start,weeks,body,dir,unit}.
+    Renders at the bottom of the WOD page (`#wod-benchmark` via `renderBenchmark()`); recurs every
+    `weeks` (test active for the first 7 days of each cycle). Admin = WOD panel → 🏅 Benchmark
+    (`openModal('benchmark')`). Submit/leaderboard/improvement are member-facing on the WOD page;
+    normal submissions still go through the Submit tab.
   - `row500` = one-time 500m row challenge (public read + public insert; admin-only edit/delete; in the
     realtime publication for live updates). Cols: name, sex ('m'/'f'), seconds (int; entered as mm:ss).
     Gated by `settings.row500_on`; secret coach link uses `settings.row500_key`. Routes: `#row`

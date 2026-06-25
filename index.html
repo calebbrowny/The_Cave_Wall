@@ -328,6 +328,29 @@ body.no-tab-emoji .te{display:none;}
 .draw-win{font-size:20px;font-weight:800;color:var(--green);width:100%;margin-bottom:12px;}
 .draw-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
 .draw-actions .btn-full{max-width:220px;margin-top:0;}
+/* recurring benchmark test (bottom of WOD) */
+.bm-card{max-width:680px;margin:14px auto 44px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:18px 18px 16px;text-align:left;}
+.bm-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.bm-eyebrow{font-size:16px;font-weight:800;color:var(--text);}
+.bm-badge{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--dk);background:var(--green);border-radius:999px;padding:3px 9px;}
+.bm-sub{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+.bm-body{font-size:14.5px;line-height:1.65;color:var(--text);background:var(--bg-light);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
+.bm-form{background:var(--bg-light);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+.bm-form-h{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;}
+.bm-expand{width:100%;text-align:left;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-weight:700;font-size:14px;cursor:pointer;}
+.bm-board{margin-top:8px;}
+.bm-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:var(--bg-light);}
+.bm-row.first{background:linear-gradient(90deg,var(--blue-d),transparent);border-color:var(--blue);}
+.bm-row.me{outline:2px solid var(--blue);outline-offset:-2px;}
+.bm-rank{font-size:16px;font-weight:900;color:var(--muted);width:30px;text-align:center;flex-shrink:0;}
+.bm-row.first .bm-rank{color:var(--blue);}
+.bm-name{flex:1;min-width:0;font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bm-score{font-size:16px;font-weight:900;color:var(--lb-score);font-variant-numeric:tabular-nums;flex-shrink:0;}
+.bm-up{font-size:11px;font-weight:800;color:var(--green);flex-shrink:0;}
+.bm-down{font-size:11px;font-weight:800;color:var(--red);flex-shrink:0;}
+.bm-same{font-size:11px;color:var(--muted);flex-shrink:0;}
+.bm-result{margin-top:12px;background:var(--green-d);border:1px solid rgba(129,201,149,.3);color:var(--green);border-radius:10px;padding:11px 14px;font-size:14px;font-weight:700;text-align:center;}
+.bm-empty{font-size:13px;color:var(--muted);padding:10px;text-align:center;}
 
 /* ----- Event page (public) ----- */
 .eventpage{display:none;min-height:100vh;}
@@ -901,7 +924,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 
   <div class="planner-sec" data-sec="wod" data-size="full" draggable="true">
     <div class="panel">
-      <div class="panel-h"><div class="panel-t"><span class="drag-handle">⋮⋮</span>🔥 Workout of the Day</div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-sm" onclick="openModal('meso')">🗓️ Mesocycles</button><button class="btn-sm" onclick="openWodArchive()">📚 View Archive</button></div></div>
+      <div class="panel-h"><div class="panel-t"><span class="drag-handle">⋮⋮</span>🔥 Workout of the Day</div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-sm" onclick="openModal('meso')">🗓️ Mesocycles</button><button class="btn-sm" onclick="openModal('benchmark')">🏅 Benchmark</button><button class="btn-sm" onclick="openWodArchive()">📚 View Archive</button></div></div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Plan up to 12 weeks ahead. Page through with the arrows, pick a day, write the session, save. The dot marks planned days.</div>
       <div class="dual-bar">
         <div class="dual-toggle-row"><div><div class="set-lbl">WODs live</div><div class="set-sub">Master switch for all workouts. Off shows members a coming soon teaser instead.</div></div><div class="sw on" id="wods-live-sw" onclick="toggleWodsLive(this)"></div></div>
@@ -1082,6 +1105,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="wd-strip wd-strip-pub" id="wod-pub-strip"></div>
   <div class="wod-slot-pub" id="wod-slot-pub" style="display:none;"></div>
   <div class="wod-wrap" id="wod-disp-body"></div>
+  <div id="wod-benchmark"></div>
 </div>
 
 <!-- EVENT PAGE -->
@@ -1131,7 +1155,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
-const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
+const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
 const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
@@ -1226,7 +1250,7 @@ function seedLocal(){
   cache.boards=[];
 }
 async function fetchAll(){
-  const [lb,ac,ev,td,kp,ch,sub,wd,ad,bd,st,rw]=await Promise.all([
+  const [lb,ac,ev,td,kp,ch,sub,wd,ad,bd,st,rw,bm]=await Promise.all([
     sb.from('leaderboard').select('*').order('created_at'),
     sb.from('achievements').select('*').order('created_at'),
     sb.from('events').select('*').order('date'),
@@ -1238,9 +1262,10 @@ async function fetchAll(){
     sb.from('ads').select('*').order('sort').order('created_at'),
     sb.from('boards').select('*').order('sort').order('created_at'),
     sb.from('app_state').select('*').eq('id',1).maybeSingle(),
-    sb.from('row500').select('*').order('seconds')
+    sb.from('row500').select('*').order('seconds'),
+    sb.from('benchmarks').select('*').order('created_at')
   ]);
-  cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];cache.row500=(rw&&rw.data)||[];applyDemo();
+  cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];cache.row500=(rw&&rw.data)||[];cache.benchmarks=(bm&&bm.data)||[];applyDemo();
   if(st.data)cache.state={wod:st.data.wod||{},settings:st.data.settings||{},focus_override:st.data.focus_override||null,challenge_title:st.data.challenge_title||'Monthly Challenge',event_page:st.data.event_page||{enabled:false,title:'Event',subtitle:'',sections:[]}};
 }
 function subscribe(){
@@ -1250,7 +1275,7 @@ async function rowInsert(table,row){const r=Object.assign({id:uid()},row);cache[
 async function rowUpdate(table,id,patch){if(isDemo(id)){const dx=cache[table].find(r=>r.id===id);if(dx)Object.assign(dx,patch);return;}const x=cache[table].find(r=>r.id===id);if(x)Object.assign(x,patch);if(LIVE){const{error}=await sb.from(table).update(patch).eq('id',id);if(error){alert('Update failed: '+error.message);reportError('db-update',error.message);}}else lsSave();}
 async function rowDelete(table,id,noUndo){if(isDemo(id)){cache[table]=cache[table].filter(r=>r.id!==id);return;}const _snap=(function(){const r=cache[table].find(x=>x.id===id);return r?JSON.parse(JSON.stringify(r)):null;})();cache[table]=cache[table].filter(r=>r.id!==id);let _ok=true;if(LIVE){const{error}=await sb.from(table).delete().eq('id',id);if(error){_ok=false;alert('Delete failed: '+error.message);reportError('db-delete',error.message);}}else lsSave();if(_ok&&_snap&&!noUndo)recordHistory('delete','Deleted '+undoNoun(table),{table:table,row:_snap});}
 /* ---------- UNDO + VERSION HISTORY (persisted, auto-forgets after 2 weeks) ---------- */
-const UNDO_NOUNS={wods:'workout',leaderboard:'leaderboard entry',achievements:'achievement',events:'event',boards:'leaderboard',submissions:'submission',challenges:'challenge',ads:'ad',todos:'to-do',kpis:'KPI',row500:'row time'};
+const UNDO_NOUNS={wods:'workout',leaderboard:'leaderboard entry',achievements:'achievement',events:'event',boards:'leaderboard',submissions:'submission',challenges:'challenge',ads:'ad',todos:'to-do',kpis:'KPI',row500:'row time',benchmarks:'test score'};
 function undoNoun(t){return UNDO_NOUNS[t]||'item';}
 function recordHistory(kind,label,data){const entry={id:uid(),created_at:new Date().toISOString(),actor:(currentUser&&currentUser.email)||'admin',label:label,kind:kind,data:data};cache.history.unshift(entry);if(cache.history.length>200)cache.history.length=200;showUndoToast(label);renderUndoBar();if(LIVE){sb.from('history').insert(entry).then(function(){},function(){});}else lsSave();}
 async function loadHistory(){if(!LIVE||!currentUser)return;const cutoff=new Date(Date.now()-14*864e5).toISOString();try{sb.from('history').delete().lt('created_at',cutoff).then(function(){},function(){});}catch(e){}try{const{data}=await sb.from('history').select('*').gte('created_at',cutoff).order('created_at',{ascending:false}).limit(200);cache.history=data||[];}catch(e){cache.history=[];}renderUndoBar();}
@@ -1491,6 +1516,7 @@ function openModal(type,id,extra){
   else if(type==='mesogen'){t.textContent='✨ Generate WODs';b.innerHTML=mesoGenHTML();}
   else if(type==='history'){t.textContent='🕘 Version history';b.innerHTML=historyHTML();}
   else if(type==='row'){t.textContent='🚣 500m Row Challenge';b.innerHTML=rowAdminHTML();}
+  else if(type==='benchmark'){t.textContent='🏅 Benchmark test';b.innerHTML=bmAdminHTML();}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -2142,6 +2168,7 @@ function wodBlocksHTML(w){
 }
 function renderWOD(){
   publicWodDate=publicWodDate||todayKey();
+  renderBenchmark();
   buildDateStrip('wod-pub-strip',6,publicWodDate,'pickPublicWod');
   const d=publicWodDate;
   const hasB=dualOn()&&wodHasContent(wodForDate(d,'b'));
@@ -2704,6 +2731,79 @@ function maintOn(){return settings().maintenance_on===true;}
 function applyMaintenance(){const m=document.getElementById('maint');if(m)m.classList.toggle('show',maintOn()&&!isUnlocked());}
 async function toggleMaintenance(){const s=settings();s.maintenance_on=!(s.maintenance_on===true);await stateUpdate({settings:s});applyMaintenance();renderOwnerTools();toast(s.maintenance_on?'Maintenance mode ON — members see a notice':'Maintenance mode off');}
 
+/* ---------- RECURRING BENCHMARK TEST (bottom of the WOD page) ---------- */
+const BM_DEFAULT_BODY='For Time:\n\n1 km Run\n750 m Ski Erg\n40 Sandbag Lunges (22.5/15 kg)\n30 Burpees over the Sandbag\n1 km Run\n\nScale: drop the runs to 600 m and reps to 30/20 if needed.\nSame test every cycle — chase your last time.';
+function bmConfig(){const s=settings();const b=(s&&s.benchmark)||{};return {on:b.on===true,title:b.title||'The Cave Benchmark',start:b.start||'',weeks:Math.max(1,+b.weeks||6),body:(b.body!=null?b.body:BM_DEFAULT_BODY),dir:b.dir||'low',unit:b.unit||'reps'};}
+function bmOn(){return bmConfig().on;}
+function bmFmt(score,c){c=c||bmConfig();if(score==null)return '—';return (c.dir==='low')?rowSecToMMSS(score):(score+(c.unit?(' '+c.unit):''));}
+function bmCycleInfo(){const c=bmConfig();if(!c.start)return {valid:false};const dayMs=864e5;const diff=Math.floor((new Date(todayKey()+'T00:00:00')-new Date(c.start+'T00:00:00'))/dayMs);const len=c.weeks*7;
+  if(diff<0)return {valid:true,before:true,active:false,cycleKey:null,nextStart:c.start};
+  const idx=Math.floor(diff/len);const cycleStart=mesoAddDays(c.start,idx*len);
+  return {valid:true,before:false,active:((diff-idx*len)<7),cycleKey:cycleStart,idx:idx,nextStart:mesoAddDays(c.start,(idx+1)*len),prevKey:idx>0?mesoAddDays(c.start,(idx-1)*len):null};}
+function bmKey(e){const p=(e.phone||'').replace(/\D/g,'');return p||(e.name||'').trim().toLowerCase();}
+function bmCycleEntries(cycleKey){return (cache.benchmarks||[]).filter(function(e){return e.cycle===cycleKey;});}
+function bmBest(entries,c){c=c||bmConfig();const by={};entries.forEach(function(e){const k=bmKey(e);if(!k)return;const cur=by[k];if(!cur||((c.dir==='low')?(e.score<cur.score):(e.score>cur.score)))by[k]=e;});const arr=Object.keys(by).map(function(k){return by[k];});arr.sort(function(a,b){return (c.dir==='low')?(a.score-b.score):(b.score-a.score);});return arr;}
+function bmBestScore(entries,c){let b=null;entries.forEach(function(e){if(b==null)b=e.score;else b=(c.dir==='low')?Math.min(b,e.score):Math.max(b,e.score);});return b;}
+let bmBoardOpen=false,bmLastResult=null;
+function nl2brBM(t){return esc(t).replace(/\n/g,'<br>');}
+function renderBenchmark(){const wrap=document.getElementById('wod-benchmark');if(!wrap)return;const c=bmConfig();
+  if(!c.on){wrap.innerHTML='';return;}
+  const info=bmCycleInfo();
+  let h='<div class="bm-card"><div class="bm-top"><span class="bm-eyebrow">🏅 '+esc(c.title)+'</span>'+(info.active?'<span class="bm-badge">TEST WEEK</span>':'')+'</div>';
+  if(!info.valid){h+='<div class="bm-sub">Set a start date in admin to schedule the test.</div></div>';wrap.innerHTML=h;return;}
+  if(info.before){h+='<div class="bm-sub">First test starts '+dateLabel(info.nextStart,{weekday:'short',day:'numeric',month:'short'})+'.</div></div>';wrap.innerHTML=h;return;}
+  if(info.active){h+='<div class="bm-body">'+nl2brBM(c.body)+'</div>'+bmFormHTML();}
+  else{h+='<div class="bm-sub">Next test: '+dateLabel(info.nextStart,{weekday:'short',day:'numeric',month:'short'})+'. Last results:</div>';}
+  const list=bmBest(bmCycleEntries(info.cycleKey),c);
+  h+='<button class="bm-expand" onclick="bmToggleBoard()">'+(bmBoardOpen?'▾':'▸')+' Leaderboard ('+list.length+')</button>';
+  if(bmBoardOpen)h+='<div class="bm-board">'+bmBoardHTML(list,c,info)+'</div>';
+  if(bmLastResult)h+=bmLastResultHTML(c);
+  h+='</div>';wrap.innerHTML=h;
+}
+function bmScoreFieldHTML(){const c=bmConfig();if(c.dir==='low')return '<div class="fld"><label>Your time</label><div class="rtime"><input id="bm-min" inputmode="numeric" maxlength="2" placeholder="min"><span class="rtime-c">:</span><input id="bm-sec" inputmode="numeric" maxlength="2" placeholder="sec"></div></div>';return '<div class="fld"><label>Your score'+(c.unit?(' ('+esc(c.unit)+')'):'')+'</label><input id="bm-num" inputmode="numeric" maxlength="5" placeholder="e.g. 120"></div>';}
+function bmFormHTML(){return '<div class="bm-form"><div class="bm-form-h">Log your score</div><div class="fld"><label>Name</label><input id="bm-name" placeholder="Your name"></div><div class="fld"><label>Phone <span style="opacity:.6;">(optional — links your scores over time)</span></label><input id="bm-phone" inputmode="tel" placeholder="0400 000 000"></div>'+bmScoreFieldHTML()+'<button class="btn-full" onclick="bmSubmit()">Submit my score</button><div id="bm-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div></div>';}
+function bmToggleBoard(){bmBoardOpen=!bmBoardOpen;renderBenchmark();}
+function bmBoardHTML(list,c,info){if(!list.length)return '<div class="bm-empty">No scores yet — be the first!</div>';
+  const meKey=bmLastResult?bmLastResult.key:null;const prevBy={};if(info.prevKey)bmBest(bmCycleEntries(info.prevKey),c).forEach(function(e){prevBy[bmKey(e)]=e.score;});
+  return list.map(function(e,i){const k=bmKey(e);const pv=prevBy[k];let delta='';if(pv!=null){const imp=(c.dir==='low')?(pv-e.score):(e.score-pv);if(imp>0)delta='<span class="bm-up">▲'+(c.dir==='low'?rowSecToMMSS(imp):imp)+'</span>';else if(imp<0)delta='<span class="bm-down">▼</span>';else delta='<span class="bm-same">=</span>';}
+    return '<div class="bm-row'+(i===0?' first':'')+(k&&k===meKey?' me':'')+'"><span class="bm-rank">'+(i===0?'🥇':(i+1))+'</span><span class="bm-name">'+esc(e.name||'')+'</span>'+delta+'<span class="bm-score">'+bmFmt(e.score,c)+'</span></div>';}).join('');
+}
+function bmLastResultHTML(c){const r=bmLastResult;if(!r)return '';let msg=r.rank?('You’re #'+r.rank+' of '+r.total):'You’re on the board';if(r.improved!=null){if(r.improved>0)msg+=' · improved by '+(c.dir==='low'?rowSecToMMSS(r.improved):r.improved)+' 🔥';else if(r.improved===0)msg+=' · matched last time';else msg+=' · keep chasing it';}return '<div class="bm-result">'+esc(msg)+'</div>';}
+async function bmSubmit(){const c=bmConfig();const info=bmCycleInfo();const err=document.getElementById('bm-err');
+  if(!info.valid||!info.active){if(err)err.textContent='Submissions are closed right now.';return;}
+  const name=val('bm-name');if(!name){if(err)err.textContent='Enter your name.';return;}
+  const phone=val('bm-phone');let score=null;
+  if(c.dir==='low'){const M=parseInt(val('bm-min'),10)||0,S=parseInt(val('bm-sec'),10);if(isNaN(S)&&!M){if(err)err.textContent='Enter your time.';return;}const sc=isNaN(S)?0:S;if(sc>59){if(err)err.textContent='Seconds must be 0–59.';return;}score=M*60+sc;if(!(score>0)){if(err)err.textContent='Enter a valid time.';return;}}
+  else{const n=parseInt(val('bm-num'),10);if(!(n>0)){if(err)err.textContent='Enter your score.';return;}score=n;}
+  await rowInsert('benchmarks',{name:name,phone:phone||null,score:score,cycle:info.cycleKey});
+  const k=bmKey({name:name,phone:phone});
+  const board=bmBest(bmCycleEntries(info.cycleKey),c);
+  const myBest=bmBestScore(bmCycleEntries(info.cycleKey).filter(function(e){return bmKey(e)===k;}),c);
+  const rank=board.findIndex(function(e){return bmKey(e)===k;})+1;
+  let improved=null;if(info.prevKey){const pm=bmCycleEntries(info.prevKey).filter(function(e){return bmKey(e)===k;});if(pm.length){const pb=bmBestScore(pm,c);improved=(c.dir==='low')?(pb-myBest):(myBest-pb);}}
+  bmLastResult={key:k,rank:rank,total:board.length,improved:improved};bmBoardOpen=true;toast('Score logged! 💪');renderBenchmark();
+}
+/* benchmark admin (WOD panel → 🏅 Benchmark) */
+function bmAdminHTML(){const c=bmConfig();const info=bmCycleInfo();
+  const wkChip=function(n){return '<button class="mgen-day'+(c.weeks===n?' on':'')+'" onclick="bmSet(\'weeks\','+n+')">'+n+' wks</button>';};
+  const dirBtn=function(v,lbl){return '<button type="button" class="rsex-btn'+(c.dir===v?' on':'')+'" onclick="bmSet(\'dir\',\''+v+'\')">'+lbl+'</button>';};
+  let h='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Test live</div><div class="ot-sub">Shows the test, submit form & leaderboard at the bottom of the WOD page during each test week.</div></div><span class="sw'+(c.on?' on':'')+'" onclick="bmToggleOn()"></span></div>';
+  h+='<div class="fld"><label>Test name</label><input value="'+esc(c.title)+'" onchange="bmSet(\'title\',this.value)"></div>';
+  h+='<div class="mgen-row"><label class="meso-f">First test starts<input type="date" value="'+esc(c.start)+'" onchange="bmSet(\'start\',this.value)"></label></div>';
+  h+='<div class="meso-f" style="margin-bottom:6px;">Repeat every <span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0;">(pick or type weeks)</span></div><div class="mgen-days" style="align-items:center;">'+wkChip(4)+wkChip(6)+wkChip(8)+'<input type="number" min="1" max="26" value="'+c.weeks+'" onchange="bmSet(\'weeks\',Math.max(1,parseInt(this.value)||6))" style="width:64px;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:8px;color:var(--text);text-align:center;font-size:13px;"></div>';
+  h+='<div class="meso-f" style="margin:12px 0 6px;">Scored by</div><div class="rsex" style="margin-bottom:12px;">'+dirBtn('low','Time (faster wins)')+dirBtn('high','Reps / score (more wins)')+'</div>';
+  if(c.dir==='high')h+='<div class="fld"><label>Score unit</label><input value="'+esc(c.unit)+'" onchange="bmSet(\'unit\',this.value)" placeholder="reps"></div>';
+  h+='<div class="fld"><label>The test (shown to members)</label><textarea class="meso-focus" rows="8" onchange="bmSet(\'body\',this.value)">'+esc(c.body)+'</textarea></div>';
+  if(c.start)h+='<div class="bm-sub" style="margin:2px 0 12px;">'+(info.before?('First test '+dateLabel(info.nextStart,{day:'numeric',month:'short'})):(info.active?('🟢 Test week is LIVE — cycle of '+dateLabel(info.cycleKey,{day:'numeric',month:'short'})):('Between tests · next '+dateLabel(info.nextStart,{day:'numeric',month:'short'}))))+'</div>';
+  if(info.valid&&!info.before){const list=bmCycleEntries(info.cycleKey).slice().sort(function(a,b){return (c.dir==='low')?(a.score-b.score):(b.score-a.score);});h+='<div class="set-section" style="margin:8px 0 6px;">Entries this cycle ('+list.length+')</div><div id="bm-admin-list">'+bmAdminListHTML(list,c)+'</div>';}
+  return h;
+}
+function bmAdminListHTML(list,c){if(!list.length)return '<div class="bm-empty">No entries yet.</div>';return list.map(function(e){return '<div class="rlist-row"><span class="rl-name">'+esc(e.name||'')+(e.phone?' · '+esc(e.phone):'')+'</span><span class="rl-time">'+bmFmt(e.score,c)+'</span><button class="rl-x" onclick="bmDelEntry(\''+e.id+'\')">del</button></div>';}).join('');}
+function renderBmAdmin(){const mb=document.getElementById('modal-body');if(mb&&document.getElementById('modal').classList.contains('open'))mb.innerHTML=bmAdminHTML();}
+async function bmSet(k,v){const s=settings();const b=Object.assign({},s.benchmark||{});if(b.body==null)b.body=BM_DEFAULT_BODY;b[k]=v;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();}
+async function bmToggleOn(){const s=settings();const b=Object.assign({},s.benchmark||{});b.on=!(b.on===true);if(b.body==null)b.body=BM_DEFAULT_BODY;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();toast(b.on?'Benchmark test live':'Benchmark test off');}
+async function bmDelEntry(id){if(!confirm('Delete this entry?'))return;await rowDelete('benchmarks',id);renderBmAdmin();renderBenchmark();}
+
 /* ---------- HOVER NAV ---------- */
 let navTimer=null;
 function showNav(){document.getElementById('nav').classList.add('show');}
@@ -2735,6 +2835,7 @@ function renderLive(){applyScales();applyAppearance();renderFocusNote();renderDu
   var _rb=document.getElementById('rowboard');if(_rb&&_rb.classList.contains('active'))renderRowBoard();
   var _rcb=document.getElementById('rowcoach-board');if(_rcb&&document.getElementById('rowcoach').classList.contains('active')&&row500On()&&rowCoachKeyTry===rowKey())_rcb.innerHTML=rowMiniBoardHTML();
   var _ral=document.getElementById('row-admin-list');if(_ral)_ral.innerHTML=rowAdminListHTML();
+  var _bl=document.getElementById('bm-admin-list');if(_bl){var _bc=bmConfig(),_bi=bmCycleInfo();if(_bi.valid&&!_bi.before)_bl.innerHTML=bmAdminListHTML(bmCycleEntries(_bi.cycleKey).slice().sort(function(a,b){return (_bc.dir==='low')?(a.score-b.score):(b.score-a.score);}),_bc);}
   applyMaintenance();}
 function renderAll(){applyScales();applyAppearance();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();loadWODForm();renderWOD();applyOrder();initDrag();renderUndoBar();}
 
