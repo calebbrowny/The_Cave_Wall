@@ -283,6 +283,38 @@ body.no-tab-emoji .te{display:none;}
 /* ---------- SUBMIT TAB ---------- */
 .submit{display:none;min-height:100vh;}
 .submit.active{display:block;}
+/* 500m row challenge */
+.rowboard{display:none;min-height:100vh;}
+.rowboard.active{display:block;}
+.rowcoach{display:none;min-height:100vh;}
+.rowcoach.active{display:block;}
+.rb-hero{text-align:center;padding:6px 16px 18px;}
+.rb-eyebrow{font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--blue);}
+.rb-title{font-size:clamp(26px,5vw,52px);font-weight:900;color:var(--text);line-height:1.05;margin-top:4px;}
+.rb-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1100px;margin:0 auto;padding:0 18px 40px;}
+@media(max-width:760px){.rb-cols{grid-template-columns:1fr;gap:16px;}}
+.rb-col-h{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);text-align:center;margin-bottom:10px;}
+.rb-row{display:flex;align-items:center;gap:14px;background:var(--bg-light);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:8px;}
+.rb-row.first{background:linear-gradient(90deg,var(--blue-d),transparent);border-color:var(--blue);}
+.rb-rank{font-size:20px;font-weight:900;color:var(--muted);width:34px;flex-shrink:0;text-align:center;}
+.rb-row.first .rb-rank{color:var(--blue);}
+.rb-name{flex:1;min-width:0;font-size:19px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rb-time{font-size:22px;font-weight:900;color:var(--lb-score);font-variant-numeric:tabular-nums;flex-shrink:0;}
+.rb-empty{color:var(--muted);font-size:14px;text-align:center;padding:18px;}
+.rsex{display:flex;gap:8px;}
+.rsex-btn{flex:1;background:var(--bg-light);border:1px solid var(--border);color:var(--muted);font-weight:700;font-size:14px;padding:11px;border-radius:10px;cursor:pointer;}
+.rsex-btn.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
+.rlist-row{display:flex;align-items:center;gap:10px;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:8px 11px;margin-bottom:6px;font-size:13px;}
+.rl-name{flex:1;min-width:0;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rl-sex{font-size:11px;color:var(--muted);text-transform:uppercase;flex-shrink:0;}
+.rl-time{font-variant-numeric:tabular-nums;font-weight:800;color:var(--text);flex-shrink:0;}
+.rl-x{background:none;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;}
+.maint{position:fixed;inset:0;z-index:400;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;}
+.maint.show{display:flex;}
+.maint-card{max-width:420px;text-align:center;}
+.maint-ico{font-size:54px;}
+.maint-h{font-size:24px;font-weight:800;color:var(--text);margin-top:10px;}
+.maint-p{font-size:15px;color:var(--muted);margin-top:8px;line-height:1.5;}
 
 /* ----- Event page (public) ----- */
 .eventpage{display:none;min-height:100vh;}
@@ -1005,6 +1037,27 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   </div>
 </div>
 
+<!-- 500m ROW CHALLENGE — leaderboard (for the TV) -->
+<div class="rowboard" id="rowboard">
+  <div class="disp-head"><div class="disp-logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><button class="fs-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button></div>
+  <div class="rb-hero"><div class="rb-eyebrow">The Cave · Opening Night</div><div class="rb-title">500m Row Challenge</div></div>
+  <div id="rb-cols"></div>
+</div>
+
+<!-- 500m ROW CHALLENGE — coach entry (secret link) -->
+<div class="rowcoach" id="rowcoach">
+  <div class="submit-wrap">
+    <div class="submit-eyebrow">The Cave · Coach</div>
+    <div class="submit-title">500m Row — add a result</div>
+    <div class="submit-sub">Enter each athlete as they finish — it appears on the leaderboard instantly.</div>
+    <div class="submit-card" id="rowcoach-card"></div>
+    <div id="rowcoach-board" style="margin-top:22px;"></div>
+  </div>
+</div>
+
+<!-- MAINTENANCE OVERLAY (owner toggle; admins bypass) -->
+<div class="maint" id="maint"><div class="maint-card"><div class="maint-ico">🛠️</div><div class="maint-h">Quick upgrade in progress</div><div class="maint-p">The Cave Wall is getting a tune-up — back in a few minutes. Thanks for your patience!</div></div></div>
+
 <!-- WOD TAB -->
 <div class="wod active" id="wod">
   <div class="disp-head"><div class="disp-logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><div class="disp-clock" id="wod-clock"></div></div>
@@ -1061,8 +1114,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
-const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true};
+const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -1156,7 +1209,7 @@ function seedLocal(){
   cache.boards=[];
 }
 async function fetchAll(){
-  const [lb,ac,ev,td,kp,ch,sub,wd,ad,bd,st]=await Promise.all([
+  const [lb,ac,ev,td,kp,ch,sub,wd,ad,bd,st,rw]=await Promise.all([
     sb.from('leaderboard').select('*').order('created_at'),
     sb.from('achievements').select('*').order('created_at'),
     sb.from('events').select('*').order('date'),
@@ -1167,9 +1220,10 @@ async function fetchAll(){
     sb.from('wods').select('*').order('date'),
     sb.from('ads').select('*').order('sort').order('created_at'),
     sb.from('boards').select('*').order('sort').order('created_at'),
-    sb.from('app_state').select('*').eq('id',1).maybeSingle()
+    sb.from('app_state').select('*').eq('id',1).maybeSingle(),
+    sb.from('row500').select('*').order('seconds')
   ]);
-  cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];applyDemo();
+  cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];cache.row500=(rw&&rw.data)||[];applyDemo();
   if(st.data)cache.state={wod:st.data.wod||{},settings:st.data.settings||{},focus_override:st.data.focus_override||null,challenge_title:st.data.challenge_title||'Monthly Challenge',event_page:st.data.event_page||{enabled:false,title:'Event',subtitle:'',sections:[]}};
 }
 function subscribe(){
@@ -1179,7 +1233,7 @@ async function rowInsert(table,row){const r=Object.assign({id:uid()},row);cache[
 async function rowUpdate(table,id,patch){if(isDemo(id)){const dx=cache[table].find(r=>r.id===id);if(dx)Object.assign(dx,patch);return;}const x=cache[table].find(r=>r.id===id);if(x)Object.assign(x,patch);if(LIVE){const{error}=await sb.from(table).update(patch).eq('id',id);if(error){alert('Update failed: '+error.message);reportError('db-update',error.message);}}else lsSave();}
 async function rowDelete(table,id,noUndo){if(isDemo(id)){cache[table]=cache[table].filter(r=>r.id!==id);return;}const _snap=(function(){const r=cache[table].find(x=>x.id===id);return r?JSON.parse(JSON.stringify(r)):null;})();cache[table]=cache[table].filter(r=>r.id!==id);let _ok=true;if(LIVE){const{error}=await sb.from(table).delete().eq('id',id);if(error){_ok=false;alert('Delete failed: '+error.message);reportError('db-delete',error.message);}}else lsSave();if(_ok&&_snap&&!noUndo)recordHistory('delete','Deleted '+undoNoun(table),{table:table,row:_snap});}
 /* ---------- UNDO + VERSION HISTORY (persisted, auto-forgets after 2 weeks) ---------- */
-const UNDO_NOUNS={wods:'workout',leaderboard:'leaderboard entry',achievements:'achievement',events:'event',boards:'leaderboard',submissions:'submission',challenges:'challenge',ads:'ad',todos:'to-do',kpis:'KPI'};
+const UNDO_NOUNS={wods:'workout',leaderboard:'leaderboard entry',achievements:'achievement',events:'event',boards:'leaderboard',submissions:'submission',challenges:'challenge',ads:'ad',todos:'to-do',kpis:'KPI',row500:'row time'};
 function undoNoun(t){return UNDO_NOUNS[t]||'item';}
 function recordHistory(kind,label,data){const entry={id:uid(),created_at:new Date().toISOString(),actor:(currentUser&&currentUser.email)||'admin',label:label,kind:kind,data:data};cache.history.unshift(entry);if(cache.history.length>200)cache.history.length=200;showUndoToast(label);renderUndoBar();if(LIVE){sb.from('history').insert(entry).then(function(){},function(){});}else lsSave();}
 async function loadHistory(){if(!LIVE||!currentUser)return;const cutoff=new Date(Date.now()-14*864e5).toISOString();try{sb.from('history').delete().lt('created_at',cutoff).then(function(){},function(){});}catch(e){}try{const{data}=await sb.from('history').select('*').gte('created_at',cutoff).order('created_at',{ascending:false}).limit(200);cache.history=data||[];}catch(e){cache.history=[];}renderUndoBar();}
@@ -1419,6 +1473,7 @@ function openModal(type,id,extra){
   else if(type==='meso'){mesoWork=mesoData();mesoUndo=[];t.textContent='🗓️ Mesocycle planner';b.innerHTML=mesoEditorHTML();}
   else if(type==='mesogen'){t.textContent='✨ Generate WODs';b.innerHTML=mesoGenHTML();}
   else if(type==='history'){t.textContent='🕘 Version history';b.innerHTML=historyHTML();}
+  else if(type==='row'){t.textContent='🚣 500m Row Challenge';b.innerHTML=rowAdminHTML();}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -2526,7 +2581,10 @@ function lockPlanner(){signOut();}
 
 /* ---------- MODE ---------- */
 function setMode(mode){if(mode==='plan'&&!isUnlocked()){showPwGate();return;}if(mode==='disp')activeScreenSlug=null;_setMode(mode);clearTimeout(navTimer);navTimer=setTimeout(hideNav,2500);}
-function applyHashRoute(){const h=(location.hash||'').replace('#','').toLowerCase();if(!h)return false;const parts=h.split('/');const map={submit:'submit',wod:'wod',challenge:'chal',event:'event',display:'disp',board:'disp'};if(map[parts[0]]){activeScreenSlug=(parts[0]==='display'||parts[0]==='board')?(parts[1]||null):activeScreenSlug;_setMode(map[parts[0]]);return true;}return false;}
+function applyHashRoute(){const h=(location.hash||'').replace('#','').toLowerCase();if(!h)return false;const parts=h.split('/');const map={submit:'submit',wod:'wod',challenge:'chal',event:'event',display:'disp',board:'disp'};if(map[parts[0]]){activeScreenSlug=(parts[0]==='display'||parts[0]==='board')?(parts[1]||null):activeScreenSlug;_setMode(map[parts[0]]);return true;}
+  if(parts[0]==='row'){_setMode('row');return true;}
+  if(parts[0]==='rowcoach'){rowCoachKeyTry=parts[1]||'';_setMode('rowcoach');return true;}
+  return false;}
 let currentMode='wod';
 function _setMode(mode){
   currentMode=mode;
@@ -2543,6 +2601,8 @@ function _setMode(mode){
   document.getElementById('eventpage').classList.toggle('active',mode==='event');
   document.getElementById('submit').classList.toggle('active',mode==='submit');
   document.getElementById('display').classList.toggle('active',mode==='disp');
+  var _rb=document.getElementById('rowboard');if(_rb)_rb.classList.toggle('active',mode==='row');
+  var _rc=document.getElementById('rowcoach');if(_rc)_rc.classList.toggle('active',mode==='rowcoach');
   var _ts=document.getElementById('timer');if(_ts)_ts.classList.toggle('active',mode==='timer');
   if(evTimer){clearInterval(evTimer);evTimer=null;}
   if(mode==='disp'){renderDisplay();startDisplay();}else stopDisplay();
@@ -2551,7 +2611,67 @@ function _setMode(mode){
   if(mode==='event'){renderEventPage();tickClock();evTimer=setInterval(tickClock,1000);}
   if(mode==='submit')renderSubmitForm();
   if(mode==='timer')tmrEnter();else tmrLeave();
+  if(mode==='row')renderRowBoard();
+  if(mode==='rowcoach')renderRowCoach();
+  applyMaintenance();
 }
+
+/* ---------- 500m ROW CHALLENGE (one-time event) ---------- */
+function row500On(){return settings().row500_on===true;}
+function rowKey(){return settings().row500_key||'';}
+function rowGenKey(){return 'k'+Math.random().toString(36).slice(2,8)+Math.random().toString(36).slice(2,6);}
+function rowSecToMMSS(s){s=Math.max(0,Math.round(+s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function rowMMSSToSec(str){str=String(str==null?'':str).trim();if(!str)return null;if(/^\d{1,3}$/.test(str))return parseInt(str,10);const m=str.match(/^(\d{1,3}):([0-5]?\d)$/);if(!m)return null;return parseInt(m[1],10)*60+parseInt(m[2],10);}
+function rowEntries(sex){return (cache.row500||[]).filter(function(r){return (r.sex||'m')===sex;}).slice().sort(function(a,b){return (a.seconds||0)-(b.seconds||0);});}
+let rowEditId=null,rowSexPick='m',rowCoachKeyTry='';
+function renderRowBoard(){const wrap=document.getElementById('rb-cols');if(!wrap)return;
+  if(!row500On()){wrap.innerHTML='<div class="rb-empty" style="padding:60px 18px;">The row challenge isn’t live right now.</div>';return;}
+  const col=function(sex,label){const list=rowEntries(sex);const rows=list.length?list.map(function(r,i){return '<div class="rb-row'+(i===0?' first':'')+'"><div class="rb-rank">'+(i===0?'🥇':(i+1))+'</div><div class="rb-name">'+esc(r.name||'')+'</div><div class="rb-time">'+rowSecToMMSS(r.seconds)+'</div></div>';}).join(''):'<div class="rb-empty">No times yet.</div>';return '<div><div class="rb-col-h">'+label+'</div>'+rows+'</div>';};
+  wrap.innerHTML='<div class="rb-cols">'+col('m','Men')+col('f','Women')+'</div>';
+}
+function rowMiniBoardHTML(){const mini=function(sex,label){const list=rowEntries(sex);return '<div class="rb-col-h" style="margin-top:8px;">'+label+'</div>'+(list.length?list.slice(0,10).map(function(r,i){return '<div class="rlist-row"><span class="rl-name">'+(i+1)+'. '+esc(r.name||'')+'</span><span class="rl-time">'+rowSecToMMSS(r.seconds)+'</span></div>';}).join(''):'<div class="rb-empty" style="padding:6px;">No times yet.</div>');};return mini('m','Men')+mini('f','Women');}
+function renderRowCoach(){const card=document.getElementById('rowcoach-card');if(!card)return;const bd=document.getElementById('rowcoach-board');
+  if(!row500On()){card.innerHTML='<div class="submit-done"><div class="big">⏸️</div><h3>Not live yet</h3><p>The row challenge isn’t open right now.</p></div>';if(bd)bd.innerHTML='';return;}
+  if(!rowKey()||rowCoachKeyTry!==rowKey()){card.innerHTML='<div class="submit-done"><div class="big">🔒</div><h3>Link not valid</h3><p>This coach link has expired or is incorrect — ask the owner for the current one.</p></div>';if(bd)bd.innerHTML='';return;}
+  card.innerHTML=rowFormHTML('coach');if(bd)bd.innerHTML=rowMiniBoardHTML();
+}
+function rowFormHTML(mode){const editing=mode==='admin'&&rowEditId;
+  return '<div class="fld"><label>Name</label><input id="r-name" placeholder="e.g. Jordan K."></div>'+
+    '<div class="fld"><label>Sex</label><div class="rsex"><button type="button" class="rsex-btn'+(rowSexPick==='m'?' on':'')+'" onclick="rowPickSex(\'m\',this)">Male</button><button type="button" class="rsex-btn'+(rowSexPick==='f'?' on':'')+'" onclick="rowPickSex(\'f\',this)">Female</button></div></div>'+
+    '<div class="fld"><label>500m time (mm:ss)</label><input id="r-time" inputmode="numeric" placeholder="e.g. 1:38" onkeydown="if(event.key===\'Enter\')rowSave(\''+mode+'\')"></div>'+
+    '<button class="btn-full" onclick="rowSave(\''+mode+'\')">'+(editing?'Save changes':'Add to leaderboard')+'</button>'+
+    (editing?'<button class="btn-sm" style="width:100%;margin-top:8px;" onclick="rowCancelEdit()">Cancel edit</button>':'')+
+    '<div id="r-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div>';
+}
+function rowPickSex(s,el){rowSexPick=s;if(el&&el.parentNode){el.parentNode.querySelectorAll('.rsex-btn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}}
+async function rowSave(mode){const name=val('r-name');const t=rowMMSSToSec(val('r-time'));const err=document.getElementById('r-err');
+  if(!name){if(err)err.textContent='Enter a name.';return;}
+  if(t==null){if(err)err.textContent='Enter the time as mm:ss, e.g. 1:38.';return;}
+  if(mode==='admin'&&rowEditId){await rowUpdate('row500',rowEditId,{name:name,sex:rowSexPick,seconds:t});rowEditId=null;toast('Saved');renderRowAdmin();}
+  else if(mode==='admin'){await rowInsert('row500',{name:name,sex:rowSexPick,seconds:t});toast('Added '+name);renderRowAdmin();}
+  else{await rowInsert('row500',{name:name,sex:rowSexPick,seconds:t});toast('Added '+name+' · '+rowSecToMMSS(t));rowSexPick='m';renderRowCoach();}
+}
+function rowCancelEdit(){rowEditId=null;renderRowAdmin();}
+function rowEditEntry(id){const r=(cache.row500||[]).find(function(x){return x.id===id;});if(!r)return;rowEditId=id;rowSexPick=r.sex||'m';renderRowAdmin();var n=document.getElementById('r-name'),t=document.getElementById('r-time');if(n)n.value=r.name||'';if(t)t.value=rowSecToMMSS(r.seconds);if(n)n.focus();}
+async function rowDeleteEntry(id){const r=(cache.row500||[]).find(function(x){return x.id===id;});if(!confirm('Delete '+((r&&r.name)||'this entry')+'?'))return;await rowDelete('row500',id);renderRowAdmin();}
+function rowAdminListHTML(){const list=function(sex,label){const l=rowEntries(sex);return '<div class="rb-col-h" style="text-align:left;margin:12px 0 6px;">'+label+' ('+l.length+')</div>'+(l.length?l.map(function(r,i){return '<div class="rlist-row"><span class="rl-name">'+(i+1)+'. '+esc(r.name||'')+'</span><span class="rl-sex">'+((r.sex||'m')==='f'?'F':'M')+'</span><span class="rl-time">'+rowSecToMMSS(r.seconds)+'</span><button class="btn-sm" onclick="rowEditEntry(\''+r.id+'\')">edit</button><button class="rl-x" onclick="rowDeleteEntry(\''+r.id+'\')">del</button></div>';}).join(''):'<div class="rb-empty" style="padding:6px 0;text-align:left;">No times yet.</div>');};return list('m','Men')+list('f','Women');}
+function rowAdminHTML(){const on=row500On();const origin=location.origin+location.pathname;const boardLink=origin+'#row';const coachLink=rowKey()?(origin+'#rowcoach/'+rowKey()):'';
+  let h='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Event live</div><div class="ot-sub">Turn on for opening night. Off = leaderboard & coach link show “not live”.</div></div><span class="sw'+(on?' on':'')+'" onclick="rowToggleOn()"></span></div>';
+  if(on){h+='<div class="fld" style="margin-bottom:12px;"><label>📺 Leaderboard link (open on the TV)</label><div style="display:flex;gap:8px;"><input readonly value="'+esc(boardLink)+'" style="flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:12px;"><button class="btn-sm" onclick="rowCopy(\''+esc(boardLink)+'\')">Copy</button><button class="btn-sm" onclick="location.hash=\'#row\'">Open</button></div></div>';
+    h+='<div class="fld" style="margin-bottom:14px;"><label>🔑 Coach link (secret — for coaches\' phones)</label><div style="display:flex;gap:8px;"><input readonly value="'+esc(coachLink)+'" style="flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:12px;"><button class="btn-sm" onclick="rowCopy(\''+esc(coachLink)+'\')">Copy</button><button class="btn-sm" onclick="rowNewKey()">New</button></div><div class="ot-sub" style="margin-top:4px;">Anyone with this link can add results (not edit/delete, no admin). “New” invalidates the old link.</div></div>';}
+  h+='<div class="set-section" style="margin:6px 0 8px;">Add / edit a result</div><div id="row-form">'+rowFormHTML('admin')+'</div>';
+  h+='<div class="set-section" style="margin:16px 0 4px;">Entries</div><div id="row-admin-list">'+rowAdminListHTML()+'</div>';
+  return h;
+}
+function renderRowAdmin(){const mb=document.getElementById('modal-body');if(mb&&document.getElementById('modal').classList.contains('open'))mb.innerHTML=rowAdminHTML();}
+function rowCopy(url){if(!url)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){toast('Copied ✓');},function(){prompt('Copy this link:',url);});}else prompt('Copy this link:',url);}
+async function rowToggleOn(){const s=settings();const turningOn=!(s.row500_on===true);s.row500_on=turningOn;if(turningOn&&!s.row500_key)s.row500_key=rowGenKey();await stateUpdate({settings:s});renderRowAdmin();toast(turningOn?'Row challenge is LIVE':'Row challenge off');}
+async function rowNewKey(){if(!confirm('Make a new coach link? The current one will stop working.'))return;const s=settings();s.row500_key=rowGenKey();await stateUpdate({settings:s});renderRowAdmin();toast('New coach link created');}
+
+/* ---------- MAINTENANCE MODE (owner toggle; admins keep full access) ---------- */
+function maintOn(){return settings().maintenance_on===true;}
+function applyMaintenance(){const m=document.getElementById('maint');if(m)m.classList.toggle('show',maintOn()&&!isUnlocked());}
+async function toggleMaintenance(){const s=settings();s.maintenance_on=!(s.maintenance_on===true);await stateUpdate({settings:s});applyMaintenance();renderOwnerTools();toast(s.maintenance_on?'Maintenance mode ON — members see a notice':'Maintenance mode off');}
 
 /* ---------- HOVER NAV ---------- */
 let navTimer=null;
@@ -2580,7 +2700,11 @@ function initDrag(){document.querySelectorAll('.planner-sec').forEach(sec=>{
 });}
 
 /* ---------- RENDER ALL ---------- */
-function renderLive(){applyScales();applyAppearance();renderFocusNote();renderDualControls();renderEvents();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();buildAdminStrip();renderWOD();if(document.getElementById('eventpage').classList.contains('active'))renderEventPage();if(document.getElementById('display').classList.contains('active'))renderDisplay();}
+function renderLive(){applyScales();applyAppearance();renderFocusNote();renderDualControls();renderEvents();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();buildAdminStrip();renderWOD();if(document.getElementById('eventpage').classList.contains('active'))renderEventPage();if(document.getElementById('display').classList.contains('active'))renderDisplay();
+  var _rb=document.getElementById('rowboard');if(_rb&&_rb.classList.contains('active'))renderRowBoard();
+  var _rcb=document.getElementById('rowcoach-board');if(_rcb&&document.getElementById('rowcoach').classList.contains('active')&&row500On()&&rowCoachKeyTry===rowKey())_rcb.innerHTML=rowMiniBoardHTML();
+  var _ral=document.getElementById('row-admin-list');if(_ral)_ral.innerHTML=rowAdminListHTML();
+  applyMaintenance();}
 function renderAll(){applyScales();applyAppearance();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();loadWODForm();renderWOD();applyOrder();initDrag();renderUndoBar();}
 
 /* ===================== TIMER (SmartWOD-style, off by default) ===================== */
@@ -2670,7 +2794,9 @@ function renderOwnerTools(){const p=document.getElementById('owner-panel');if(!p
     row(demoOn(),'Demo data','Show sample data on this device only — never touches real member data.','toggleDemo();renderOwnerTools();')+
     row(reduceMotionOn(),'Reduce motion','Switch off animations on this device — easier on older gym TVs and kinder for motion sensitivity.','toggleReduceMotion();')+
     row(submissionsOpen(),'Accept member submissions','When off, the public Submit page shows a friendly “paused” message instead of the form.','toggleSubmissionsOpen();')+
-    row(analyticsOn(),'Log page views','Counts views for the Stats tab. Turn off to pause analytics on the public pages.','toggleAnalytics();');
+    row(analyticsOn(),'Log page views','Counts views for the Stats tab. Turn off to pause analytics on the public pages.','toggleAnalytics();')+
+    row(maintOn(),'Maintenance mode','When on, members see a friendly “upgrading” screen. You (admin) keep full access to fix things.','toggleMaintenance();')+
+    '<div class="ot-row"><div><div class="ot-lbl">🚣 500m Row Challenge</div><div class="ot-sub">One-time event — entry form, leaderboard link &amp; secret coach link.</div></div><button class="btn-sm" onclick="openModal(\'row\')">Open</button></div>';
 }
 let saOpen={stats:true,feed:false,access:false,tabs:false};
 function saToggle(sec){saOpen[sec]=!saOpen[sec];renderActivity();}
@@ -2786,6 +2912,7 @@ async function boot(){
   else{if(txt)txt.textContent='Local';lsLoad();if(!cache.leaderboard.length){seedLocal();lsSave();}}
   setUnlocked(isUnlocked());
   applyReduceMotion();
+  applyMaintenance();
   applyDemo();
   renderAll();
   if(!applyHashRoute() && !isUnlocked())_setMode('wod'); // gym-safe default

@@ -9,7 +9,11 @@ step — backed by Supabase and hosted on Netlify.
 - **Frontend:** vanilla HTML/CSS/JS in a single `index.html`. No framework, no bundler.
 - **Backend:** Supabase (Postgres + Auth + Storage). Project **`unfoqmfislfcnzxoivta`** ("cave-ops").
   Tables: `leaderboard`, `achievements`, `events`, `todos`, `kpis`, `challenges`, `submissions`,
-  `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`.
+  `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`, `row500`.
+  - `row500` = one-time 500m row challenge (public read + public insert; admin-only edit/delete; in the
+    realtime publication for live updates). Cols: name, sex ('m'/'f'), seconds (int; entered as mm:ss).
+    Gated by `settings.row500_on`; secret coach link uses `settings.row500_key`. Routes: `#row`
+    (TV leaderboard), `#rowcoach/<key>` (coach entry). Admin manage = `openModal('row')` from Owner controls.
   - `history` = the undo / version-history log (admin-only RLS). Each row is a reversible change
     (`kind` ∈ delete/settingsKey/boardDelete/wodbatch + serializable `data`). `recordHistory()`
     writes one; `applyHistoryUndo()`/`doUndo()` reverse + delete it; `loadHistory()` prunes rows
@@ -96,7 +100,9 @@ No-API, built from The Cave's HYROX logic. Key pieces:
   empty; a **🕘 Version history** modal (`openModal('history')`) listing the last 14 days.
 - **Owner controls** accordion (bottom of planner, `#owner-wrap`, owner-only): Demo data (device),
   Reduce motion (device → `body.reduce-motion`), Accept member submissions (`settings.submissions_open`,
-  gates the public Submit page), Log page views (`settings.analytics_on`, gates `logView`).
+  gates the public Submit page), Log page views (`settings.analytics_on`, gates `logView`),
+  **Maintenance mode** (`settings.maintenance_on` → full-screen `#maint` overlay for non-admins;
+  `applyMaintenance()`, admins bypass), and **🚣 500m Row Challenge** (opens `openModal('row')`).
 - **Tab names** (Super Admin → 🏷️ Tab names, owner-only): rename nav tabs via `settings.tab_names` →
   `applyTabNames()` sets the `.tl` span inside each `#m-*` button (live preview on type, save on blur). Emoji-on-tabs
   toggle = `appearance.tab_emojis` → `body.no-tab-emoji`; nav labels live in `.tl`, emoji in `.te`. On phones the
