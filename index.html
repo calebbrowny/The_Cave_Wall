@@ -2741,7 +2741,11 @@ function bmCycleInfo(){const c=bmConfig();if(!c.start)return {valid:false};const
   const idx=Math.floor(diff/len);const cycleStart=mesoAddDays(c.start,idx*len);
   return {valid:true,before:false,active:((diff-idx*len)<7),cycleKey:cycleStart,idx:idx,nextStart:mesoAddDays(c.start,(idx+1)*len),prevKey:idx>0?mesoAddDays(c.start,(idx-1)*len):null};}
 function bmKey(e){const p=(e.phone||'').replace(/\D/g,'');return p||(e.name||'').trim().toLowerCase();}
-function bmCycleEntries(cycleKey){return (cache.benchmarks||[]).filter(function(e){return e.cycle===cycleKey;});}
+function bmRealCycle(k){return (cache.benchmarks||[]).filter(function(e){return e.cycle===k;});}
+function bmSampleOn(){try{return localStorage.getItem('cave_bm_sample')==='1';}catch(e){return false;}}
+function bmSamples(){const info=bmCycleInfo();if(!info.valid||info.before)return [];const c=bmConfig();const low=c.dir==='low';const ppl=['Caleb B','Tim R','Em K','Jordan K','Sara T','Mick D'];const back=[14,6,-4,9,0,5];const out=[];ppl.forEach(function(nm,i){const phone='sample'+i;const cur=low?(540+i*22):(128-i*9);const prev=low?(cur+back[i]):(cur-back[i]);out.push({id:'bms-c'+i,name:nm,phone:phone,score:cur,cycle:info.cycleKey});if(info.prevKey)out.push({id:'bms-p'+i,name:nm,phone:phone,score:prev,cycle:info.prevKey});});return out;}
+function bmCycleEntries(cycleKey){const real=bmRealCycle(cycleKey);return bmSampleOn()?real.concat(bmSamples().filter(function(e){return e.cycle===cycleKey;})):real;}
+function toggleBmSample(){const on=!bmSampleOn();try{localStorage.setItem('cave_bm_sample',on?'1':'0');}catch(e){}renderOwnerTools();renderBenchmark();toast(on?'Sample scores on — preview only (this device)':'Sample scores off');}
 function bmBest(entries,c){c=c||bmConfig();const by={};entries.forEach(function(e){const k=bmKey(e);if(!k)return;const cur=by[k];if(!cur||((c.dir==='low')?(e.score<cur.score):(e.score>cur.score)))by[k]=e;});const arr=Object.keys(by).map(function(k){return by[k];});arr.sort(function(a,b){return (c.dir==='low')?(a.score-b.score):(b.score-a.score);});return arr;}
 function bmBestScore(entries,c){let b=null;entries.forEach(function(e){if(b==null)b=e.score;else b=(c.dir==='low')?Math.min(b,e.score):Math.max(b,e.score);});return b;}
 let bmBoardOpen=false,bmLastResult=null;
@@ -2795,14 +2799,14 @@ function bmAdminHTML(){const c=bmConfig();const info=bmCycleInfo();
   if(c.dir==='high')h+='<div class="fld"><label>Score unit</label><input value="'+esc(c.unit)+'" onchange="bmSet(\'unit\',this.value)" placeholder="reps"></div>';
   h+='<div class="fld"><label>The test (shown to members)</label><textarea class="meso-focus" rows="8" onchange="bmSet(\'body\',this.value)">'+esc(c.body)+'</textarea></div>';
   if(c.start)h+='<div class="bm-sub" style="margin:2px 0 12px;">'+(info.before?('First test '+dateLabel(info.nextStart,{day:'numeric',month:'short'})):(info.active?('🟢 Test week is LIVE — cycle of '+dateLabel(info.cycleKey,{day:'numeric',month:'short'})):('Between tests · next '+dateLabel(info.nextStart,{day:'numeric',month:'short'}))))+'</div>';
-  if(info.valid&&!info.before){const list=bmCycleEntries(info.cycleKey).slice().sort(function(a,b){return (c.dir==='low')?(a.score-b.score):(b.score-a.score);});h+='<div class="set-section" style="margin:8px 0 6px;">Entries this cycle ('+list.length+')</div><div id="bm-admin-list">'+bmAdminListHTML(list,c)+'</div>';}
+  if(info.valid&&!info.before){const list=bmRealCycle(info.cycleKey).slice().sort(function(a,b){return (c.dir==='low')?(a.score-b.score):(b.score-a.score);});h+='<div class="set-section" style="margin:8px 0 6px;">Entries this cycle ('+list.length+')</div><div id="bm-admin-list">'+bmAdminListHTML(list,c)+'</div>';}
   return h;
 }
 function bmAdminListHTML(list,c){if(!list.length)return '<div class="bm-empty">No entries yet.</div>';return list.map(function(e){return '<div class="rlist-row"><span class="rl-name">'+esc(e.name||'')+(e.phone?' · '+esc(e.phone):'')+'</span><span class="rl-time">'+bmFmt(e.score,c)+'</span><button class="rl-x" onclick="bmDelEntry(\''+e.id+'\')">del</button></div>';}).join('');}
 function renderBmAdmin(){const mb=document.getElementById('modal-body');if(mb&&document.getElementById('modal').classList.contains('open'))mb.innerHTML=bmAdminHTML();}
 async function bmSet(k,v){const s=settings();const b=Object.assign({},s.benchmark||{});if(b.body==null)b.body=BM_DEFAULT_BODY;b[k]=v;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();}
 async function bmToggleOn(){const s=settings();const b=Object.assign({},s.benchmark||{});b.on=!(b.on===true);if(b.body==null)b.body=BM_DEFAULT_BODY;s.benchmark=b;await stateUpdate({settings:s});renderBmAdmin();renderBenchmark();toast(b.on?'Benchmark test live':'Benchmark test off');}
-async function bmDelEntry(id){if(!confirm('Delete this entry?'))return;await rowDelete('benchmarks',id);renderBmAdmin();renderBenchmark();}
+async function bmDelEntry(id){if(String(id).indexOf('bms-')===0)return;if(!confirm('Delete this entry?'))return;await rowDelete('benchmarks',id);renderBmAdmin();renderBenchmark();}
 
 /* ---------- HOVER NAV ---------- */
 let navTimer=null;
@@ -2835,7 +2839,7 @@ function renderLive(){applyScales();applyAppearance();renderFocusNote();renderDu
   var _rb=document.getElementById('rowboard');if(_rb&&_rb.classList.contains('active'))renderRowBoard();
   var _rcb=document.getElementById('rowcoach-board');if(_rcb&&document.getElementById('rowcoach').classList.contains('active')&&row500On()&&rowCoachKeyTry===rowKey())_rcb.innerHTML=rowMiniBoardHTML();
   var _ral=document.getElementById('row-admin-list');if(_ral)_ral.innerHTML=rowAdminListHTML();
-  var _bl=document.getElementById('bm-admin-list');if(_bl){var _bc=bmConfig(),_bi=bmCycleInfo();if(_bi.valid&&!_bi.before)_bl.innerHTML=bmAdminListHTML(bmCycleEntries(_bi.cycleKey).slice().sort(function(a,b){return (_bc.dir==='low')?(a.score-b.score):(b.score-a.score);}),_bc);}
+  var _bl=document.getElementById('bm-admin-list');if(_bl){var _bc=bmConfig(),_bi=bmCycleInfo();if(_bi.valid&&!_bi.before)_bl.innerHTML=bmAdminListHTML(bmRealCycle(_bi.cycleKey).slice().sort(function(a,b){return (_bc.dir==='low')?(a.score-b.score):(b.score-a.score);}),_bc);}
   applyMaintenance();}
 function renderAll(){applyScales();applyAppearance();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();loadWODForm();renderWOD();applyOrder();initDrag();renderUndoBar();}
 
@@ -2928,6 +2932,7 @@ function renderOwnerTools(){const p=document.getElementById('owner-panel');if(!p
     row(submissionsOpen(),'Accept member submissions','When off, the public Submit page shows a friendly “paused” message instead of the form.','toggleSubmissionsOpen();')+
     row(analyticsOn(),'Log page views','Counts views for the Stats tab. Turn off to pause analytics on the public pages.','toggleAnalytics();')+
     row(maintOn(),'Maintenance mode','When on, members see a friendly “upgrading” screen. You (admin) keep full access to fix things.','toggleMaintenance();')+
+    row(bmSampleOn(),'Benchmark sample scores','Preview the benchmark leaderboard with sample data on THIS device — never saved, members don’t see it.','toggleBmSample();')+
     '<div class="ot-row"><div><div class="ot-lbl">🚣 500m Row Challenge</div><div class="ot-sub">One-time event — entry form, leaderboard link &amp; secret coach link.</div></div><button class="btn-sm" onclick="openModal(\'row\')">Open</button></div>';
 }
 let saOpen={stats:true,feed:false,access:false,tabs:false};
