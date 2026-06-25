@@ -807,6 +807,13 @@ body.hc .wod-block-body{font-weight:600;}
 .hist-body{flex:1;min-width:0;}
 .hist-label{font-size:13.5px;color:var(--text);font-weight:600;line-height:1.35;}
 .hist-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.ot-cap{font-size:11.5px;color:var(--muted);margin:2px 0 6px;line-height:1.5;}
+.ot-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
+.ot-row:last-child{border-bottom:none;}
+.ot-lbl{font-size:14px;font-weight:600;color:var(--text);}
+.ot-sub{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.45;}
+.ot-row .sw{flex-shrink:0;}
+body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{animation-duration:0s!important;animation-iteration-count:1!important;transition-duration:0s!important;scroll-behavior:auto!important;}
 </style>
 <script>
 (function(){try{var t=JSON.parse(localStorage.getItem('cave_theme_cache')||'null');if(t){var r=document.documentElement.style;var m={'--bg':t.bg,'--bg-card':t.card,'--bg-light':t.lt,'--text':t.text,'--muted':t.muted,'--border':t.border,'--blue':t.accent,'--lb-score':t.score};for(var k in m){if(m[k])r.setProperty(k,m[k]);}}}catch(e){}
@@ -841,7 +848,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <!-- PLANNER -->
 <div class="tmr" id="timer"><div class="tmr-wrap" id="tmr-wrap"></div></div>
 <div class="planner w hidden" id="planner">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);"><span class="sw" id="demo-sw" onclick="toggleDemo()" title="Show sample data on this device only"></span><span>Demo data <span style="opacity:.7;">(this device only)</span></span></div><span id="undo-bar" class="undo-bar" style="display:none;"></span></div><button class="btn-sm" onclick="openSettings()">⚙️ Display & sharing settings</button></div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"><span id="undo-bar" class="undo-bar" style="display:none;"></span><button class="btn-sm" style="margin-left:auto;" onclick="openSettings()">⚙️ Display & sharing settings</button></div>
 <div id="demo-banner" style="display:none;align-items:center;gap:10px;background:var(--amber-d);border:1px solid rgba(253,214,99,.35);color:var(--amber);border-radius:10px;padding:9px 13px;margin-bottom:14px;font-size:12.5px;font-weight:600;">Demo data is showing, only on this device. Real member submissions are unaffected.<button class="btn-sm" onclick="toggleDemo()" style="margin-left:auto;">Turn off</button></div>
 <div class="planner-grid" id="planner-grid">
 
@@ -973,6 +980,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 
 </div>
 <div class="act-wrap" id="act-wrap"><button class="act-toggle" onclick="toggleActivity()"><span>🔒 Super Admin</span><span class="wod-chev" id="act-chev" style="transform:rotate(-90deg);">▾</span></button><div id="act-panel" style="display:none;"></div></div>
+<div class="act-wrap" id="owner-wrap" style="display:none;"><button class="act-toggle" onclick="toggleOwnerTools()"><span>🛠️ Owner controls</span><span class="wod-chev" id="owner-chev" style="transform:rotate(-90deg);">▾</span></button><div id="owner-panel" style="display:none;"></div></div>
 </div>
 
 <!-- CHALLENGE TAB -->
@@ -1053,7 +1061,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -1089,7 +1097,7 @@ function applyAppearance(){
   document.body.classList.toggle('no-tab-emoji',a.tab_emojis===false);
 }
 function toast(msg){let t=document.getElementById('cave-toast');if(!t){t=document.createElement('div');t.id='cave-toast';t.className='cave-toast';document.body.appendChild(t);}t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
-function confettiBurst(){const cols=['#8ab4f8','#fdd663','#81c995','#f28b82','#bb86fc','#f8a8d0'];const wrap=document.createElement('div');wrap.className='confetti-wrap';document.body.appendChild(wrap);for(let i=0;i<70;i++){const p=document.createElement('div');p.className='confetti';p.style.left=Math.random()*100+'vw';p.style.background=cols[i%cols.length];p.style.animationDelay=(Math.random()*0.3)+'s';p.style.animationDuration=(1.6+Math.random()*1.4)+'s';p.style.transform='rotate('+(Math.random()*360)+'deg)';wrap.appendChild(p);}setTimeout(()=>wrap.remove(),3400);}
+function confettiBurst(){if(reduceMotionOn())return;const cols=['#8ab4f8','#fdd663','#81c995','#f28b82','#bb86fc','#f8a8d0'];const wrap=document.createElement('div');wrap.className='confetti-wrap';document.body.appendChild(wrap);for(let i=0;i<70;i++){const p=document.createElement('div');p.className='confetti';p.style.left=Math.random()*100+'vw';p.style.background=cols[i%cols.length];p.style.animationDelay=(Math.random()*0.3)+'s';p.style.animationDuration=(1.6+Math.random()*1.4)+'s';p.style.transform='rotate('+(Math.random()*360)+'deg)';wrap.appendChild(p);}setTimeout(()=>wrap.remove(),3400);}
 const HYPE=["Beast mode unlocked.","Cave strong. 🦍","You found the cave easter egg!","Sweat now, shine later.","The sled fears you.","HYROX Melbourne is calling. 🏁","Stronger than yesterday.","Leave it all on the floor."];
 let _taps=0,_tapT=null;
 function logoTap(){_taps++;clearTimeout(_tapT);_tapT=setTimeout(()=>{_taps=0;},2500);if(_taps>=7){_taps=0;confettiBurst();toast(HYPE[Math.floor(Math.random()*HYPE.length)]);}}
@@ -1188,7 +1196,7 @@ async function applyHistoryUndo(id){const i=cache.history.findIndex(function(h){
 async function doUndo(){const ut=document.getElementById('cave-undo');if(ut)ut.classList.remove('show');if(!cache.history||!cache.history.length){toast('Nothing to undo');return;}await applyHistoryUndo(cache.history[0].id);}
 async function rowRestore(table,row){cache[table].push(row);if(LIVE){const{error}=await sb.from(table).insert(row);if(error)reportError('db-restore',error.message);}else lsSave();}
 function showUndoToast(label){let t=document.getElementById('cave-undo');if(!t){t=document.createElement('div');t.id='cave-undo';t.className='cave-undo';document.body.appendChild(t);}t.innerHTML='<span>'+esc(label)+'</span><button onclick="doUndo()">↩ Undo</button>';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},8000);}
-function renderUndoBar(){const el=document.getElementById('undo-bar');if(!el)return;if(!isOwner()){el.style.display='none';el.innerHTML='';return;}const has=cache.history&&cache.history.length;el.style.display='';el.innerHTML='<button class="ub-btn" onclick="doUndo()"'+(has?'':' disabled')+'>↩ Undo</button><button class="ub-hist" onclick="openModal(\'history\')">🕘 History</button>';}
+function renderUndoBar(){const ow=document.getElementById('owner-wrap');if(ow)ow.style.display=isOwner()?'':'none';const el=document.getElementById('undo-bar');if(!el)return;if(!isOwner()){el.style.display='none';el.innerHTML='';return;}const has=cache.history&&cache.history.length;el.style.display='';el.innerHTML='<button class="ub-btn" onclick="doUndo()"'+(has?'':' disabled')+'>↩ Undo</button><button class="ub-hist" onclick="openModal(\'history\')">🕘 History</button>';}
 function historyHTML(){if(!isOwner())return '<div class="act-empty">Owner-only.</div>';return '<div class="meso-cap">Every change from the last 2 weeks — tap Undo to roll one back. Older entries are forgotten automatically.</div><div id="history-list">'+historyListHTML()+'</div>';}
 function historyListHTML(){const h=cache.history||[];if(!h.length)return '<div class="act-empty">No changes recorded yet.</div>';return h.map(function(e){const d=new Date(e.created_at);const when=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});return '<div class="hist-row"><div class="hist-body"><div class="hist-label">'+esc(e.label||e.kind||'Change')+'</div><div class="hist-meta">'+esc(when)+(e.actor?' · '+esc(e.actor):'')+'</div></div><button class="btn-sm" onclick="applyHistoryUndo(\''+esc(e.id)+'\')">↩ Undo</button></div>';}).join('');}
 function renderHistoryList(){const el=document.getElementById('history-list');if(el)el.innerHTML=historyListHTML();}
@@ -1538,6 +1546,7 @@ function submittableBoards(){return (cache.boards||[]).filter(b=>b.enabled!==fal
 function pickSubBoard(id){subBoard=id;renderSubmitFields();}
 function renderSubmitForm(){
   const card=document.getElementById('submit-card');if(!card)return;
+  if(!submissionsOpen()){card.innerHTML='<div class="submit-done"><div class="big">⏸️</div><h3>Submissions paused</h3><p>We\'re not taking submissions right now — check back soon. Thanks!</p></div>';return;}
   if(subDone){card.innerHTML=`<div class="submit-done"><div class="big">✅</div><h3>Submitted!</h3><p>Thanks — your entry is with the team for approval. Once it's approved it'll show up on the boards.</p><button class="btn-full" style="max-width:240px;margin:0 auto;" onclick="resetSubmit()">Submit another</button></div>`;return;}
   if(subCat==='challenge'&&!challengeOn())subCat='strength';
   if(subCat==='customboard'&&!customBoardsOn())subCat='strength';
@@ -2637,10 +2646,27 @@ function tmrWakeOff(){try{if(TMR.wake){TMR.wake.release();TMR.wake=null;}}catch(
 
 /* ===== ACTIVITY LOG (password gated, very bottom of admin) ===== */
 function logActivity(type,summary,actor){try{if(!LIVE)return;sb.from('activity_log').insert({event_type:type,summary:summary,actor:actor||(currentUser&&currentUser.email)||'member'}).then(function(){},function(){});}catch(e){}}
-function logView(){try{if(!LIVE||isUnlocked())return;var m=currentMode||'wod';if(m==='plan')return;var lbl={wod:'WOD',submit:'Submit',disp:'Display',chal:'Challenge',event:'Event',timer:'Timer'}[m]||m;logActivity('view','Viewed '+lbl+(activeScreenSlug?' · '+activeScreenSlug:''),'member');}catch(e){}}
+function logView(){try{if(!LIVE||isUnlocked()||!analyticsOn())return;var m=currentMode||'wod';if(m==='plan')return;var lbl={wod:'WOD',submit:'Submit',disp:'Display',chal:'Challenge',event:'Event',timer:'Timer'}[m]||m;logActivity('view','Viewed '+lbl+(activeScreenSlug?' · '+activeScreenSlug:''),'member');}catch(e){}}
 const SUPER_ADMINS=['calebbrowny@gmail.com'];
 function isOwner(){return !!currentUser && SUPER_ADMINS.includes((currentUser.email||'').trim().toLowerCase());}
 function toggleActivity(){const p=document.getElementById('act-panel');if(!p)return;const open=!(p.style.display&&p.style.display!=='none');p.style.display=open?'block':'none';const ch=document.getElementById('act-chev');if(ch)ch.style.transform=open?'rotate(0deg)':'rotate(-90deg)';if(open)renderActivity();}
+/* ---- Owner controls (owner-only accordion at the bottom of the planner) ---- */
+function submissionsOpen(){return settings().submissions_open!==false;}
+function analyticsOn(){return settings().analytics_on!==false;}
+function reduceMotionOn(){try{return localStorage.getItem('cave_reduce_motion')==='1';}catch(e){return false;}}
+function applyReduceMotion(){document.body.classList.toggle('reduce-motion',reduceMotionOn());}
+function toggleReduceMotion(){const on=!reduceMotionOn();try{localStorage.setItem('cave_reduce_motion',on?'1':'0');}catch(e){}applyReduceMotion();renderOwnerTools();toast(on?'Motion reduced on this device':'Motion restored');}
+async function toggleSubmissionsOpen(){const s=settings();s.submissions_open=!(s.submissions_open!==false);await stateUpdate({settings:s});renderOwnerTools();renderSubmitForm();toast(s.submissions_open?'Submissions open':'Submissions paused');}
+async function toggleAnalytics(){const s=settings();s.analytics_on=!(s.analytics_on!==false);await stateUpdate({settings:s});renderOwnerTools();toast(s.analytics_on?'Page-view logging on':'Page-view logging off');}
+function toggleOwnerTools(){const p=document.getElementById('owner-panel');if(!p)return;const open=!(p.style.display&&p.style.display!=='none');p.style.display=open?'block':'none';const ch=document.getElementById('owner-chev');if(ch)ch.style.transform=open?'rotate(0deg)':'rotate(-90deg)';if(open)renderOwnerTools();}
+function renderOwnerTools(){const p=document.getElementById('owner-panel');if(!p)return;if(!isOwner()){p.innerHTML='<div class="act-empty">Owner-only.</div>';return;}
+  const row=function(on,lbl,sub,fn){return '<div class="ot-row"><div><div class="ot-lbl">'+lbl+'</div><div class="ot-sub">'+sub+'</div></div><span class="sw'+(on?' on':'')+'" onclick="'+fn+'"></span></div>';};
+  p.innerHTML='<div class="ot-cap">Owner-only. The first two apply to THIS screen; the rest apply everywhere.</div>'+
+    row(demoOn(),'Demo data','Show sample data on this device only — never touches real member data.','toggleDemo();renderOwnerTools();')+
+    row(reduceMotionOn(),'Reduce motion','Switch off animations on this device — easier on older gym TVs and kinder for motion sensitivity.','toggleReduceMotion();')+
+    row(submissionsOpen(),'Accept member submissions','When off, the public Submit page shows a friendly “paused” message instead of the form.','toggleSubmissionsOpen();')+
+    row(analyticsOn(),'Log page views','Counts views for the Stats tab. Turn off to pause analytics on the public pages.','toggleAnalytics();');
+}
 let saOpen={stats:true,feed:false,access:false};
 function saToggle(sec){saOpen[sec]=!saOpen[sec];renderActivity();}
 function renderActivity(){const p=document.getElementById('act-panel');if(!p)return;
@@ -2745,6 +2771,7 @@ async function boot(){
     try{await fetchAll();subscribe();loadHistory();}catch(e){console.error(e);}}
   else{if(txt)txt.textContent='Local';lsLoad();if(!cache.leaderboard.length){seedLocal();lsSave();}}
   setUnlocked(isUnlocked());
+  applyReduceMotion();
   applyDemo();
   renderAll();
   if(!applyHashRoute() && !isUnlocked())_setMode('wod'); // gym-safe default
