@@ -9,14 +9,24 @@ step — backed by Supabase and hosted on Netlify.
 - **Frontend:** vanilla HTML/CSS/JS in a single `index.html`. No framework, no bundler.
 - **Backend:** Supabase (Postgres + Auth + Storage). Project **`unfoqmfislfcnzxoivta`** ("cave-ops").
   Tables: `leaderboard`, `achievements`, `events`, `todos`, `kpis`, `challenges`, `submissions`,
-  `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`, `row500`, `benchmarks`.
+  `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`, `row500`, `benchmarks`,
+  `benchmark_phones`.
   - `benchmarks` = recurring benchmark test (public read+insert, admin edit/delete, realtime). Cols:
-    name, phone (optional, links a member across cycles), score (seconds for time / reps), cycle
-    (the cycle-start date). Config in `settings.benchmark` {on,title,start,weeks,body,dir,unit}.
-    Renders at the bottom of the WOD page (`#wod-benchmark` via `renderBenchmark()`); recurs every
-    `weeks` (test active for the first 7 days of each cycle). Admin = WOD panel → 🏅 Benchmark
-    (`openModal('benchmark')`). Submit/leaderboard/improvement are member-facing on the WOD page;
-    normal submissions still go through the Submit tab.
+    name, sex ('m'/'f'), score (seconds for time / reps), cycle (the cycle-start date). **No phone
+    column** — the public board is phone-free. Config in `settings.benchmark` {on,title,start,weeks,
+    body,dir,unit}. Renders at the bottom of the WOD page (`#wod-benchmark` via `renderBenchmark()`);
+    recurs every `weeks` (test active for the first 7 days of each cycle). Admin = WOD panel → 🏅
+    Benchmark (`openModal('benchmark')`). Submit/leaderboard/improvement are member-facing on the WOD
+    page; normal submissions still go through the Submit tab. Cross-cycle member matching is **name-
+    based** (`bmKey()` = lowercased name); the leaderboard splits Men/Women (`bmBoardHTML`).
+  - `benchmark_phones` = **private** phone numbers for benchmark entrants, kept out of the public
+    board for member ID only. RLS: public INSERT, **admin-only SELECT + DELETE** (`is_cave_admin()`),
+    so a phone is never readable client-side except by a signed-in admin. Cols: ref (the `benchmarks`
+    row id it belongs to), name, phone (Aussie mobile, stored 4-3-3 `0412 345 678` via `bmFmtPhone`;
+    `bmSubmit` validates `/^04\d{8}$/` or blank). Loaded into `cache.benchmark_phones` only when an
+    admin is signed in (in `fetchAll`); shown in the admin entry list via `bmPhoneFor(id)`. Deleting a
+    benchmark entry (`bmDelEntry`) also deletes its linked phone row. NOT in the realtime publication.
+    (Phone privacy is a two-table split — never a security-definer view, which trips the advisor.)
   - `row500` = one-time 500m row challenge (public read + public insert; admin-only edit/delete; in the
     realtime publication for live updates). Cols: name, sex ('m'/'f'), seconds (int; entered as mm:ss).
     Gated by `settings.row500_on`; secret coach link uses `settings.row500_key`. Routes: `#row`
