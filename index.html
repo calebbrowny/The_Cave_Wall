@@ -339,6 +339,8 @@ body.no-tab-emoji .te{display:none;}
 .bm-form-h{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;}
 .bm-expand{width:100%;text-align:left;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-weight:700;font-size:14px;cursor:pointer;}
 .bm-board{margin-top:8px;}
+.bm-colh{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 0 7px;}
+.bm-board .bm-colh:first-child{margin-top:2px;}
 .bm-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:var(--bg-light);}
 .bm-row.first{background:linear-gradient(90deg,var(--blue-d),transparent);border-color:var(--blue);}
 .bm-row.me{outline:2px solid var(--blue);outline-offset:-2px;}
@@ -2744,12 +2746,13 @@ function bmCycleInfo(){const c=bmConfig();if(!c.start)return {valid:false};const
 function bmKey(e){const p=(e.phone||'').replace(/\D/g,'');return p||(e.name||'').trim().toLowerCase();}
 function bmRealCycle(k){return (cache.benchmarks||[]).filter(function(e){return e.cycle===k;});}
 function bmSampleOn(){try{return localStorage.getItem('cave_bm_sample')==='1';}catch(e){return false;}}
-function bmSamples(){const info=bmCycleInfo();if(!info.valid||info.before)return [];const c=bmConfig();const low=c.dir==='low';const ppl=['Caleb B','Tim R','Em K','Jordan K','Sara T','Mick D'];const back=[14,6,-4,9,0,5];const out=[];ppl.forEach(function(nm,i){const phone='sample'+i;const cur=low?(540+i*22):(128-i*9);const prev=low?(cur+back[i]):(cur-back[i]);out.push({id:'bms-c'+i,name:nm,phone:phone,score:cur,cycle:info.cycleKey});if(info.prevKey)out.push({id:'bms-p'+i,name:nm,phone:phone,score:prev,cycle:info.prevKey});});return out;}
+function bmSamples(){const info=bmCycleInfo();if(!info.valid||info.before)return [];const c=bmConfig();const low=c.dir==='low';const ppl=['Caleb B','Tim R','Em K','Jordan K','Sara T','Mick D'];const sx=['m','m','f','m','f','m'];const back=[14,6,-4,9,0,5];const out=[];ppl.forEach(function(nm,i){const phone='sample'+i;const cur=low?(540+i*22):(128-i*9);const prev=low?(cur+back[i]):(cur-back[i]);out.push({id:'bms-c'+i,name:nm,phone:phone,sex:sx[i],score:cur,cycle:info.cycleKey});if(info.prevKey)out.push({id:'bms-p'+i,name:nm,phone:phone,sex:sx[i],score:prev,cycle:info.prevKey});});return out;}
 function bmCycleEntries(cycleKey){const real=bmRealCycle(cycleKey);return bmSampleOn()?real.concat(bmSamples().filter(function(e){return e.cycle===cycleKey;})):real;}
 function toggleBmSample(){const on=!bmSampleOn();try{localStorage.setItem('cave_bm_sample',on?'1':'0');}catch(e){}renderOwnerTools();renderBenchmark();toast(on?'Sample scores on — preview only (this device)':'Sample scores off');}
 function bmBest(entries,c){c=c||bmConfig();const by={};entries.forEach(function(e){const k=bmKey(e);if(!k)return;const cur=by[k];if(!cur||((c.dir==='low')?(e.score<cur.score):(e.score>cur.score)))by[k]=e;});const arr=Object.keys(by).map(function(k){return by[k];});arr.sort(function(a,b){return (c.dir==='low')?(a.score-b.score):(b.score-a.score);});return arr;}
 function bmBestScore(entries,c){let b=null;entries.forEach(function(e){if(b==null)b=e.score;else b=(c.dir==='low')?Math.min(b,e.score):Math.max(b,e.score);});return b;}
-let bmBoardOpen=false,bmLastResult=null;
+let bmBoardOpen=false,bmLastResult=null,bmSexPick='m';
+function bmPickSex(s,el){bmSexPick=s;if(el&&el.parentNode){el.parentNode.querySelectorAll('.rsex-btn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}}
 function nl2brBM(t){return esc(t).replace(/\n/g,'<br>');}
 function renderBenchmark(){const wrap=document.getElementById('wod-benchmark');if(!wrap)return;const c=bmConfig();
   if(!c.on){wrap.innerHTML='';return;}
@@ -2759,19 +2762,18 @@ function renderBenchmark(){const wrap=document.getElementById('wod-benchmark');i
   if(info.before){h+='<div class="bm-sub">First test starts '+dateLabel(info.nextStart,{weekday:'short',day:'numeric',month:'short'})+'.</div></div>';wrap.innerHTML=h;return;}
   if(info.active){h+='<div class="bm-body">'+nl2brBM(c.body)+'</div>'+bmFormHTML();}
   else{h+='<div class="bm-sub">Next test: '+dateLabel(info.nextStart,{weekday:'short',day:'numeric',month:'short'})+'. Last results:</div>';}
-  const list=bmBest(bmCycleEntries(info.cycleKey),c);
-  h+='<button class="bm-expand" onclick="bmToggleBoard()">'+(bmBoardOpen?'▾':'▸')+' Leaderboard ('+list.length+')</button>';
-  if(bmBoardOpen)h+='<div class="bm-board">'+bmBoardHTML(list,c,info)+'</div>';
+  const total=bmBest(bmCycleEntries(info.cycleKey),c).length;
+  h+='<button class="bm-expand" onclick="bmToggleBoard()">'+(bmBoardOpen?'▾':'▸')+' Leaderboard ('+total+')</button>';
+  if(bmBoardOpen)h+='<div class="bm-board">'+bmBoardHTML(c,info)+'</div>';
   if(bmLastResult)h+=bmLastResultHTML(c);
   h+='</div>';wrap.innerHTML=h;
 }
 function bmScoreFieldHTML(){const c=bmConfig();if(c.dir==='low')return '<div class="fld"><label>Your time</label><div class="rtime"><input id="bm-min" inputmode="numeric" maxlength="2" placeholder="min"><span class="rtime-c">:</span><input id="bm-sec" inputmode="numeric" maxlength="2" placeholder="sec"></div></div>';return '<div class="fld"><label>Your score'+(c.unit?(' ('+esc(c.unit)+')'):'')+'</label><input id="bm-num" inputmode="numeric" maxlength="5" placeholder="e.g. 120"></div>';}
-function bmFormHTML(){return '<div class="bm-form"><div class="bm-form-h">Log your score</div><div class="fld"><label>Name</label><input id="bm-name" placeholder="Your name"></div><div class="fld"><label>Phone <span style="opacity:.6;">(optional — links your scores over time)</span></label><input id="bm-phone" inputmode="tel" placeholder="0400 000 000"></div>'+bmScoreFieldHTML()+'<button class="btn-full" onclick="bmSubmit()">Submit my score</button><div id="bm-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div></div>';}
+function bmFormHTML(){return '<div class="bm-form"><div class="bm-form-h">Log your score</div><div class="fld"><label>Name</label><input id="bm-name" placeholder="Your name"></div><div class="fld"><label>Sex</label><div class="rsex"><button type="button" class="rsex-btn'+(bmSexPick==='m'?' on':'')+'" onclick="bmPickSex(\'m\',this)">Male</button><button type="button" class="rsex-btn'+(bmSexPick==='f'?' on':'')+'" onclick="bmPickSex(\'f\',this)">Female</button></div></div><div class="fld"><label>Phone <span style="opacity:.6;">(optional — links your scores over time)</span></label><input id="bm-phone" inputmode="tel" placeholder="0400 000 000"></div>'+bmScoreFieldHTML()+'<button class="btn-full" onclick="bmSubmit()">Submit my score</button><div id="bm-err" style="color:var(--red);font-size:12px;margin-top:8px;"></div></div>';}
 function bmToggleBoard(){bmBoardOpen=!bmBoardOpen;renderBenchmark();}
-function bmBoardHTML(list,c,info){if(!list.length)return '<div class="bm-empty">No scores yet — be the first!</div>';
-  const meKey=bmLastResult?bmLastResult.key:null;const prevBy={};if(info.prevKey)bmBest(bmCycleEntries(info.prevKey),c).forEach(function(e){prevBy[bmKey(e)]=e.score;});
-  return list.map(function(e,i){const k=bmKey(e);const pv=prevBy[k];let delta='';if(pv!=null){const imp=(c.dir==='low')?(pv-e.score):(e.score-pv);if(imp>0)delta='<span class="bm-up">▲'+(c.dir==='low'?rowSecToMMSS(imp):imp)+'</span>';else if(imp<0)delta='<span class="bm-down">▼</span>';else delta='<span class="bm-same">=</span>';}
-    return '<div class="bm-row'+(i===0?' first':'')+(k&&k===meKey?' me':'')+'"><span class="bm-rank">'+(i===0?'🥇':(i+1))+'</span><span class="bm-name">'+esc(e.name||'')+'</span>'+delta+'<span class="bm-score">'+bmFmt(e.score,c)+'</span></div>';}).join('');
+function bmBoardHTML(c,info){const entries=bmCycleEntries(info.cycleKey);const meKey=bmLastResult?bmLastResult.key:null;const prevBy={};if(info.prevKey)bmBest(bmCycleEntries(info.prevKey),c).forEach(function(e){prevBy[bmKey(e)]=e.score;});
+  const sect=function(sex,label){const list=bmBest(entries.filter(function(e){return (e.sex||'m')===sex;}),c);const rows=list.length?list.map(function(e,i){const k=bmKey(e);const pv=prevBy[k];let delta='';if(pv!=null){const imp=(c.dir==='low')?(pv-e.score):(e.score-pv);if(imp>0)delta='<span class="bm-up">▲'+(c.dir==='low'?rowSecToMMSS(imp):imp)+'</span>';else if(imp<0)delta='<span class="bm-down">▼</span>';else delta='<span class="bm-same">=</span>';}return '<div class="bm-row'+(i===0?' first':'')+(k&&k===meKey?' me':'')+'"><span class="bm-rank">'+(i===0?'🥇':(i+1))+'</span><span class="bm-name">'+esc(e.name||'')+'</span>'+delta+'<span class="bm-score">'+bmFmt(e.score,c)+'</span></div>';}).join(''):'<div class="bm-empty">No scores yet.</div>';return '<div class="bm-colh">'+label+'</div>'+rows;};
+  return sect('m','Men')+sect('f','Women');
 }
 function bmLastResultHTML(c){const r=bmLastResult;if(!r)return '';let msg=r.rank?('You’re #'+r.rank+' of '+r.total):'You’re on the board';if(r.improved!=null){if(r.improved>0)msg+=' · improved by '+(c.dir==='low'?rowSecToMMSS(r.improved):r.improved)+' 🔥';else if(r.improved===0)msg+=' · matched last time';else msg+=' · keep chasing it';}return '<div class="bm-result">'+esc(msg)+'</div>';}
 async function bmSubmit(){const c=bmConfig();const info=bmCycleInfo();const err=document.getElementById('bm-err');
@@ -2780,13 +2782,13 @@ async function bmSubmit(){const c=bmConfig();const info=bmCycleInfo();const err=
   const phone=val('bm-phone');let score=null;
   if(c.dir==='low'){const M=parseInt(val('bm-min'),10)||0,S=parseInt(val('bm-sec'),10);if(isNaN(S)&&!M){if(err)err.textContent='Enter your time.';return;}const sc=isNaN(S)?0:S;if(sc>59){if(err)err.textContent='Seconds must be 0–59.';return;}score=M*60+sc;if(!(score>0)){if(err)err.textContent='Enter a valid time.';return;}}
   else{const n=parseInt(val('bm-num'),10);if(!(n>0)){if(err)err.textContent='Enter your score.';return;}score=n;}
-  await rowInsert('benchmarks',{name:name,phone:phone||null,score:score,cycle:info.cycleKey});
+  await rowInsert('benchmarks',{name:name,phone:phone||null,score:score,sex:bmSexPick,cycle:info.cycleKey});
   const k=bmKey({name:name,phone:phone});
   const board=bmBest(bmCycleEntries(info.cycleKey),c);
   const myBest=bmBestScore(bmCycleEntries(info.cycleKey).filter(function(e){return bmKey(e)===k;}),c);
   const rank=board.findIndex(function(e){return bmKey(e)===k;})+1;
   let improved=null;if(info.prevKey){const pm=bmCycleEntries(info.prevKey).filter(function(e){return bmKey(e)===k;});if(pm.length){const pb=bmBestScore(pm,c);improved=(c.dir==='low')?(pb-myBest):(myBest-pb);}}
-  bmLastResult={key:k,rank:rank,total:board.length,improved:improved};bmBoardOpen=true;toast('Score logged! 💪');renderBenchmark();
+  bmLastResult={key:k,rank:rank,total:board.length,improved:improved};bmBoardOpen=true;bmSexPick='m';toast('Score logged! 💪');renderBenchmark();
 }
 /* benchmark admin (WOD panel → 🏅 Benchmark) */
 function bmAdminHTML(){const c=bmConfig();const info=bmCycleInfo();
@@ -2803,7 +2805,7 @@ function bmAdminHTML(){const c=bmConfig();const info=bmCycleInfo();
   if(info.valid&&!info.before){const list=bmRealCycle(info.cycleKey).slice().sort(function(a,b){return (c.dir==='low')?(a.score-b.score):(b.score-a.score);});h+='<div class="set-section" style="margin:8px 0 6px;">Entries this cycle ('+list.length+')</div><div id="bm-admin-list">'+bmAdminListHTML(list,c)+'</div>';}
   return h;
 }
-function bmAdminListHTML(list,c){if(!list.length)return '<div class="bm-empty">No entries yet.</div>';return list.map(function(e){return '<div class="rlist-row"><span class="rl-name">'+esc(e.name||'')+(e.phone?' · '+esc(e.phone):'')+'</span><span class="rl-time">'+bmFmt(e.score,c)+'</span><button class="rl-x" onclick="bmDelEntry(\''+e.id+'\')">del</button></div>';}).join('');}
+function bmAdminListHTML(list,c){if(!list.length)return '<div class="bm-empty">No entries yet.</div>';return list.map(function(e){return '<div class="rlist-row"><span class="rl-name">'+esc(e.name||'')+(e.phone?' · '+esc(e.phone):'')+'</span><span class="rl-sex">'+((e.sex||'m')==='f'?'F':'M')+'</span><span class="rl-time">'+bmFmt(e.score,c)+'</span><button class="rl-x" onclick="bmDelEntry(\''+e.id+'\')">del</button></div>';}).join('');}
 function renderBmAdmin(){const mb=document.getElementById('modal-body');if(mb&&document.getElementById('modal').classList.contains('open'))mb.innerHTML=bmAdminHTML();}
 async function bmSet(k,v){const s=settings();const b=Object.assign({},s.benchmark||{});if(b.body==null)b.body=(b.dir==='high'?BM_DEFAULT_BODY_REPS:BM_DEFAULT_BODY);
   if(k==='dir'){if(v==='high'&&b.body===BM_DEFAULT_BODY)b.body=BM_DEFAULT_BODY_REPS;else if(v==='low'&&b.body===BM_DEFAULT_BODY_REPS)b.body=BM_DEFAULT_BODY;}
