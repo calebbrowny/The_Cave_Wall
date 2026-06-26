@@ -328,6 +328,12 @@ body.no-tab-emoji .te{display:none;}
 .draw-win{font-size:20px;font-weight:800;color:var(--green);width:100%;margin-bottom:12px;}
 .draw-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
 .draw-actions .btn-full{max-width:220px;margin-top:0;}
+.wheel-wrap{position:relative;width:min(86vw,520px);height:min(86vw,520px);margin:14px auto 8px;}
+.wheel-wrap canvas{width:100%;height:100%;display:block;}
+.wheel-pointer{position:absolute;top:50%;right:-7px;transform:translateY(-50%);width:0;height:0;border-top:17px solid transparent;border-bottom:17px solid transparent;border-right:34px solid #fdd663;filter:drop-shadow(-2px 2px 3px rgba(0,0,0,.55));z-index:3;}
+.wheel-hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20%;height:20%;border-radius:50%;background:#fff;border:4px solid #fdd663;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 2px 10px rgba(0,0,0,.45);overflow:hidden;}
+.wheel-hub img{width:78%;height:78%;object-fit:contain;}
+.draw-reel.spinning{opacity:.85;}
 /* recurring benchmark test (bottom of WOD) */
 .bm-card{max-width:680px;margin:14px auto 44px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:18px 18px 16px;text-align:left;}
 .bm-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;user-select:none;}
@@ -1162,7 +1168,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel'};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -2717,6 +2723,7 @@ function rowAdminListHTML(){const list=function(sex,label){const l=rowEntries(se
 function rowAdminHTML(){const on=row500On();const origin=location.origin+location.pathname;const boardLink=origin+'#row';const coachLink=rowKey()?(origin+'#rowcoach/'+rowKey()):'';
   let h='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Event live</div><div class="ot-sub">Turn on for opening night. Off = leaderboard & coach link show “not live”.</div></div><span class="sw'+(on?' on':'')+'" onclick="rowToggleOn()"></span></div>';
   h+='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Show as a nav tab</div><div class="ot-sub">Adds a “Row” tab to the menu (while the event is live) so members can open the leaderboard. Rename it in Super Admin → Tab names.</div></div><span class="sw'+(settings().row500_tab===true?' on':'')+'" onclick="rowToggleTab()"></span></div>';
+  h+='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Lucky draw style</div><div class="ot-sub">'+((settings().row500_draw||'wheel')==='wheel'?'Spinning prize wheel with everyone’s names + the Cave logo in the centre.':'Classic name shuffle.')+'</div></div><button class="btn-sm" onclick="rowToggleDraw()">'+((settings().row500_draw||'wheel')==='wheel'?'🎡 Wheel':'🔀 Classic')+'</button></div>';
   if(on){h+='<div class="fld" style="margin-bottom:12px;"><label>📺 Leaderboard link (open on the TV)</label><div style="display:flex;gap:8px;"><input readonly value="'+esc(boardLink)+'" style="flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:12px;"><button class="btn-sm" onclick="rowCopy(\''+esc(boardLink)+'\')">Copy</button><button class="btn-sm" onclick="location.hash=\'#row\'">Open</button></div></div>';
     h+='<div class="fld" style="margin-bottom:14px;"><label>🔑 Coach link (secret — for coaches\' phones)</label><div style="display:flex;gap:8px;"><input readonly value="'+esc(coachLink)+'" style="flex:1;min-width:0;background:var(--bg-light);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-size:12px;"><button class="btn-sm" onclick="rowCopy(\''+esc(coachLink)+'\')">Copy</button><button class="btn-sm" onclick="rowNewKey()">New</button></div><div class="ot-sub" style="margin-top:4px;">Anyone with this link can add results (not edit/delete, no admin). “New” invalidates the old link.</div></div>';}
   if(on&&(cache.row500||[]).length){h+='<button class="wod-gen-btn" style="width:100%;margin-bottom:14px;" onclick="rowDraw()">🎲 Draw a lucky winner</button>';}
@@ -2729,8 +2736,38 @@ function rowCopy(url){if(!url)return;if(navigator.clipboard&&navigator.clipboard
 async function rowToggleOn(){const s=settings();const turningOn=!(s.row500_on===true);s.row500_on=turningOn;if(turningOn&&!s.row500_key)s.row500_key=rowGenKey();await stateUpdate({settings:s});renderRowAdmin();toast(turningOn?'Row challenge is LIVE':'Row challenge off');}
 async function rowNewKey(){if(!confirm('Make a new coach link? The current one will stop working.'))return;const s=settings();s.row500_key=rowGenKey();await stateUpdate({settings:s});renderRowAdmin();toast('New coach link created');}
 async function rowToggleTab(){const s=settings();s.row500_tab=!(s.row500_tab===true);await stateUpdate({settings:s});refreshNav();renderRowAdmin();toast(s.row500_tab?'Row tab will show while live':'Row tab hidden');}
+async function rowToggleDraw(){const s=settings();s.row500_draw=((s.row500_draw||'wheel')==='wheel')?'classic':'wheel';await stateUpdate({settings:s});renderRowAdmin();toast(s.row500_draw==='wheel'?'Lucky draw: spinning wheel 🎡':'Lucky draw: classic shuffle 🔀');}
 function rowDrawPool(){const names={},pool=[];(cache.row500||[]).forEach(function(r){const k=(r.name||'').trim().toLowerCase();if(k&&!names[k]){names[k]=1;pool.push(String(r.name).trim());}});return pool;}
-function rowDraw(){const pool=rowDrawPool();if(!pool.length){toast('No entries to draw from yet');return;}const ov=document.getElementById('rowdraw');if(!ov)return;const reel=document.getElementById('draw-reel'),acts=document.getElementById('draw-actions');ov.classList.add('show');reel.classList.remove('win');acts.innerHTML='';const winner=pool[Math.floor(Math.random()*pool.length)];let ticks=0;const total=26+Math.floor(Math.random()*10);(function step(){reel.textContent=pool[Math.floor(Math.random()*pool.length)];ticks++;if(ticks>=total){reel.textContent=winner;reel.classList.add('win');confettiBurst();acts.innerHTML='<div class="draw-win">🏆 Winner!</div><button class="btn-full" onclick="rowDraw()">Draw again</button><button class="btn-sm" onclick="rowDrawClose()">Close</button>';return;}setTimeout(step,40+ticks*ticks*0.8);})();}
+function rowDraw(){const pool=rowDrawPool();if(!pool.length){toast('No entries to draw from yet');return;}if((settings().row500_draw||'wheel')==='classic')rowDrawReel(pool);else rowDrawWheel(pool);}
+function rowDrawReel(pool){const ov=document.getElementById('rowdraw');if(!ov)return;const card=ov.querySelector('.draw-card');card.innerHTML='<div class="draw-label">🎉 Lucky Door Prize</div><div class="draw-reel" id="draw-reel">—</div><div class="draw-actions" id="draw-actions"></div>';const reel=document.getElementById('draw-reel'),acts=document.getElementById('draw-actions');ov.classList.add('show');reel.classList.remove('win');acts.innerHTML='';const winner=pool[Math.floor(Math.random()*pool.length)];let ticks=0;const total=26+Math.floor(Math.random()*10);(function step(){reel.textContent=pool[Math.floor(Math.random()*pool.length)];ticks++;if(ticks>=total){reel.textContent=winner;reel.classList.add('win');confettiBurst();acts.innerHTML='<div class="draw-win">🏆 Winner!</div><button class="btn-full" onclick="rowDraw()">Draw again</button><button class="btn-sm" onclick="rowDrawClose()">Close</button>';return;}setTimeout(step,40+ticks*ticks*0.8);})();}
+const WHEEL_COLS=['#f24b4b','#ff8c2b','#fdd663','#9bd24a','#3fae5a','#19b3a6','#2aa7d8','#2f6fd6','#1f3a6b','#7a4fd0','#b04ad0','#f15ba3'];
+function rowWheelDraw(ctx,size,pool,rot){const n=pool.length,seg=2*Math.PI/n,cx=size/2,cy=size/2,Rrim=size/2-3,R=size/2-22;
+  ctx.clearRect(0,0,size,size);
+  ctx.beginPath();ctx.arc(cx,cy,Rrim,0,2*Math.PI);ctx.fillStyle='#e2a818';ctx.fill();
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);
+  for(let i=0;i<n;i++){const a0=i*seg,a1=a0+seg;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,R,a0,a1);ctx.closePath();ctx.fillStyle=WHEEL_COLS[i%WHEEL_COLS.length];ctx.fill();ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=1;ctx.stroke();
+    ctx.save();ctx.rotate(a0+seg/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#fff';
+    const fs=Math.max(11,Math.min(22,seg*R*0.42));ctx.font='800 '+fs+'px system-ui,-apple-system,sans-serif';
+    const maxc=Math.max(5,Math.floor((R-30)/(fs*0.56)));let lab=pool[i];if(lab.length>maxc)lab=lab.slice(0,maxc-1)+'…';
+    ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=2;ctx.fillText(lab,R-16,0);ctx.restore();}
+  ctx.restore();
+  const br=(R+Rrim)/2,nb=Math.max(12,Math.min(30,n*2));for(let i=0;i<nb;i++){const a=i/nb*2*Math.PI;ctx.beginPath();ctx.arc(cx+Math.cos(a)*br,cy+Math.sin(a)*br,3,0,2*Math.PI);ctx.fillStyle='#fff7cc';ctx.fill();}
+  ctx.beginPath();ctx.arc(cx,cy,R,0,2*Math.PI);ctx.lineWidth=2;ctx.strokeStyle='rgba(0,0,0,.28)';ctx.stroke();}
+function rowDrawWheel(pool){const ov=document.getElementById('rowdraw');if(!ov)return;const card=ov.querySelector('.draw-card');const fav=(document.querySelector('link[rel="icon"]')||{}).href||'';
+  card.innerHTML='<div class="draw-label">🎉 Lucky Door Prize</div><div class="wheel-wrap"><canvas id="wheel-canvas"></canvas><div class="wheel-pointer"></div><div class="wheel-hub"><img alt="" src="'+esc(fav)+'"></div></div><div class="draw-win" id="wheel-win" style="visibility:hidden;">🏆 —</div><div class="draw-actions" id="draw-actions"></div>';
+  ov.classList.add('show');
+  const canvas=document.getElementById('wheel-canvas');const size=520,dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=size*dpr;canvas.height=size*dpr;const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  const n=pool.length,seg=2*Math.PI/n;const rm=(typeof reduceMotionOn==='function'&&reduceMotionOn());
+  rowWheelDraw(ctx,size,pool,0);
+  const turns=rm?1:(6+Math.floor(Math.random()*4));const target=turns*2*Math.PI+Math.random()*2*Math.PI;const dur=rm?500:(4800+Math.random()*1300);
+  const winEl=document.getElementById('wheel-win'),acts=document.getElementById('draw-actions');let start=null;
+  function ease(t){return 1-Math.pow(1-t,3);}
+  function step(ts){if(start==null)start=ts;const t=Math.min(1,(ts-start)/dur);const rot=target*ease(t);rowWheelDraw(ctx,size,pool,rot);
+    if(t<1){requestAnimationFrame(step);return;}
+    const local=((-rot)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);const idx=Math.floor(local/seg)%n;const winner=pool[idx];
+    winEl.textContent='🏆 '+winner;winEl.style.visibility='visible';try{confettiBurst();}catch(e){}
+    acts.innerHTML='<button class="btn-full" onclick="rowDraw()">Draw again</button><button class="btn-sm" onclick="rowDrawClose()">Close</button>';}
+  requestAnimationFrame(step);}
 function rowDrawClose(){const ov=document.getElementById('rowdraw');if(ov)ov.classList.remove('show');}
 
 /* ---------- MAINTENANCE MODE (owner toggle; admins keep full access) ---------- */
