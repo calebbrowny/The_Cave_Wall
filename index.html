@@ -27,6 +27,28 @@ input,select,textarea{font-family:inherit;}
 .nav{position:fixed;top:0;left:0;right:0;z-index:122;background:rgba(32,33,36,.98);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);transform:translateY(-100%);transition:transform .32s cubic-bezier(.4,0,.2,1);}
 .nav.show{transform:translateY(0);box-shadow:0 10px 30px rgba(0,0,0,.5);}
 .nav.show + .nav-peek{opacity:0;pointer-events:none;}
+.nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-clock{display:none;font-size:15px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.nav-x{display:none;width:40px;height:36px;flex-shrink:0;align-items:center;justify-content:center;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:18px;line-height:1;cursor:pointer;}
+/* HEADER mode: persistent bar [logo · clock] ........ [☰]; tabs drop below on tap */
+body.nav-header .nav{position:sticky;transform:none;backdrop-filter:none;background:rgba(32,33,36,1);box-shadow:0 2px 14px rgba(0,0,0,.45);}
+body.nav-header #nav-peek,body.nav-header #nav-hot{display:none;}
+body.nav-header .nav-i{flex-wrap:wrap;row-gap:10px;}
+body.nav-header .nav .logo{display:flex;}
+body.nav-header .nav-clock{display:inline-block;}
+body.nav-header .nav-x{display:flex;order:2;margin-left:auto;}
+body.nav-header .nav-right{order:3;flex-basis:100%;display:none;justify-content:flex-start;}
+body.nav-header .nav.show .nav-x{background:var(--blue);color:var(--dk);border-color:var(--blue);}
+body.nav-header .nav.show .nav-right{display:flex;}
+body.nav-header .disp-logo,body.nav-header .disp-clock{display:none;}
+body.nav-header .disp-head{justify-content:flex-end;border-bottom:none;padding-top:8px;padding-bottom:8px;}
+/* PINNED mode: bar with logo · clock · tabs all always visible */
+body.nav-pinned .nav{position:sticky;transform:none;backdrop-filter:none;background:rgba(32,33,36,1);box-shadow:0 2px 14px rgba(0,0,0,.45);}
+body.nav-pinned #nav-peek,body.nav-pinned #nav-hot,body.nav-pinned .nav-x{display:none;}
+body.nav-pinned .nav .logo{display:flex;}
+body.nav-pinned .nav-clock{display:inline-block;}
+body.nav-pinned .disp-logo,body.nav-pinned .disp-clock{display:none;}
+body.nav-pinned .disp-head{justify-content:flex-end;border-bottom:none;padding-top:8px;padding-bottom:8px;}
 .nav-i{max-width:1200px;margin:0 auto;height:56px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
 .logo{font-size:15px;font-weight:800;white-space:nowrap;}.logo span{color:var(--blue);}
 .nav-right{display:flex;align-items:center;gap:8px;}
@@ -916,7 +938,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <!-- HOVER NAV -->
 <div class="nav-hot" id="nav-hot"></div>
 <div class="nav" id="nav"><div class="nav-i">
-  <div class="logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div>
+  <div class="nav-brand"><div class="logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><span class="nav-clock" id="nav-clock"></span></div>
   <div class="nav-right">
     <div class="mode-toggle">
       <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span><span class="tl">WOD</span></button>
@@ -930,6 +952,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
     <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
   </div>
+  <button class="nav-x" id="nav-x" onclick="toggleNav()" aria-label="Menu" title="Menu">☰</button>
 </div></div>
 <div class="nav-peek" id="nav-peek" onclick="peekNav()">• • •</div>
 
@@ -1176,7 +1199,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel'};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'peek'};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -2518,7 +2541,7 @@ function parseClock(t){if(!t)return null;const m=String(t).match(/(\d{1,2})[:.](
 function fmtDur(ms){let t=Math.max(0,Math.floor(ms/1000));const h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=t%60;return (h>0?h+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
 function evHighlightHeats(){const hs=[...document.querySelectorAll('[data-heatmin]')];if(!hs.length)return;const n=new Date();const now=n.getHours()*60+n.getMinutes();let cur=-1,nxt=-1;hs.forEach((el,i)=>{el.classList.remove('now','next');const v=parseInt(el.dataset.heatmin);if(isNaN(v))return;if(v<=now)cur=i;else if(nxt===-1)nxt=i;});if(cur>=0)hs[cur].classList.add('now');if(nxt>=0)hs[nxt].classList.add('next');const up=document.getElementById('evp-upnext');if(up)up.textContent=nxt>=0?('Up next · '+(hs[nxt].dataset.heatname||'')+(hs[nxt].dataset.heattime?' — '+hs[nxt].dataset.heattime:'')):(cur>=0?'Final heat underway':'');}
 async function evSaveLive(){const ep=evp();const live={on:val('f-evlive')==='1',start:val('f-evlivestart')||''};await evpSave({live});renderEventPage();tickClock();}
-function tickClock(){const now=new Date();const t=now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});['disp-clock','wod-clock','ev-clock'].forEach(id=>{const c=document.getElementById(id);if(c)c.textContent=t;});const ts=now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});document.querySelectorAll('.js-now').forEach(el=>{el.textContent=ts;});document.querySelectorAll('.js-elapsed').forEach(el=>{const ds=el.dataset.start;if(!ds)return;const st=new Date(ds);if(isNaN(st))return;const diff=now-st;el.textContent=diff<0?('Starts in '+fmtDur(-diff)):('Elapsed '+fmtDur(diff));});evHighlightHeats();}
+function tickClock(){const now=new Date();const t=now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});['disp-clock','wod-clock','ev-clock','nav-clock'].forEach(id=>{const c=document.getElementById(id);if(c)c.textContent=t;});const ts=now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});document.querySelectorAll('.js-now').forEach(el=>{el.textContent=ts;});document.querySelectorAll('.js-elapsed').forEach(el=>{const ds=el.dataset.start;if(!ds)return;const st=new Date(ds);if(isNaN(st))return;const diff=now-st;el.textContent=diff<0?('Starts in '+fmtDur(-diff)):('Elapsed '+fmtDur(diff));});evHighlightHeats();}
 
 /* ---------- SETTINGS ---------- */
 let settingsTab='display';
@@ -2792,6 +2815,8 @@ function rowDrawClose(){const ov=document.getElementById('rowdraw');if(ov)ov.cla
 function maintOn(){return settings().maintenance_on===true;}
 function applyMaintenance(){const m=document.getElementById('maint');if(m)m.classList.toggle('show',maintOn()&&!isUnlocked());}
 async function toggleMaintenance(){const s=settings();s.maintenance_on=!(s.maintenance_on===true);await stateUpdate({settings:s});applyMaintenance();renderOwnerTools();toast(s.maintenance_on?'Maintenance mode ON — members see a notice':'Maintenance mode off');}
+function applyNavMode(){var m=(settings().nav_mode)||'peek';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');}
+async function setNavMode(m){const s=settings();s.nav_mode=m;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();var lbl={peek:'Pull-down dots',header:'Header bar + menu button',pinned:'Pinned top bar'}[m]||m;toast('Menu style: '+lbl);}
 
 /* ---------- RECURRING BENCHMARK TEST (bottom of the WOD page) ---------- */
 const BM_DEFAULT_BODY='For Time:\n\n1 km Run\n750 m Ski Erg\n40 Sandbag Lunges (20/10 kg)\n30 Burpees over the Sandbag\n1 km Run';
@@ -2918,13 +2943,13 @@ function initDrag(){document.querySelectorAll('.planner-sec').forEach(sec=>{
 });}
 
 /* ---------- RENDER ALL ---------- */
-function renderLive(){applyScales();applyAppearance();renderFocusNote();renderDualControls();renderEvents();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();buildAdminStrip();renderWOD();if(document.getElementById('eventpage').classList.contains('active'))renderEventPage();if(document.getElementById('display').classList.contains('active'))renderDisplay();
+function renderLive(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderDualControls();renderEvents();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();buildAdminStrip();renderWOD();if(document.getElementById('eventpage').classList.contains('active'))renderEventPage();if(document.getElementById('display').classList.contains('active'))renderDisplay();
   var _rb=document.getElementById('rowboard');if(_rb&&_rb.classList.contains('active'))renderRowBoard();
   var _rcb=document.getElementById('rowcoach-board');if(_rcb&&document.getElementById('rowcoach').classList.contains('active')&&row500On()&&rowCoachKeyTry===rowKey())_rcb.innerHTML=rowMiniBoardHTML();
   var _ral=document.getElementById('row-admin-list');if(_ral)_ral.innerHTML=rowAdminListHTML();
   var _bl=document.getElementById('bm-admin-list');if(_bl){var _bc=bmConfig(),_bi=bmCycleInfo();if(_bi.valid&&!_bi.before)_bl.innerHTML=bmAdminListHTML(bmRealCycle(_bi.cycleKey).slice().sort(function(a,b){return (_bc.dir==='low')?(a.score-b.score):(b.score-a.score);}),_bc);}
   applyMaintenance();}
-function renderAll(){applyScales();applyAppearance();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();loadWODForm();renderWOD();applyOrder();initDrag();renderUndoBar();}
+function renderAll(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();loadWODForm();renderWOD();applyOrder();initDrag();renderUndoBar();}
 
 /* ===================== TIMER (SmartWOD-style, off by default) ===================== */
 const TMR_COL={amrap:'#fda942',fortime:'#5b8cff',emom:'#b06bff',tabata:'#22c598',mix:'#8ab4f8',rest:'#9aa0a6',work:'#22c598',ready:'#8ab4f8'};
@@ -3009,6 +3034,7 @@ async function toggleAnalytics(){const s=settings();s.analytics_on=!(s.analytics
 function toggleOwnerTools(){const p=document.getElementById('owner-panel');if(!p)return;const open=!(p.style.display&&p.style.display!=='none');p.style.display=open?'block':'none';const ch=document.getElementById('owner-chev');if(ch)ch.style.transform=open?'rotate(0deg)':'rotate(-90deg)';if(open)renderOwnerTools();}
 function renderOwnerTools(){const p=document.getElementById('owner-panel');if(!p)return;if(!isOwner()){p.innerHTML='<div class="act-empty">Owner-only.</div>';return;}
   const row=function(on,lbl,sub,fn){return '<div class="ot-row"><div><div class="ot-lbl">'+lbl+'</div><div class="ot-sub">'+sub+'</div></div><span class="sw'+(on?' on':'')+'" onclick="'+fn+'"></span></div>';};
+  const nm=settings().nav_mode||'peek';const navBtn=function(m,lbl){return '<button class="mgen-day'+(nm===m?' on':'')+'" onclick="setNavMode(\''+m+'\')">'+lbl+'</button>';};
   p.innerHTML='<div class="ot-cap">Owner-only. The first two apply to THIS screen; the rest apply everywhere.</div>'+
     row(demoOn(),'Demo data','Show sample data on this device only — never touches real member data.','toggleDemo();renderOwnerTools();')+
     row(reduceMotionOn(),'Reduce motion','Switch off animations on this device — easier on older gym TVs and kinder for motion sensitivity.','toggleReduceMotion();')+
@@ -3016,6 +3042,7 @@ function renderOwnerTools(){const p=document.getElementById('owner-panel');if(!p
     row(analyticsOn(),'Log page views','Counts views for the Stats tab. Turn off to pause analytics on the public pages.','toggleAnalytics();')+
     row(maintOn(),'Maintenance mode','When on, members see a friendly “upgrading” screen. You (admin) keep full access to fix things.','toggleMaintenance();')+
     row(bmSampleOn(),'Benchmark sample scores','Preview the benchmark leaderboard with sample data on THIS device — never saved, members don’t see it.','toggleBmSample();')+
+    '<div class="ot-row" style="display:block;"><div style="margin-bottom:8px;"><div class="ot-lbl">Menu style</div><div class="ot-sub">How the nav shows for everyone — Pull-down (tap the • • • dots), Header bar (logo + clock with a ☰ button that drops the tabs below), or Pinned (tabs always visible).</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;">'+navBtn('peek','• • • Pull-down')+navBtn('header','☰ Header bar')+navBtn('pinned','📌 Pinned')+'</div></div>'+
     '<div class="ot-row"><div><div class="ot-lbl">🚣 500m Row Challenge</div><div class="ot-sub">One-time event — entry form, leaderboard link &amp; secret coach link.</div></div><button class="btn-sm" onclick="openModal(\'row\')">Open</button></div>';
 }
 let saOpen={stats:true,feed:false,access:false,tabs:false};
