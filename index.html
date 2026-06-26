@@ -28,6 +28,7 @@ input,select,textarea{font-family:inherit;}
 .nav.show{transform:translateY(0);box-shadow:0 10px 30px rgba(0,0,0,.5);}
 .nav.show + .nav-peek{opacity:0;pointer-events:none;}
 .nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+body.nav-wrap .mode-toggle{flex-wrap:wrap;overflow-x:visible;row-gap:6px;}
 .nav-clock{display:none;font-size:15px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums;white-space:nowrap;}
 .nav-x{display:none;width:40px;height:36px;flex-shrink:0;align-items:center;justify-content:center;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:18px;line-height:1;cursor:pointer;}
 /* HEADER mode: persistent bar [logo · clock] ........ [☰]; tabs drop below on tap */
@@ -1199,7 +1200,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'peek'};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'peek',nav_wrap:true};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -2815,8 +2816,9 @@ function rowDrawClose(){const ov=document.getElementById('rowdraw');if(ov)ov.cla
 function maintOn(){return settings().maintenance_on===true;}
 function applyMaintenance(){const m=document.getElementById('maint');if(m)m.classList.toggle('show',maintOn()&&!isUnlocked());}
 async function toggleMaintenance(){const s=settings();s.maintenance_on=!(s.maintenance_on===true);await stateUpdate({settings:s});applyMaintenance();renderOwnerTools();toast(s.maintenance_on?'Maintenance mode ON — members see a notice':'Maintenance mode off');}
-function applyNavMode(){var m=(settings().nav_mode)||'peek';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');}
+function applyNavMode(){var m=(settings().nav_mode)||'peek';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');b.classList.toggle('nav-wrap',settings().nav_wrap!==false);var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');}
 async function setNavMode(m){const s=settings();s.nav_mode=m;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();var lbl={peek:'Pull-down dots',header:'Header bar + menu button',pinned:'Pinned top bar'}[m]||m;toast('Menu style: '+lbl);}
+async function toggleNavWrap(){const s=settings();const cur=s.nav_wrap!==false;s.nav_wrap=!cur;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();toast(s.nav_wrap?'Tabs wrap onto multiple lines':'Tabs stay on one line (scroll)');}
 
 /* ---------- RECURRING BENCHMARK TEST (bottom of the WOD page) ---------- */
 const BM_DEFAULT_BODY='For Time:\n\n1 km Run\n750 m Ski Erg\n40 Sandbag Lunges (20/10 kg)\n30 Burpees over the Sandbag\n1 km Run';
@@ -3043,6 +3045,7 @@ function renderOwnerTools(){const p=document.getElementById('owner-panel');if(!p
     row(maintOn(),'Maintenance mode','When on, members see a friendly “upgrading” screen. You (admin) keep full access to fix things.','toggleMaintenance();')+
     row(bmSampleOn(),'Benchmark sample scores','Preview the benchmark leaderboard with sample data on THIS device — never saved, members don’t see it.','toggleBmSample();')+
     '<div class="ot-row" style="display:block;"><div style="margin-bottom:8px;"><div class="ot-lbl">Menu style</div><div class="ot-sub">How the nav shows for everyone — Pull-down (tap the • • • dots), Header bar (logo + clock with a ☰ button that drops the tabs below), or Pinned (tabs always visible).</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;">'+navBtn('peek','• • • Pull-down')+navBtn('header','☰ Header bar')+navBtn('pinned','📌 Pinned')+'</div></div>'+
+    row(settings().nav_wrap!==false,'Wrap menu tabs','Tabs that do not fit wrap onto a second line. Off = they stay on one line and scroll sideways.','toggleNavWrap();')+
     '<div class="ot-row"><div><div class="ot-lbl">🚣 500m Row Challenge</div><div class="ot-sub">One-time event — entry form, leaderboard link &amp; secret coach link.</div></div><button class="btn-sm" onclick="openModal(\'row\')">Open</button></div>';
 }
 let saOpen={stats:true,feed:false,access:false,tabs:false};
