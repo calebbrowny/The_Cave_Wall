@@ -133,8 +133,9 @@ No-API, built from The Cave's HYROX logic. Key pieces:
   `renderHome()` → 3-tile grid (`.ho-tile`): **Today's WOD**, **Your training** (streak or login CTA), **This month**.
 - **Nav default = `header` (minimal bar)** (`DEFAULT_SETTINGS.nav_mode='header'`, `nav_wrap=true`; live
   `app_state.settings` set to match). Top bar shows **only logo, clock, login chip (`#member-chip`), and the `☰`
-  burger** — `toggleNav()` reveals `.nav-right` (the `.mode-toggle` page tabs incl. **Home**/WOD/Challenge/The
-  Wall/Submit/My Account + the **⚙️ admin cog**). Clock + Cave logo jump to the WOD (`navLogoTap`, clock `onclick`).
+  burger** — `toggleNav()` reveals `.nav-right` (the `.mode-toggle` page tabs WOD/Challenge/The Wall/Submit + the
+  **⚙️ admin cog**). The **"Hey {name}" chip is the only entry to My Account** (the redundant My Account tab was
+  removed); for members it `setMode('me')`. Clock + Cave logo jump to the WOD (`navLogoTap`, clock `onclick`).
   (An owner once tried a pinned one-line icon nav — reverted to this minimal bar by request; pinned/peek modes
   still exist as options, and the `.nav-acts`/`.nav-ic` styles are dormant.)
 
@@ -233,7 +234,10 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
   name · PB (best, or latest for body) · **improvement arrow** (`metTrendArrow`: ▲ green if the latest attempt
   beat the prior best, ▼ red if down) · a **History** toggle (`metHistToggle`/`metHistoryHTML` — per-entry
   delete via `metDelete`) · an **✕** to hide it (`metHide`/`metUnhide`, stored in `member_profiles.prefs.hidden`
-  jsonb; hidden ones reappear as "+ add" chips). Tapping a row opens the log modal pre-set to that metric.
+  jsonb; hidden ones reappear as "+ add" chips). **Tapping anywhere on a row** (incl. the "＋ log" hint) opens the
+  log modal pre-set to that metric. Each section (Strength/Engine/Body/Benchmarks) is a **collapsible accordion**
+  (`metSecHead`/`memSecOpen`/`toggleMemSec`, open-state in localStorage `cave_memsec_<group>`), and a one-time
+  **intro card** (`metMetricsIntroHTML`) at the top explains "enter your current bests, we track improvement".
   `est1RM` caps reps at 12 (Epley only reliable that far). Names are **Title-Cased** everywhere (`titleCase`,
   applied on display + save; existing rows `initcap`-ed in the DB).
 - **Benchmarks & tests section (`benchSectionHTML`).** In My Account, shows the member's recurring-benchmark

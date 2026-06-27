@@ -446,6 +446,16 @@ body.no-tab-emoji .te{display:none;}
 .mt-chip{font-size:11.5px;font-weight:700;color:var(--muted);background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:5px 10px;cursor:pointer;}
 .mt-chip:hover{color:var(--blue);border-color:var(--blue);}
 .dr-myrank{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px;}
+/* profile section accordions + intro */
+.md-acc{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;user-select:none;margin:20px 0 2px;padding:8px 0;border-bottom:1px solid var(--border);}
+.md-acc-t{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.md-acc-r{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.md-acc .wod-chev{transition:transform .2s;transform:rotate(-90deg);color:var(--muted);font-size:13px;}
+.md-acc.open .wod-chev{transform:rotate(0deg);}
+.md-acc-b{padding-top:2px;}
+.md-intro{font-size:12.5px;color:var(--muted);line-height:1.5;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:10px 0 4px;}
+.md-intro b{color:var(--text);}
+.mt-addlbl{font-size:11.5px;color:var(--muted);align-self:center;margin-right:2px;}
 .md-wrap{max-width:680px;margin:0 auto;padding:8px 16px 40px;text-align:left;}
 .md-hello{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:clamp(22px,5vw,30px);font-weight:900;margin:6px 0 16px;}
 .md-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
@@ -1074,7 +1084,6 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
       <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span><span class="tl">Submit</span></button>
       <button id="m-row" onclick="setMode('row')" style="display:none;"><span class="te">🚣 </span><span class="tl">Row</span></button>
       <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
-      <button id="m-me" onclick="setMode('me')" style="display:none;"><span class="te">👤 </span><span class="tl">My Account</span></button>
     </div>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
     <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
@@ -2969,7 +2978,7 @@ function renderMemberDash(){var el=document.getElementById('member-body');if(!el
   var s=memberStats();
   var h='<div class="md-wrap"><div class="md-hello"><span>Hey '+esc(memFirst()||'there')+'</span><button class="md-edit" onclick="openMemEdit()">Edit account</button></div>';
   h+='<div class="md-stats">'+memStat(s.current,'day streak')+memStat(s.longest,'best streak')+memStat(s.total,'workouts')+memStat(s.week+'/7','this week')+'</div>';
-  h+=memSuggestHTML()+strSectionHTML()+engSectionHTML()+bodySectionHTML()+benchSectionHTML();
+  h+=memSuggestHTML()+metMetricsIntroHTML()+strSectionHTML()+engSectionHTML()+bodySectionHTML()+benchSectionHTML();
   h+='<div class="md-sec-h">This month</div>'+memCalendarHTML();
   h+='<div class="md-sec-h">Achievements</div>'+memBadgesHTML(s);
   h+='<div class="md-sec-h">How to use the hub</div><div class="md-howto">'+nl2brBM(settings().howto||DEFAULT_HOWTO)+'</div>';
@@ -3152,20 +3161,26 @@ function metPBStr(key,group){var pts=metPts(key);if(!pts.length)return '—';if(
 function metHistoryHTML(key,group){var pts=metPts(key).slice().reverse();if(!pts.length)return '';return '<div class="mt-hist">'+pts.map(function(p){var v=(group==='engine')?fmtMMSS(p.value):(+p.value);return '<div class="mt-hrow"><span class="mt-hd">'+dateLabel(p.date,{day:'numeric',month:'short',year:'2-digit'})+'</span><span class="mt-hv">'+v+(p.note?(' · '+esc(p.note)):'')+'</span><button class="mt-hx" onclick="metDelete(\''+p.id+'\')" aria-label="Delete entry" title="Delete">✕</button></div>';}).join('')+'</div>';}
 function metRowHTML(group,key,name){
   var has=metPts(key).length>0;
-  var pb=metPBStr(key,group)+(group==='body'?'':metTrendArrow(key,group==='engine'));
+  var val2=has?(metPBStr(key,group)+(group==='body'?'':metTrendArrow(key,group==='engine'))):'<span class="mt-empty">＋ log</span>';
   var open=metHistOpen.has(key);
-  var h='<div class="mt-row"><button class="mt-main" onclick="openMetric(\''+group+'\',\''+key+'\')"><span class="mt-name">'+esc(name)+'</span><span class="mt-pb">'+pb+'</span></button>'+
-    '<div class="mt-acts">'+(has?('<button class="mt-hbtn" onclick="metHistToggle(\''+key+'\')">'+(open?'Hide':'History')+'</button>'):'<span class="mt-empty">tap to log</span>')+'<button class="mt-x" onclick="metHide(\''+key+'\')" aria-label="Remove from my list" title="Remove from my list">✕</button></div></div>';
+  var h='<div class="mt-row"><button class="mt-main" onclick="openMetric(\''+group+'\',\''+key+'\')"><span class="mt-name">'+esc(name)+'</span><span class="mt-pb">'+val2+'</span></button>'+
+    '<div class="mt-acts">'+(has?('<button class="mt-hbtn" onclick="metHistToggle(\''+key+'\')">'+(open?'Hide':'History')+'</button>'):'')+'<button class="mt-x" onclick="metHide(\''+key+'\')" aria-label="Remove from my list" title="Remove from my list">✕</button></div></div>';
   if(open)h+=metHistoryHTML(key,group);
   return h;
 }
+function memSecOpen(g){try{var v=localStorage.getItem('cave_memsec_'+g);return v===null?true:v==='1';}catch(e){return true;}}
+function toggleMemSec(g){try{localStorage.setItem('cave_memsec_'+g,memSecOpen(g)?'0':'1');}catch(e){}renderMemberDash();}
+function metSecHead(title,group,withLog){return '<div class="md-acc'+(memSecOpen(group)?' open':'')+'" onclick="toggleMemSec(\''+group+'\')"><span class="md-acc-t">'+title+'</span><span class="md-acc-r">'+(withLog?'<button class="md-add" onclick="event.stopPropagation();openMetric(\''+group+'\')">+ Log</button>':'')+'<span class="wod-chev">▾</span></span></div>';}
+function metMetricsIntroHTML(){return '<div class="md-intro"><b>Your numbers.</b> Enter your current bests — lifts, engine times, body stats and benchmarks — and the app tracks your improvement over time. Tap any row to log a new attempt (an arrow shows if you beat your best); use ✕ to hide anything you don’t track.</div>';}
 function metSectionHTML(title,group,items,empty){
+  var head=metSecHead(title,group,true);
+  if(!memSecOpen(group))return head;
   var hidden=memHidden();
   var shown=items.filter(function(it){return hidden.indexOf(it.k)<0;});
   var hiddenItems=items.filter(function(it){return hidden.indexOf(it.k)>=0;});
   var rows=shown.map(function(it){return metRowHTML(group,it.k,it.n);}).join('');
-  var add=hiddenItems.length?('<div class="mt-addrow">'+hiddenItems.map(function(it){return '<button class="mt-chip" onclick="metUnhide(\''+it.k+'\')">+ '+esc(it.n)+'</button>';}).join('')+'</div>'):'';
-  return '<div class="md-sec-h">'+title+' <button class="md-add" onclick="openMetric(\''+group+'\')">+ Log</button></div>'+(rows||('<div class="md-empty2">'+empty+'</div>'))+add;
+  var add=hiddenItems.length?('<div class="mt-addrow"><span class="mt-addlbl">Add back:</span>'+hiddenItems.map(function(it){return '<button class="mt-chip" onclick="metUnhide(\''+it.k+'\')">+ '+esc(it.n)+'</button>';}).join('')+'</div>'):'';
+  return head+'<div class="md-acc-b">'+(rows||('<div class="md-empty2">'+empty+'</div>'))+add+'</div>';
 }
 function strSectionHTML(){return metSectionHTML('Strength','strength',STR_LIFTS.concat(STR_REPS),'Log a lift to start tracking your estimated 1RMs.');}
 function engSectionHTML(){return metSectionHTML('Engine','engine',ENG_TESTS,'Log a run, row or ski time to track your engine.');}
@@ -3173,18 +3188,20 @@ function bodySectionHTML(){return metSectionHTML('Body','body',[{k:'bodyweight',
 /* --- benchmark / test-week tracking (matches the member by name across cycles) --- */
 function benchSectionHTML(){
   if(!isMember()||!memberProfile)return '';
+  var head=metSecHead('Benchmarks & tests','bench',false);
+  if(!memSecOpen('bench'))return head;
   var c=bmConfig(),nm=bmKey(memberProfile);
   var mine=(cache.benchmarks||[]).filter(function(e){return bmKey(e)===nm&&e.score!=null&&String(e.id).indexOf('bms-')!==0;});
   var info=null;try{info=bmCycleInfo();}catch(e){}
-  var h='<div class="md-sec-h">Benchmarks &amp; tests</div>';
-  if(!mine.length){var live=info&&(info.active||(c.teaser&&info.daysToNext>0&&info.daysToNext<=7));return h+'<div class="md-empty2">'+(live?('“'+esc(c.title||'Benchmark')+'” is on now — log your score at the bottom of the WOD page.'):'Your benchmark-test results will appear here once you’ve done one.')+'</div>';}
+  var detail='<div class="md-intro">The gym’s recurring test workouts. Your scores across each test week show your improvement over time — log them at the bottom of the WOD page when a test is on.</div>';
+  if(!mine.length){var live=info&&(info.active||(c.teaser&&info.daysToNext>0&&info.daysToNext<=7));return head+'<div class="md-acc-b">'+detail+'<div class="md-empty2">'+(live?('“'+esc(c.title||'Benchmark')+'” is on now — log your score at the bottom of the WOD page.'):'Your benchmark-test results will appear here once you’ve done one.')+'</div></div>';}
   var low=(c.dir||'low')==='low';
   var sorted=mine.slice().sort(function(a,b){return (a.cycle||'')<(b.cycle||'')?-1:1;});
   var vals=sorted.map(function(x){return +x.score;});
   var pb=low?Math.min.apply(null,vals):Math.max.apply(null,vals);
-  var rows=sorted.slice().reverse().map(function(e,i,arr){var idx=sorted.length-1-i;var arrow='';if(idx>0){var prior=sorted.slice(0,idx).map(function(x){return +x.score;});var pbefore=low?Math.min.apply(null,prior):Math.max.apply(null,prior);if(low?(+e.score<pbefore):(+e.score>pbefore))arrow=' <span class="mt-up">▲</span>';else if(low?(+e.score>pbefore):(+e.score<pbefore))arrow=' <span class="mt-dn">▼</span>';}
+  var rows=sorted.slice().reverse().map(function(e,i){var idx=sorted.length-1-i;var arrow='';if(idx>0){var prior=sorted.slice(0,idx).map(function(x){return +x.score;});var pbefore=low?Math.min.apply(null,prior):Math.max.apply(null,prior);if(low?(+e.score<pbefore):(+e.score>pbefore))arrow=' <span class="mt-up">▲</span>';else if(low?(+e.score>pbefore):(+e.score<pbefore))arrow=' <span class="mt-dn">▼</span>';}
     return '<div class="mt-hrow"><span class="mt-hd">'+(e.cycle?dateLabel(e.cycle,{day:'numeric',month:'short',year:'2-digit'}):'')+'</span><span class="mt-hv">'+bmFmt(e.score,c)+arrow+'</span></div>';}).join('');
-  return h+'<div class="mt-row"><div class="mt-main" style="cursor:default;"><span class="mt-name">'+esc(c.title||'Benchmark')+'</span><span class="mt-pb">PB '+bmFmt(pb,c)+'</span></div></div><div class="mt-hist">'+rows+'</div>';
+  return head+'<div class="md-acc-b">'+detail+'<div class="mt-row"><div class="mt-main" style="cursor:default;"><span class="mt-name">'+esc(c.title||'Benchmark')+'</span><span class="mt-pb">PB '+bmFmt(pb,c)+'</span></div></div><div class="mt-hist">'+rows+'</div></div>';
 }
 function memSuggest(){var out=[];STR_LIFTS.concat(ENG_TESTS).forEach(function(l){var ds=metDaysSince(l.k);if(ds!=null&&ds>=42)out.push({k:l.k,n:l.n,days:ds,group:(ENG_TESTS.indexOf(l)>=0?'engine':'strength')});});return out.sort(function(a,b){return b.days-a.days;}).slice(0,3);}
 function memSuggestHTML(){var s=memSuggest();if(!s.length)return '';return '<div class="md-sec-h">Time to retest</div>'+s.map(function(x){return '<div class="md-suggest" onclick="openMetric(\''+x.group+'\',\''+x.k+'\')">It’s been '+Math.round(x.days/7)+' weeks — retest your '+esc(x.n)+'? <span class="md-suggest-go">Log →</span></div>';}).join('');}
