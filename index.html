@@ -3445,11 +3445,14 @@ function showNav(){document.getElementById('nav').classList.add('show');}
 function hideNav(){document.getElementById('nav').classList.remove('show');clearTimeout(navTimer);}
 function toggleNav(){const n=document.getElementById('nav');n.classList.toggle('show');}
 function peekNav(){showNav();clearTimeout(navTimer);navTimer=setTimeout(hideNav,3500);}
+/* hover-to-reveal only applies in peek mode; in header/pinned the burger toggles it
+   (otherwise a touch device's synthetic mouseenter opens it then the tap closes it → double-press) */
+function navIsPeek(){return !document.body.classList.contains('nav-header')&&!document.body.classList.contains('nav-pinned');}
 function initNav(){
   const hot=document.getElementById('nav-hot'),nav=document.getElementById('nav');
-  hot.addEventListener('mouseenter',()=>{if(isUnlocked())showNav();});
-  nav.addEventListener('mouseenter',()=>{if(navTimer)clearTimeout(navTimer);showNav();});
-  nav.addEventListener('mouseleave',()=>{navTimer=setTimeout(hideNav,400);});
+  hot.addEventListener('mouseenter',()=>{if(navIsPeek()&&isUnlocked())showNav();});
+  nav.addEventListener('mouseenter',()=>{if(!navIsPeek())return;if(navTimer)clearTimeout(navTimer);showNav();});
+  nav.addEventListener('mouseleave',()=>{if(!navIsPeek())return;navTimer=setTimeout(hideNav,400);});
   document.addEventListener('click',e=>{if(!nav.classList.contains('show'))return;if(nav.contains(e.target))return;if(e.target.closest&&e.target.closest('#nav-peek'))return;hideNav();});
 }
 
