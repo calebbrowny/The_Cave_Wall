@@ -10,7 +10,7 @@ step — backed by Supabase and hosted on Netlify.
 - **Backend:** Supabase (Postgres + Auth + Storage). Project **`unfoqmfislfcnzxoivta`** ("cave-ops").
   Tables: `leaderboard`, `achievements`, `events`, `todos`, `kpis`, `challenges`, `submissions`,
   `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`, `row500`, `benchmarks`,
-  `benchmark_phones`.
+  `benchmark_phones`, `member_profiles`, `workout_logs`, `body_metrics`.
   - `benchmarks` = recurring benchmark test (public read+insert, admin edit/delete, realtime). Cols:
     name, sex ('m'/'f'), score (seconds for time / reps), cycle (the cycle-start date). **No phone
     column** — the public board is phone-free. Config in `settings.benchmark` {on,title,start,weeks,
@@ -143,6 +143,29 @@ const buildWod = vm.runInContext(slice + '\n;buildWod', {DAYFOCUS, console});
 ```
 Sweep focus × day × length × stations × lifts × equipment and assert no `undefined`/`NaN`/`[object`
 in the output. Also run a quick inline-`<script>` syntax check (`new vm.Script(scriptText)`).
+
+## Member platform (member logins, workout/metrics tracking, accountability)
+Members are a SECOND auth tier, distinct from admins. Anonymous public viewing is unchanged.
+- **Auth = email + phone-as-password (owner's call), no codes.** Supabase **email+password** auth where the
+  password value is the member's mobile digits (`memNorm`). Join = `sb.auth.signUp({email,password:phone})` +
+  upsert `member_profiles`; Login = `sb.auth.signInWithPassword`. **Requires Supabase Auth → Email →
+  "Confirm email" OFF** (no signup email/code is sent; not settable via MCP — dashboard only). Low-entropy
+  password is a documented tradeoff for low-stakes data; phone is the password only (never stored in a
+  readable column). Reset (changed number) = owner resets in the Supabase dashboard.
+- **handleSession** branches: authed + `emailAllowed()` → admin (unchanged); authed + not admin → **member**
+  (`currentMember`, `memberProfile` via `loadMemberProfile`), NOT signed out. `isMember()`; members are never
+  admins (`is_cave_admin()` stays false). `boot`'s getSession restores either tier.
+- **Tables (per-member RLS, `auth.uid()`):** `member_profiles` (id=auth.uid; name/sex/age — no phone),
+  `workout_logs` (member_id, date, wod_ref; unique(member_id,date) → idempotent one-tap-per-day),
+  `body_metrics` (member_id, date, kind bodyweight/squat/bench/deadlift/note, value, unit). RLS: all
+  CRUD `member_id=auth.uid()`; SELECT also `OR is_cave_admin()` (coach view). NOT in realtime publication
+  (writes update `cache` directly via `refreshMemberData`). Fetched in `fetchAll` only when `currentMember`.
+- **UI:** nav greeting chip `#member-chip` (`renderMemberChip`: "Log in" → `openMemberAuth`, or "Hey {name}"
+  → My Hub); member auth modal `openModal('member')` (`memberAuthHTML`, login/join toggle). WOD page shows
+  `#wod-member` (`renderWodMember`): ✓ Mark complete (`wmComplete` upsert) + optional metrics (`wmSaveMetrics`).
+  **My Hub** dashboard = mode `'me'` (`#member` section, nav tab `#m-me`, hash `#me`/`#hub`): streak calendar
+  (`memCalendarHTML`), stats (`streakInfo`/`thisWeekCount`), metric sparklines (`memSpark`), auto badges
+  (`BADGES`/`memBadgesHTML` — derived, no table), and the how-to (`settings.howto`, editable in Owner controls).
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
