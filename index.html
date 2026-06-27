@@ -1045,7 +1045,6 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="nav-brand"><div class="logo" onclick="navLogoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><span class="nav-clock" id="nav-clock" onclick="setMode('wod')" title="Go to WOD"></span></div>
   <div class="nav-right">
     <div class="mode-toggle">
-      <button id="m-home" onclick="setMode('home')"><span class="te">🏠 </span><span class="tl">Home</span></button>
       <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span><span class="tl">WOD</span></button>
       <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span><span class="tl">Challenge</span></button>
       <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
@@ -3180,7 +3179,7 @@ function renderHome(){var el=document.getElementById('home-body');if(!el)return;
 
 /* ---------- MODE ---------- */
 function setMode(mode){if(mode==='plan'&&!isUnlocked()){showPwGate();return;}if(mode==='disp')activeScreenSlug=null;_setMode(mode);clearTimeout(navTimer);navTimer=setTimeout(hideNav,2500);}
-function applyHashRoute(){const h=(location.hash||'').replace('#','').toLowerCase();if(!h)return false;const parts=h.split('/');const map={home:'home',submit:'submit',wod:'wod',challenge:'chal',event:'event',display:'disp',board:'disp',me:'me',hub:'me'};if(map[parts[0]]){activeScreenSlug=(parts[0]==='display'||parts[0]==='board')?(parts[1]||null):activeScreenSlug;_setMode(map[parts[0]]);return true;}
+function applyHashRoute(){const h=(location.hash||'').replace('#','').toLowerCase();if(!h)return false;const parts=h.split('/');const map={submit:'submit',wod:'wod',challenge:'chal',event:'event',display:'disp',board:'disp',me:'me',hub:'me'};if(map[parts[0]]){activeScreenSlug=(parts[0]==='display'||parts[0]==='board')?(parts[1]||null):activeScreenSlug;_setMode(map[parts[0]]);return true;}
   if(parts[0]==='row'){_setMode('row');return true;}
   if(parts[0]==='rowcoach'){rowCoachKeyTry=parts[1]||'';_setMode('rowcoach');return true;}
   if(parts[0]==='me'||parts[0]==='hub'){_setMode('me');return true;}
@@ -3748,7 +3747,7 @@ async function boot(){
   applyMaintenance();
   applyDemo();
   renderAll();
-  if(!applyHashRoute() && !isUnlocked())_setMode('home'); // dashboard homepage
+  if(!applyHashRoute() && !isUnlocked())_setMode('wod'); // gym-safe default
   logView();
   window.addEventListener('hashchange',applyHashRoute);
   document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});

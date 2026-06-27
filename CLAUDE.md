@@ -125,11 +125,12 @@ No-API, built from The Cave's HYROX logic. Key pieces:
   toggle = `appearance.tab_emojis` → `body.no-tab-emoji`; nav labels live in `.tl`, emoji in `.te`. On phones the
   Cave logo + clock are hidden so tabs get the width.
 
-## Home dashboard + minimal header nav
-- **Home dashboard** is the default landing (`_setMode('home')` in `boot` when no hash + not admin; route `#home`).
-  Mode `'home'` → `#home` section, `renderHome()` into `#home-body`: a clean 3-tile grid (`.ho-tile`) — **Today's
-  WOD** (date + title·focus → WOD), **Your training** (member streak/this week → My Account, or a login CTA), and
-  **This month** (`cache.state.challenge_title` → challenge). Reached via the **Home** tab in the menu.
+## Home dashboard (built, currently DISABLED) + minimal header nav
+- **Home dashboard is disabled for now** (owner: "doesn't look polished"). The code is intact but has **no entry
+  point** — no Home tab, `boot` defaults to `'wod'`, and `#home` is not in the hash-route map, so `renderHome()`
+  never runs and `#home` stays `display:none`. To re-enable: add the Home tab back to `.mode-toggle`, set the boot
+  default to `'home'`, and add `home:'home'` to the `applyHashRoute` map. Mode `'home'` → `#home` section,
+  `renderHome()` → 3-tile grid (`.ho-tile`): **Today's WOD**, **Your training** (streak or login CTA), **This month**.
 - **Nav default = `header` (minimal bar)** (`DEFAULT_SETTINGS.nav_mode='header'`, `nav_wrap=true`; live
   `app_state.settings` set to match). Top bar shows **only logo, clock, login chip (`#member-chip`), and the `☰`
   burger** — `toggleNav()` reveals `.nav-right` (the `.mode-toggle` page tabs incl. **Home**/WOD/Challenge/The
