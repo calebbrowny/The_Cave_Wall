@@ -166,6 +166,8 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
   **My Hub** dashboard = mode `'me'` (`#member` section, nav tab `#m-me`, hash `#me`/`#hub`): streak calendar
   (`memCalendarHTML`), stats (`streakInfo`/`thisWeekCount`), metric sparklines (`memSpark`), auto badges
   (`BADGES`/`memBadgesHTML` — derived, no table), and the how-to (`settings.howto`, editable in Owner controls).
+- **One-time setup before members can join:** Supabase dashboard → Auth → Email → turn **"Confirm email" OFF**
+  (otherwise `signUp` sends a confirmation email and the account can't log in until clicked — defeats "no codes").
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
