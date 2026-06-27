@@ -202,7 +202,9 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
   stats (members / active-7d / completions via admin SELECTs — RLS allows `is_cave_admin()` read), member list
   (name/sex/age/completions, **Manage** → `memberAdminAct` prompt: reset / remove), the three feature toggles
   (`swRow`/`toggleMembersOn`/`toggleMemberFeature`), and the how-to editor. Reset/remove call
-  `memberEdgeCall` → edge function **`admin-members`** (`supabase/functions/admin-members/index.ts`): verifies
+  `memberEdgeCall` → edge function (deployed **slug `swift-responder`**, dashboard label "admin-members" — the
+  slug is immutable from creation, so `memberEdgeCall` invokes `swift-responder`; source kept at
+  `supabase/functions/admin-members/index.ts`): verifies
   the caller is an admin (their JWT + SECURITY DEFINER `is_cave_admin()` RPC), then service-role
   `updateUserById` (password = new mobile) / `deleteUser` (member tables FK `auth.users` ON DELETE CASCADE →
   data removed too). 403 for non-admins; service key never leaves the function. **If the function isn't

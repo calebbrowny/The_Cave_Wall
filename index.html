@@ -3253,7 +3253,9 @@ async function memberAdminAct(id){var m=(cache.member_profiles||[]).find(functio
   else if(act==='remove'){if(confirm('Permanently remove '+(m.name||'this member')+' and ALL their data? This cannot be undone.'))await memberEdgeCall('delete',id);}
   else alert('Type “reset” or “remove”.');
 }
-async function memberEdgeCall(action,member_id,password){if(!LIVE)return;try{const{data,error}=await sb.functions.invoke('admin-members',{body:{action:action,member_id:member_id,password:password}});if(error||(data&&data.error)){var msg=(error&&error.message)||(data&&data.error)||'error';if(/not found|404|failed to send/i.test(msg))msg='Member reset/remove isn’t enabled yet (admin function not deployed).';alert('Failed: '+msg);return;}toast(action==='reset'?'Password reset':'Member removed');renderMembersAdmin();}catch(e){alert('Failed: '+(e.message||e));}}
+/* NOTE: the deployed edge function's slug is 'swift-responder' (its dashboard label is "admin-members",
+   but the immutable slug — set at creation — is swift-responder). Invoke must use the slug. */
+async function memberEdgeCall(action,member_id,password){if(!LIVE)return;try{const{data,error}=await sb.functions.invoke('swift-responder',{body:{action:action,member_id:member_id,password:password}});if(error||(data&&data.error)){var msg=(error&&error.message)||(data&&data.error)||'error';if(/not found|404|failed to send/i.test(msg))msg='Member reset/remove isn’t enabled yet (admin function not deployed).';alert('Failed: '+msg);return;}toast(action==='reset'?'Password reset':'Member removed');renderMembersAdmin();}catch(e){alert('Failed: '+(e.message||e));}}
 function applyOrder(){const g=document.getElementById('planner-grid');if(!g)return;getOrder().forEach(sec=>{const el=g.querySelector(`.planner-sec[data-sec="${sec}"]`);if(el)g.appendChild(el);});}
 let dragSrc=null;
 function initDrag(){document.querySelectorAll('.planner-sec').forEach(sec=>{
