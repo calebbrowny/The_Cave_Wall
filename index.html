@@ -1720,8 +1720,7 @@ function isVideoUrl(u){return /\.(mp4|mov|m4v|webm|avi|ogg|ogv|3gp|mkv)(\?|$)/i.
 function renderSubmissions(){
   const el=document.getElementById('submissions-list');if(!el)return;
   const pend=cache.submissions.filter(s=>s.status==='pending');
-  const badge=document.getElementById('sub-badge');
-  if(badge){if(pend.length){badge.style.display='inline-flex';badge.textContent=pend.length;}else badge.style.display='none';}
+  [document.getElementById('sub-badge'),document.getElementById('admcat-badge-submissions')].forEach(function(badge){if(!badge)return;if(pend.length){badge.style.display='inline-flex';badge.textContent=pend.length;}else badge.style.display='none';});
   if(!pend.length){el.innerHTML='<div style="font-size:13px;color:var(--muted);padding:6px 0;">No pending submissions. Member entries from the Submit tab show up here for approval.</div>';return;}
   el.innerHTML=pend.map(s=>{
     let proofBlock='';
@@ -3206,23 +3205,24 @@ const DEFAULT_ORDER=['submissions','wod','leaderboards','customboards','challeng
 function getOrder(){try{const s=JSON.parse(localStorage.getItem('cave_order'));if(Array.isArray(s)){const f=s.filter(x=>DEFAULT_ORDER.includes(x));DEFAULT_ORDER.forEach(x=>{if(!f.includes(x))f.push(x);});return f;}}catch(e){}return DEFAULT_ORDER.slice();}
 /* ---- Admin: collapsible category groups (re-parents existing panels; IDs preserved) ---- */
 const ADM_CATS=[
+  {key:'submissions',label:'📥 Pending Submissions',secs:['submissions'],open:true,badge:true},
   {key:'programming',label:'🔥 Programming',secs:['wod']},
-  {key:'community',label:'🏆 Community',secs:['leaderboards','customboards','challenge','submissions']},
+  {key:'community',label:'🏆 Community',secs:['leaderboards','customboards','challenge']},
   {key:'events',label:'📅 Events',secs:['events','eventpage']},
   {key:'screens',label:'🖥️ Screens & display',secs:['screens','ads']},
   {key:'members',label:'👥 Members',secs:[]}
 ];
 let admCatBuilt=false;
-function admCatOpen(k){try{return localStorage.getItem('cave_admcat_'+k)==='1';}catch(e){return false;}}
+function admCatOpen(k){try{var v=localStorage.getItem('cave_admcat_'+k);if(v==='1')return true;if(v==='0')return false;}catch(e){}var c=ADM_CATS.find(function(x){return x.key===k;});return !!(c&&c.open);}
 function toggleAdmCat(k){var open=!admCatOpen(k);try{localStorage.setItem('cave_admcat_'+k,open?'1':'0');}catch(e){}var b=document.getElementById('admcat-'+k),h=document.getElementById('admcat-h-'+k);if(b)b.style.display=open?'flex':'none';if(h)h.classList.toggle('open',open);if(open&&k==='members')renderMembersAdmin();}
 function buildAdminCategories(){if(admCatBuilt)return;var grid=document.getElementById('planner-grid');if(!grid)return;
   ADM_CATS.forEach(function(c){var open=admCatOpen(c.key);var cat=document.createElement('div');cat.className='adm-cat';
-    cat.innerHTML='<div class="adm-cat-head'+(open?' open':'')+'" id="admcat-h-'+c.key+'" onclick="toggleAdmCat(\''+c.key+'\')"><span>'+c.label+'</span><span class="wod-chev">▾</span></div><div class="adm-cat-body" id="admcat-'+c.key+'" style="'+(open?'':'display:none;')+'"></div>';
+    cat.innerHTML='<div class="adm-cat-head'+(open?' open':'')+'" id="admcat-h-'+c.key+'" onclick="toggleAdmCat(\''+c.key+'\')"><span>'+c.label+(c.badge?' <span class="sub-badge" id="admcat-badge-'+c.key+'" style="display:none;">0</span>':'')+'</span><span class="wod-chev">▾</span></div><div class="adm-cat-body" id="admcat-'+c.key+'" style="'+(open?'':'display:none;')+'"></div>';
     grid.appendChild(cat);var body=cat.querySelector('.adm-cat-body');
     c.secs.forEach(function(sec){var p=grid.querySelector(':scope > .planner-sec[data-sec="'+sec+'"]');if(p){p.removeAttribute('draggable');body.appendChild(p);}});
     if(c.key==='members'){var mp=document.createElement('div');mp.className='planner-sec';mp.innerHTML='<div class="panel"><div class="panel-h"><div class="panel-t">👥 Member hub</div></div><div id="members-admin"></div></div>';body.appendChild(mp);}
   });
-  admCatBuilt=true;if(admCatOpen('members'))renderMembersAdmin();
+  admCatBuilt=true;renderSubmissions();if(admCatOpen('members'))renderMembersAdmin();
 }
 function swRow(on,lbl,sub,fn){return '<div class="ot-row"><div><div class="ot-lbl">'+esc(lbl)+'</div><div class="ot-sub">'+esc(sub)+'</div></div><span class="sw'+(on?' on':'')+'" onclick="'+fn+'"></span></div>';}
 async function toggleMembersOn(){const s=settings();s.members_on=!(s.members_on!==false);await stateUpdate({settings:s});renderMembersAdmin();renderMemberChip();toast(s.members_on?'Member logins ON':'Member logins OFF');}
