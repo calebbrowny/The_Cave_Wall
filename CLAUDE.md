@@ -193,11 +193,33 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
   (`memStat`, no icons), metric sparklines (`memSpark`), auto badges (`BADGES`/`memBadgesHTML` — monochrome
   `.md-badge-mark` ✓, derived, no table), the how-to (`settings.howto`). **No decorative emojis** on any
   member-facing surface (only the ✓ done-mark + ▾/▸ chevrons as UI glyphs).
-- **PB → achievements board (opt-in, one system):** after `wmSaveMetrics`/`wmComplete`, `maybeSharePB(date)`
-  detects a squat/bench/deadlift above the member's previous best (`memBestBefore` over `cache.body_metrics`)
-  and offers (confirm dialog) to share. `sharePBNow` inserts a `submissions` row `{category:'achievement',
-  detail:'Squat PB — 140 kg', status:'pending'}` → lands in **Pending Submissions** → owner approves →
-  existing auto-promote posts it to the **achievements board**. Reuses the moderated pipeline; no new RLS.
+- **Smart metrics + daily results (the intelligent system).** Profile tracking lives in `body_metrics`
+  (kept private). Catalogs: `STR_LIFTS` (back/front squat, deadlift, bench, press, push press, clean
+  variants, snatch — stored as **estimated 1RM** via Epley `est1RM(w,reps)`, raw set in `note`), `STR_REPS`
+  (max pull-ups etc.), `ENG_TESTS` (run/row/ski times, stored as **seconds**, lower=better), `BODY_COMP`
+  (bodyweight, bodyfat). My Account shows Strength/Engine/Body sections (`strSectionHTML`/`engSectionHTML`/
+  `bodySectionHTML`, sparkline trend via `memSpark`; engine sparkline negates seconds so up=faster). Entry =
+  one modal `openModal('metric')` (`metricModalHTML`, group tabs strength/engine/body → `metSaveClick`→`metSave`);
+  PB on a lift → confirm → `sharePBNow` (submissions→achievements, moderated). **Retest nudges**: `memSuggest()`
+  flags any tracked test untested ≥6 weeks (shown in My Account + as a one-line nudge on the WOD).
+- **Daily result + leaderboard (`daily_results` table; logged-in members read all, name/sex denormalised so it
+  never reads others' private profiles).** `wodResultSpec(wod)` parses the day's WOD (focus + core text) →
+  `amrap` (rounds+reps) / `fortime` / `load` (+detected lift, shown vs the member's 1RM) / `time` (+detected
+  engine test) / `done`; `detectLift` matches the **longest** keyword first (so "front squat"/"squat clean"/
+  "push press" aren't swallowed by "squat"/"press"). On the WOD page `renderWodMember` shows mark-complete +
+  "Log your result" (`drFormHTML`→`drSave` upserts `daily_results`, unique per member/day, counts as a
+  completion) + the day's board (`drBoardHTML`, split M/F, RX flagged, sorted by `drLower(kind)`). Loaded per
+  date via `loadDailyBoard(date)` (member's own in `cache.my_results`). Generic bodyweight/squat/bench entry
+  was **removed from the WOD tab** — all metrics now live in My Account.
+- **Edit account + locked-out reset.** My Account → "Edit account" (`openModal('memedit')`→`memSaveAccount`):
+  updates name/sex/age (`member_profiles`) and, self-serve while logged in, the mobile/password via
+  `sb.auth.updateUser({password})`. Locked-out members use "Trouble logging in?" on the login modal
+  (`memResetRequest` → inserts `reset_requests`, public-insert / admin-read+delete RLS); requests show in the
+  Members admin (`resetReqClear` to dismiss), and the admin resets via Manage → reset (edge function).
+- **PB → achievements board (opt-in, one system):** a new strength/engine best (detected in `metSaveClick`/
+  `drSave` vs `metBest`) offers (confirm) to share. `sharePBNow` inserts a `submissions` row `{category:
+  'achievement', detail:'Back Squat 1RM ≈ 140 kg', status:'pending'}` → **Pending Submissions** → owner
+  approves → existing auto-promote posts it to the **achievements board**. Reuses the moderated pipeline; no new RLS.
 - **Members admin** (admin → **Members** category → "Member hub", `renderMembersAdmin` into `#members-admin`):
   stats (members / active-7d / completions via admin SELECTs — RLS allows `is_cave_admin()` read), member list
   (name/sex/age/completions, **Manage** → `memberAdminAct` prompt: reset / remove), the three feature toggles

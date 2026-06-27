@@ -381,8 +381,27 @@ body.no-tab-emoji .te{display:none;}
 .wm-h{font-size:15px;font-weight:800;}
 .wm-mtoggle{background:none;border:none;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;padding:10px 0 2px;}
 .wm-metrics{margin-top:8px;}
+.wm-mine{font-size:14px;margin:8px 0;}.wm-mine b{color:var(--blue);}
+.wm-sc{font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:1px 5px;}
+.wm-board{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+.wm-board-h{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;}
+.wm-board-empty{font-size:13px;color:var(--muted);margin-top:12px;}
+.dr-sex{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:10px 0 4px;}
+.dr-row{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:14px;}
+.dr-row.me{background:rgba(138,180,248,.15);border:1px solid var(--blue);}
+.dr-rk{width:20px;font-weight:900;color:var(--muted);text-align:center;}
+.dr-nm{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dr-vl{font-weight:900;color:var(--blue);}
+.dr-done{font-size:12px;color:var(--muted);margin-top:8px;}
+.dr-rx{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:8px 0;cursor:pointer;}
+.wm-suggest{margin-top:12px;font-size:13px;color:var(--blue);background:rgba(138,180,248,.1);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;}
+.md-edit{font-size:12px;font-weight:700;color:var(--blue);background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;}
+.md-add{font-size:12px;font-weight:700;color:var(--blue);background:none;border:1px solid var(--border);border-radius:8px;padding:3px 9px;cursor:pointer;float:right;text-transform:none;letter-spacing:0;}
+.md-empty2{font-size:13px;color:var(--muted);background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:12px;}
+.md-suggest{font-size:13px;background:rgba(138,180,248,.1);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;}
+.md-suggest-go{color:var(--blue);font-weight:700;}
 .md-wrap{max-width:680px;margin:0 auto;padding:8px 16px 40px;text-align:left;}
-.md-hello{font-size:clamp(22px,5vw,30px);font-weight:900;margin:6px 0 16px;}
+.md-hello{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:clamp(22px,5vw,30px);font-weight:900;margin:6px 0 16px;}
 .md-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
 .md-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 6px;text-align:center;}
 .md-stat-ic{font-size:18px;}
@@ -1006,7 +1025,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
       <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span><span class="tl">Submit</span></button>
       <button id="m-row" onclick="setMode('row')" style="display:none;"><span class="te">🚣 </span><span class="tl">Row</span></button>
       <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
-      <button id="m-me" onclick="setMode('me')" style="display:none;"><span class="te">🏠 </span><span class="tl">My Hub</span></button>
+      <button id="m-me" onclick="setMode('me')" style="display:none;"><span class="te">🏠 </span><span class="tl">My Account</span></button>
     </div>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
     <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
@@ -1265,7 +1284,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
-const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
+const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
 const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'peek',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
@@ -1378,7 +1397,7 @@ async function fetchAll(){
   cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];cache.row500=(rw&&rw.data)||[];cache.benchmarks=(bm&&bm.data)||[];applyDemo();
   if(st.data)cache.state={wod:st.data.wod||{},settings:st.data.settings||{},focus_override:st.data.focus_override||null,challenge_title:st.data.challenge_title||'Monthly Challenge',event_page:st.data.event_page||{enabled:false,title:'Event',subtitle:'',sections:[]}};
   if(currentUser){try{const{data:bp}=await sb.from('benchmark_phones').select('*');cache.benchmark_phones=bp||[];}catch(e){}}
-  if(currentMember){try{const[wl,bx]=await Promise.all([sb.from('workout_logs').select('*'),sb.from('body_metrics').select('*')]);cache.workout_logs=wl.data||[];cache.body_metrics=bx.data||[];}catch(e){}}else{cache.workout_logs=[];cache.body_metrics=[];}
+  if(currentMember){try{const[wl,bx,mr]=await Promise.all([sb.from('workout_logs').select('*'),sb.from('body_metrics').select('*'),sb.from('daily_results').select('*').eq('member_id',currentMember.id)]);cache.workout_logs=wl.data||[];cache.body_metrics=bx.data||[];cache.my_results=mr.data||[];}catch(e){}}else{cache.workout_logs=[];cache.body_metrics=[];cache.my_results=[];}
 }
 function subscribe(){
   sb.channel('cave-live').on('postgres_changes',{event:'*',schema:'public'},async()=>{await fetchAll();renderLive();}).subscribe();
@@ -1630,6 +1649,8 @@ function openModal(type,id,extra){
   else if(type==='row'){t.textContent='🚣 500m Row Challenge';b.innerHTML=rowAdminHTML();}
   else if(type==='benchmark'){t.textContent='🏅 Benchmark test';b.innerHTML=bmAdminHTML();}
   else if(type==='member'){t.textContent='Cave Hub account';b.innerHTML=memberAuthHTML();}
+  else if(type==='metric'){t.textContent='Log a number';b.innerHTML=metricModalHTML();}
+  else if(type==='memedit'){t.textContent='My account';b.innerHTML=memEditHTML();}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -2756,7 +2777,9 @@ function memNorm(p){return String(p==null?'':p).replace(/\D/g,'');}
 function memName(){return (memberProfile&&memberProfile.name)?memberProfile.name:'';}
 function memFirst(){return (memName().trim().split(/\s+/)[0])||'';}
 async function loadMemberProfile(){if(!LIVE||!currentMember){memberProfile=null;return;}try{const{data}=await sb.from('member_profiles').select('*').eq('id',currentMember.id).maybeSingle();memberProfile=data||null;}catch(e){memberProfile=null;}}
-async function refreshMemberData(){if(!LIVE||!currentMember){cache.workout_logs=[];cache.body_metrics=[];return;}try{const[wl,bx]=await Promise.all([sb.from('workout_logs').select('*'),sb.from('body_metrics').select('*')]);cache.workout_logs=wl.data||[];cache.body_metrics=bx.data||[];}catch(e){}}
+async function refreshMemberData(){if(!LIVE||!currentMember){cache.workout_logs=[];cache.body_metrics=[];cache.my_results=[];return;}try{const[wl,bx,mr]=await Promise.all([sb.from('workout_logs').select('*'),sb.from('body_metrics').select('*'),sb.from('daily_results').select('*').eq('member_id',currentMember.id)]);cache.workout_logs=wl.data||[];cache.body_metrics=bx.data||[];cache.my_results=mr.data||[];}catch(e){}}
+/* load the daily-result leaderboard for a date (all logged-in members can read) */
+async function loadDailyBoard(date){if(!LIVE||!isMember()){cache.daily_results=[];return;}try{const{data}=await sb.from('daily_results').select('*').eq('date',date);cache.daily_results=data||[];}catch(e){cache.daily_results=[];}}
 async function ensureMemberProfile(){if(!LIVE||!currentMember)return;await loadMemberProfile();if(!memberProfile){var pp=pendingProfile||{name:((currentMember.email||'').split('@')[0]||'Member')};pendingProfile=null;try{await sb.from('member_profiles').upsert(Object.assign({id:currentMember.id},pp));}catch(e){}await loadMemberProfile();}}
 
 /* --- member auth modal --- */
@@ -2774,6 +2797,7 @@ function memberAuthHTML(){
   h+='<div id="mem-err" style="color:var(--red);font-size:12px;margin-top:8px;min-height:1em;"></div>';
   h+='<div class="mauth-alt">'+(memAuthTab==='join'?'Already have an account? <button type="button" class="mauth-link" onclick="setMemberAuthTab(\'login\')">Log in</button>':'First time here? <button type="button" class="mauth-link" onclick="setMemberAuthTab(\'join\')">Sign up</button>')+'</div>';
   h+='<div class="mauth-note">'+(memAuthTab==='join'?'Minimal info, no spam, no codes. Your mobile number is your password.':'Log in with your email and the mobile number you joined with.')+'</div>';
+  if(memAuthTab==='login')h+='<div class="mauth-alt" style="margin-top:6px;"><button type="button" class="mauth-link" onclick="memResetRequest()">Trouble logging in? Ask the gym to reset it</button></div>';
   return h;
 }
 function memPickSex(s,el){memSex=s;if(el&&el.parentNode){el.parentNode.querySelectorAll('.rsex-btn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}}
@@ -2821,29 +2845,29 @@ function renderMemberChip(){var el=document.getElementById('member-chip');var ta
 function myLogForDate(d){return (cache.workout_logs||[]).find(function(x){return x.date===d;});}
 function renderWodMember(){var el=document.getElementById('wod-member');if(!el)return;
   if(!isMember()||(!memCompleteOn()&&!memMetricsOn())){el.innerHTML='';return;}
-  var d=publicWodDate||todayKey(),done=!!myLogForDate(d),today=todayKey();
+  var d=publicWodDate||todayKey(),today=todayKey(),w=wodForDate(d,publicWodSlot)||{};
+  var done=!!myLogForDate(d),mine=myResultFor(d),spec=wodResultSpec(w);
   var dl=(d===today)?'today':dateLabel(d,{weekday:'short',day:'numeric',month:'short'});
+  if(drLoadedDate!==d){drLoadedDate=d;loadDailyBoard(d).then(function(){renderWodMember();});}
   var h='<div class="wm-card">';
   if(memCompleteOn()){
     h+='<div class="wm-top"><span class="wm-h">'+(done?'✓ Completed — '+dl:'Did this workout?')+'</span>'+(done?'<button class="btn-sm" onclick="wmUncomplete(\''+d+'\')">Undo</button>':'')+'</div>';
-    if(!done)h+='<button class="btn-full" onclick="wmComplete(\''+d+'\')">✓ Mark complete</button>';
+    if(!done&&!mine)h+='<button class="btn-full" onclick="wmComplete(\''+d+'\')">✓ Mark complete</button>';
   }
-  if(memMetricsOn()){
-  h+='<button class="wm-mtoggle" onclick="wmToggleMetrics()">'+(wmMetricsOpen?'▾':'▸')+' Log metrics (optional)</button>';
-  if(wmMetricsOpen){
-    h+='<div class="wm-metrics"><div class="fld"><label>Bodyweight (kg)</label><input id="wm-bw" inputmode="decimal" maxlength="6" placeholder="e.g. 82"></div>'+
-      '<div class="fld-row"><div class="fld"><label>Squat</label><input id="wm-squat" inputmode="decimal" maxlength="6" placeholder="kg"></div><div class="fld"><label>Bench</label><input id="wm-bench" inputmode="decimal" maxlength="6" placeholder="kg"></div><div class="fld"><label>Deadlift</label><input id="wm-deadlift" inputmode="decimal" maxlength="6" placeholder="kg"></div></div>'+
-      '<div class="fld"><label>Note</label><input id="wm-note" maxlength="120" placeholder="How did it feel?"></div>'+
-      '<button class="btn-full" onclick="wmSaveMetrics(\''+d+'\')">Save metrics</button></div>';
+  if(memMetricsOn()&&wodHasContent(w)&&wodLive(d)){
+    if(mine){var extra='';if(mine.kind==='load'&&mine.movement){var orm=metBest(mine.movement,false);if(orm)extra=' · '+Math.round(mine.value/orm*100)+'% of 1RM';}h+='<div class="wm-mine">Your result: <b>'+esc(mine.display)+'</b>'+(mine.rx?'':' <span class="wm-sc">scaled</span>')+extra+' <button class="btn-sm" onclick="drToggle()">Edit</button></div>';}
+    else h+='<button class="wm-mtoggle" onclick="drToggle()">'+(drOpen?'▾':'▸')+' Log your result ('+(DR_TYPE_LABEL[spec.type]||'result')+')</button>';
+    if(drOpen)h+='<div class="wm-metrics">'+drFormHTML(spec)+'</div>';
+    h+=drBoardHTML(d,spec);
   }
-  }
+  var sg=memSuggest();if(sg.length)h+='<div class="wm-suggest" onclick="setMode(\'me\')">It’s been '+Math.round(sg[0].days/7)+' weeks — retest your '+esc(sg[0].n)+' in My Account →</div>';
   h+='</div>';el.innerHTML=h;
 }
 function wmToggleMetrics(){wmMetricsOpen=!wmMetricsOpen;renderWodMember();}
 async function wmComplete(d){if(!isMember()||!LIVE)return;
   if(!myLogForDate(d))cache.workout_logs.push({id:uid(),member_id:currentMember.id,date:d,wod_ref:d});renderWodMember();
   try{await sb.from('workout_logs').upsert({member_id:currentMember.id,date:d,wod_ref:d},{onConflict:'member_id,date'});}catch(e){}
-  await refreshMemberData();confettiBurst();toast('Logged — nice work.');maybeSharePB(d);renderWodMember();renderMemberChip();
+  await refreshMemberData();confettiBurst();toast('Logged — nice work.');renderWodMember();renderMemberChip();
 }
 async function wmUncomplete(d){if(!isMember()||!LIVE)return;
   cache.workout_logs=(cache.workout_logs||[]).filter(function(x){return x.date!==d;});renderWodMember();
@@ -2885,12 +2909,12 @@ function memberStats(){var s=streakInfo();s.week=thisWeekCount();s.metrics=(cach
 
 /* --- member dashboard --- */
 function renderMemberDash(){var el=document.getElementById('member-body');if(!el)return;
-  if(!isMember()){el.innerHTML='<div class="md-empty"><div class="md-empty-h">Cave Hub</div><p>Log in to track your workouts, build streaks and earn badges.</p><button class="btn-full" style="max-width:260px;margin:16px auto 0;" onclick="openMemberAuth(\'login\')">Log in / Join</button></div>';return;}
+  if(!isMember()){el.innerHTML='<div class="md-empty"><div class="md-empty-h">My Account</div><p>Log in to track your workouts, lifts and engine — build streaks and watch your numbers climb.</p><button class="btn-full" style="max-width:260px;margin:16px auto 0;" onclick="openMemberAuth(\'login\')">Log in / Join</button></div>';return;}
   var s=memberStats();
-  var h='<div class="md-wrap"><div class="md-hello">Hey '+esc(memFirst()||'there')+'</div>';
+  var h='<div class="md-wrap"><div class="md-hello"><span>Hey '+esc(memFirst()||'there')+'</span><button class="md-edit" onclick="openMemEdit()">Edit account</button></div>';
   h+='<div class="md-stats">'+memStat(s.current,'day streak')+memStat(s.longest,'best streak')+memStat(s.total,'workouts')+memStat(s.week+'/7','this week')+'</div>';
+  h+=memSuggestHTML()+strSectionHTML()+engSectionHTML()+bodySectionHTML();
   h+='<div class="md-sec-h">This month</div>'+memCalendarHTML();
-  h+=memMetricsHTML();
   h+='<div class="md-sec-h">Achievements</div>'+memBadgesHTML(s);
   h+='<div class="md-sec-h">How to use the hub</div><div class="md-howto">'+nl2brBM(settings().howto||DEFAULT_HOWTO)+'</div>';
   h+='<button class="btn-sm" style="width:100%;margin-top:18px;padding:11px;" onclick="memberSignOut()">Log out</button>';
@@ -2926,6 +2950,186 @@ function maybeSharePB(date){if(!isMember()||!memberProfile||!LIVE)return;var lab
   if(confirm('New '+best.label+' PB — '+best.v+' kg!\n\nShare it to the gym achievements board?'))sharePBNow(best.label+' PB — '+best.v+' kg');
 }
 async function sharePBNow(detail){if(!memberProfile||!LIVE)return;try{await rowInsert('submissions',{name:memberProfile.name||'Member',category:'achievement',detail:detail,gender:(memberProfile.sex||'m'),score:'',unit:'',status:'pending'});toast('Sent to the board — pending approval.');}catch(e){toast('Could not share right now.');}}
+
+/* ===================== MEMBER METRICS + SMART DAILY RESULTS ===================== */
+/* --- catalogs --- */
+const STR_LIFTS=[
+  {k:'back_squat',n:'Back Squat',kw:['back squat','squat']},
+  {k:'front_squat',n:'Front Squat',kw:['front squat']},
+  {k:'deadlift',n:'Deadlift',kw:['deadlift','dead lift']},
+  {k:'bench',n:'Bench Press',kw:['bench']},
+  {k:'strict_press',n:'Strict Press',kw:['strict press','shoulder press','overhead press','ohp','press']},
+  {k:'push_press',n:'Push Press',kw:['push press']},
+  {k:'power_clean',n:'Power Clean',kw:['power clean']},
+  {k:'clean_jerk',n:'Clean & Jerk',kw:['clean and jerk','clean & jerk','c&j']},
+  {k:'clean',n:'Clean',kw:['squat clean','clean']},
+  {k:'snatch',n:'Snatch',kw:['snatch']}
+];
+const STR_REPS=[{k:'pullup_max',n:'Max Strict Pull-ups'},{k:'pushup_max',n:'Max Push-ups'},{k:'hspu_max',n:'Max HSPU'}];
+const ENG_TESTS=[
+  {k:'run_1km',n:'1 km Run'},{k:'run_5km',n:'5 km Run'},
+  {k:'row_500',n:'500 m Row'},{k:'row_1000',n:'1 km Row'},{k:'row_2000',n:'2 km Row'},
+  {k:'ski_1000',n:'1 km Ski'},{k:'bike_5km',n:'5 km Bike'}
+];
+const STR_KEYS=STR_LIFTS.map(function(l){return l.k;});
+const REP_KEYS=STR_REPS.map(function(l){return l.k;});
+function liftName(k){var l=STR_LIFTS.concat(STR_REPS).find(function(x){return x.k===k;});return l?l.n:k;}
+function engName(k){var e=ENG_TESTS.find(function(x){return x.k===k;});return e?e.n:k;}
+/* --- time helpers (mm:ss) --- */
+function secMMSS(s){s=String(s||'').trim();if(!s)return null;if(s.indexOf(':')<0){var n=parseFloat(s);return isNaN(n)?null:Math.round(n);}var p=s.split(':');var m=parseInt(p[0],10)||0,ss=parseInt(p[1],10)||0;return m*60+ss;}
+function fmtMMSS(sec){sec=Math.max(0,Math.round(+sec||0));var m=Math.floor(sec/60),s=sec%60;return m+':'+(s<10?'0':'')+s;}
+/* --- smart 1RM (Epley) --- */
+function est1RM(w,reps){w=+w;reps=+reps||1;if(!(w>0))return null;if(reps<=1)return Math.round(w);return Math.round(w*(1+reps/30));}
+/* --- body_metrics helpers --- */
+function metPts(kind){return (cache.body_metrics||[]).filter(function(m){return m.kind===kind&&m.value!=null;}).sort(function(a,b){return a.date<b.date?-1:(a.date>b.date?1:((a.created_at||'')<(b.created_at||'')?-1:1));});}
+function metLatest(kind){var p=metPts(kind);return p.length?p[p.length-1]:null;}
+function metBest(kind,lower){var p=metPts(kind);if(!p.length)return null;var v=p.map(function(x){return +x.value;});return lower?Math.min.apply(null,v):Math.max.apply(null,v);}
+function metDaysSince(kind){var l=metLatest(kind);if(!l)return null;return Math.round((new Date(todayKey()+'T00:00:00')-new Date(l.date+'T00:00:00'))/86400000);}
+async function metSave(kind,value,unit,note){if(!isMember()||!LIVE)return false;try{const{error}=await sb.from('body_metrics').insert({member_id:currentMember.id,date:todayKey(),kind:kind,value:value,unit:unit||'',note:note||null});if(error){toast('Save failed');return false;}}catch(e){return false;}await refreshMemberData();return true;}
+/* --- metric entry modal (strength / engine / body) --- */
+let metGroup='strength',metPick='back_squat';
+function openMetric(group,pick){metGroup=group||'strength';metPick=pick||(group==='engine'?'run_1km':(group==='body'?'bodyweight':'back_squat'));openModal('metric');}
+function metricModalHTML(){var g=metGroup;
+  var h='<div class="mauth-tabs" style="margin-bottom:14px;">'+['strength','engine','body'].map(function(x){return '<button class="mauth-tab'+(g===x?' on':'')+'" onclick="metSwitch(\''+x+'\')">'+({strength:'Strength',engine:'Engine',body:'Body'})[x]+'</button>';}).join('')+'</div>';
+  if(g==='strength'){
+    var opts=STR_LIFTS.concat(STR_REPS).map(function(l){return '<option value="'+l.k+'"'+(metPick===l.k?' selected':'')+'>'+esc(l.n)+'</option>';}).join('');
+    h+='<div class="fld"><label>Lift</label><select id="met-pick" onchange="metPickSet(this.value)">'+opts+'</select></div>';
+    if(REP_KEYS.indexOf(metPick)>=0){h+='<div class="fld"><label>Best unbroken reps</label><input id="met-reps" inputmode="numeric" placeholder="e.g. 18"></div>';}
+    else{h+='<div class="fld-row"><div class="fld"><label>Weight (kg)</label><input id="met-w" inputmode="decimal" placeholder="e.g. 100"></div><div class="fld"><label>Reps</label><input id="met-r" inputmode="numeric" value="1"></div></div>';var cur=metBest(metPick,false);h+='<div class="mauth-note">Enter any top set — we’ll estimate your 1RM'+(cur?' (current best '+cur+' kg)':'')+'.</div>';}
+  }else if(g==='engine'){
+    var eo=ENG_TESTS.map(function(l){return '<option value="'+l.k+'"'+(metPick===l.k?' selected':'')+'>'+esc(l.n)+'</option>';}).join('');
+    h+='<div class="fld"><label>Test</label><select id="met-pick" onchange="metPickSet(this.value)">'+eo+'</select></div><div class="fld"><label>Time (mm:ss)</label><input id="met-t" inputmode="numeric" placeholder="e.g. 4:05"></div>';
+    var cb=metBest(metPick,true);h+='<div class="mauth-note">'+(cb?'Current best '+fmtMMSS(cb):'Faster is better — track it over time')+'.</div>';
+  }else{
+    var bw=metLatest('bodyweight'),bf=metLatest('bodyfat');
+    h+='<div class="fld-row"><div class="fld"><label>Bodyweight (kg)</label><input id="met-bw" inputmode="decimal" placeholder="'+(bw?(+bw.value):'e.g. 82')+'"></div><div class="fld"><label>Body fat %</label><input id="met-bf" inputmode="decimal" placeholder="'+(bf?(+bf.value):'optional')+'"></div></div>';
+  }
+  h+='<button class="btn-full" onclick="metSaveClick()">Save</button>';return h;
+}
+function metSwitch(g){metGroup=g;metPick=(g==='engine'?'run_1km':(g==='body'?'bodyweight':'back_squat'));var b=document.getElementById('modal-body');if(b)b.innerHTML=metricModalHTML();}
+function metPickSet(v){metPick=v;var b=document.getElementById('modal-body');if(b)b.innerHTML=metricModalHTML();}
+async function metSaveClick(){
+  if(metGroup==='strength'){
+    if(REP_KEYS.indexOf(metPick)>=0){var reps=parseInt(val('met-reps'),10);if(!(reps>0)){toast('Enter your reps.');return;}var pr0=metBest(metPick,false);if(await metSave(metPick,reps,'reps','max set'))afterMetSave(liftName(metPick)+' — '+reps+' reps',metPick,reps,pr0,false);return;}
+    var w=parseFloat(val('met-w')),r=parseInt(val('met-r'),10)||1;if(!(w>0)){toast('Enter the weight.');return;}var e=est1RM(w,r),prev=metBest(metPick,false);if(await metSave(metPick,e,'kg',w+'kg x '+r))afterMetSave(liftName(metPick)+' 1RM ≈ '+e+' kg',metPick,e,prev,false);return;
+  }
+  if(metGroup==='engine'){var sec=secMMSS(val('met-t'));if(!(sec>0)){toast('Enter a time like 4:05.');return;}var pb=metBest(metPick,true);if(await metSave(metPick,sec,'s',''))afterMetSave(engName(metPick)+' — '+fmtMMSS(sec),metPick,sec,pb,true);return;}
+  var bw=parseFloat(val('met-bw')),bf=parseFloat(val('met-bf')),did=false;
+  if(bw>0){await metSave('bodyweight',bw,'kg','');did=true;}if(bf>0){await metSave('bodyfat',bf,'%','');did=true;}
+  if(!did){toast('Enter a number.');return;}closeModal();toast('Saved.');renderMemberDash();
+}
+function afterMetSave(label,kind,v,prev,lower){closeModal();toast('Saved — '+label);renderMemberDash();renderWodMember();var pr=(prev==null)?false:(lower?v<prev:v>prev);if(pr&&(STR_KEYS.indexOf(kind)>=0||REP_KEYS.indexOf(kind)>=0)){if(confirm('New '+label+' — a PB!\n\nShare it to the gym achievements board?'))sharePBNow(label);}}
+/* --- WOD parsing: figure out what result to ask for --- */
+function detectLift(txt){var pairs=[];STR_LIFTS.forEach(function(l){l.kw.forEach(function(k){pairs.push({l:l,k:k});});});pairs.sort(function(a,b){return b.k.length-a.k.length;});for(var i=0;i<pairs.length;i++){if(txt.indexOf(pairs[i].k)>=0)return pairs[i].l;}return null;}
+function detectEngine(txt){
+  if(/run/.test(txt)&&/(5\s?k|5km|5000\s?m)/.test(txt))return ENG_TESTS.find(function(x){return x.k==='run_5km';});
+  if(/run/.test(txt)&&/(1\s?k|1km|1000\s?m)/.test(txt))return ENG_TESTS.find(function(x){return x.k==='run_1km';});
+  if(/row/.test(txt)&&/(2\s?k|2km|2000\s?m)/.test(txt))return ENG_TESTS.find(function(x){return x.k==='row_2000';});
+  if(/row/.test(txt)&&/(1\s?k|1km|1000\s?m)/.test(txt))return ENG_TESTS.find(function(x){return x.k==='row_1000';});
+  if(/row/.test(txt)&&/500\s?m/.test(txt))return ENG_TESTS.find(function(x){return x.k==='row_500';});
+  if(/ski/.test(txt)&&/(1\s?k|1km|1000\s?m)/.test(txt))return ENG_TESTS.find(function(x){return x.k==='ski_1000';});
+  return null;
+}
+function wodResultSpec(w){
+  if(!w)return {type:'done'};
+  var txt=((w.core||'')+' \n '+(w.title||'')+' '+(w.bonus||'')).toLowerCase();var focus=(w.focus||'').toLowerCase();
+  var mv=detectLift(txt),eng=detectEngine(txt);
+  if(/\bamrap\b/.test(txt))return {type:'amrap'};
+  if(/for time|chipper|rounds for time|\brft\b|\d+\s*-\s*\d+\s*-\s*\d+/.test(txt)){return eng?{type:'time',eng:eng}:{type:'fortime'};}
+  if(mv&&(/\d\s?rm\b|\b[1-9]rm\b|build|heavy|find a|work up|max\b|e[0-9]+m[0-9]+|every \d+ ?min/.test(txt)||focus==='strength'))return {type:'load',mv:mv};
+  if(eng&&(focus==='engine'||focus==='endurance'))return {type:'time',eng:eng};
+  if(/\bemom\b/.test(txt))return mv?{type:'load',mv:mv}:{type:'done'};
+  if(eng)return {type:'time',eng:eng};
+  if(mv)return {type:'load',mv:mv};
+  return {type:'done'};
+}
+const DR_TYPE_LABEL={amrap:'rounds + reps',fortime:'your time',load:'top load',time:'your time',reps:'reps',done:'mark done'};
+function drLower(kind){return kind==='fortime'||kind==='time';}
+function myResultFor(date){var id=currentMember&&currentMember.id;return (cache.daily_results||[]).find(function(r){return r.member_id===id&&r.date===date;})||(cache.my_results||[]).find(function(r){return r.date===date;})||null;}
+let drOpen=false,drLoadedDate=null;
+function drToggle(){drOpen=!drOpen;renderWodMember();}
+function drFormHTML(spec){var t=spec.type,h='';
+  if(t==='amrap'){h+='<div class="fld-row"><div class="fld"><label>Rounds</label><input id="dr-rounds" inputmode="numeric" placeholder="5"></div><div class="fld"><label>+ extra reps</label><input id="dr-reps" inputmode="numeric" placeholder="12"></div></div>';}
+  else if(t==='fortime'){h+='<div class="fld"><label>Your time (mm:ss)</label><input id="dr-time" inputmode="numeric" placeholder="12:34"></div>';}
+  else if(t==='load'){var one=metBest(spec.mv.k,false);h+='<div class="fld"><label>'+esc(spec.mv.n)+' — today’s top load (kg)</label><input id="dr-load" inputmode="decimal" placeholder="120"></div>'+(one?'<div class="mauth-note">Your 1RM is '+one+' kg.</div>':'<div class="mauth-note">Set your '+esc(spec.mv.n)+' 1RM in My Account to compare.</div>');}
+  else if(t==='time'){h+='<div class="fld"><label>'+esc(spec.eng.n)+' — your time (mm:ss)</label><input id="dr-time" inputmode="numeric" placeholder="4:05"></div>';}
+  else {h+='<div class="fld"><label>Your score</label><input id="dr-free" placeholder="e.g. 3 rounds, 80kg, felt strong"></div>';}
+  h+='<label class="dr-rx"><input type="checkbox" id="dr-rx" checked> Done as prescribed (RX)</label><button class="btn-full" onclick="drSave()">Post my result</button>';
+  return h;
+}
+async function drSave(){
+  if(!isMember()||!LIVE)return;
+  var d=publicWodDate||todayKey(),w=wodForDate(d,publicWodSlot)||{},spec=wodResultSpec(w);
+  var rx=!!(document.getElementById('dr-rx')&&document.getElementById('dr-rx').checked),kind=spec.type,value=null,display='';
+  if(kind==='amrap'){var R=parseInt(val('dr-rounds'),10)||0,rr=parseInt(val('dr-reps'),10)||0;if(!R&&!rr){toast('Enter your rounds.');return;}value=R*1000+rr;display=R+' + '+rr;}
+  else if(kind==='fortime'||kind==='time'){var sec=secMMSS(val('dr-time'));if(!(sec>0)){toast('Enter a time like 12:34.');return;}value=sec;display=fmtMMSS(sec);}
+  else if(kind==='load'){var ld=parseFloat(val('dr-load'));if(!(ld>0)){toast('Enter the weight.');return;}value=ld;display=ld+' kg';}
+  else {var f=(val('dr-free')||'').trim();if(!f){toast('Enter your result.');return;}kind='done';value=0;display=f;}
+  var row={member_id:currentMember.id,date:d,wod_ref:d,name:(memberProfile&&memberProfile.name)||memFirst()||'Member',sex:(memberProfile&&memberProfile.sex)||'m',kind:kind,value:value,display:display,rx:rx,movement:(spec.mv?spec.mv.k:(spec.eng?spec.eng.k:null))};
+  try{const{error}=await sb.from('daily_results').upsert(row,{onConflict:'member_id,date'});if(error){toast('Could not post.');return;}}catch(e){toast('Could not post.');return;}
+  if(!myLogForDate(d))await wmComplete(d);
+  drOpen=false;await loadDailyBoard(d);await refreshMemberData();confettiBurst();toast('Result posted!');
+  if(kind==='time'&&spec.eng){var pb=metBest(spec.eng.k,true);if(pb==null||value<pb){if(confirm('That’s your best '+spec.eng.n+'! Save it to your profile?'))await metSave(spec.eng.k,value,'s','from daily WOD');}}
+  renderWodMember();renderMemberChip();
+}
+function drBoardHTML(d,spec){
+  var rows=(cache.daily_results||[]).filter(function(r){return r.date===d;});
+  if(!rows.length)return '<div class="wm-board-empty">No results yet — be the first to post.</div>';
+  var lower=drLower(spec.type),scored=rows.filter(function(r){return r.kind!=='done'&&r.value!=null;}),doneN=rows.length-scored.length;
+  function sect(sex){var list=scored.filter(function(r){return (r.sex||'m')===sex;}).sort(function(a,b){return lower?(a.value-b.value):(b.value-a.value);});if(!list.length)return '';
+    return '<div class="dr-sex">'+(sex==='f'?'Women':'Men')+'</div>'+list.map(function(r,i){return '<div class="dr-row'+((currentMember&&r.member_id===currentMember.id)?' me':'')+'"><span class="dr-rk">'+(i+1)+'</span><span class="dr-nm">'+esc(r.name||'Member')+'</span><span class="dr-vl">'+esc(r.display)+(r.rx?'':' <span class="wm-sc">sc</span>')+'</span></div>';}).join('');}
+  return '<div class="wm-board"><div class="wm-board-h">Today’s board</div>'+sect('m')+sect('f')+(doneN?'<div class="dr-done">'+doneN+' more marked done</div>':'')+'</div>';
+}
+/* --- profile sections --- */
+function strSectionHTML(){
+  var rows=STR_LIFTS.concat(STR_REPS).map(function(l){var pts=metPts(l.k);if(!pts.length)return '';var best=metBest(l.k,false),unit=(REP_KEYS.indexOf(l.k)>=0)?'reps':'kg';return '<div class="mm-row" onclick="openMetric(\'strength\',\''+l.k+'\')"><div class="mm-h"><span>'+esc(l.n)+'</span><span class="mm-last">'+best+' '+unit+'</span></div>'+memSpark(pts,'#8ab4f8')+'</div>';}).filter(Boolean).join('');
+  return '<div class="md-sec-h">Strength <button class="md-add" onclick="openMetric(\'strength\')">+ Log</button></div>'+(rows||'<div class="md-empty2">Log a lift to track your estimated 1RMs over time.</div>');
+}
+function engSectionHTML(){
+  var rows=ENG_TESTS.map(function(l){var pts=metPts(l.k);if(!pts.length)return '';var best=metBest(l.k,true);return '<div class="mm-row" onclick="openMetric(\'engine\',\''+l.k+'\')"><div class="mm-h"><span>'+esc(l.n)+'</span><span class="mm-last">'+fmtMMSS(best)+'</span></div>'+memSpark(pts.map(function(p){return {value:-(+p.value),date:p.date};}),'#81c995')+'</div>';}).filter(Boolean).join('');
+  return '<div class="md-sec-h">Engine <button class="md-add" onclick="openMetric(\'engine\')">+ Log</button></div>'+(rows||'<div class="md-empty2">Log a run, row or ski time to track your engine.</div>');
+}
+function bodySectionHTML(){
+  var bw=metPts('bodyweight'),bf=metPts('bodyfat');
+  var h='<div class="md-sec-h">Body <button class="md-add" onclick="openMetric(\'body\')">+ Log</button></div>';
+  if(!bw.length&&!bf.length)return h+'<div class="md-empty2">Log your weight or body fat % to see the trend.</div>';
+  if(bw.length)h+='<div class="mm-row" onclick="openMetric(\'body\')"><div class="mm-h"><span>Bodyweight</span><span class="mm-last">'+(+bw[bw.length-1].value)+' kg</span></div>'+memSpark(bw,'var(--blue)')+'</div>';
+  if(bf.length)h+='<div class="mm-row" onclick="openMetric(\'body\')"><div class="mm-h"><span>Body fat</span><span class="mm-last">'+(+bf[bf.length-1].value)+' %</span></div>'+memSpark(bf,'#fdd663')+'</div>';
+  return h;
+}
+function memSuggest(){var out=[];STR_LIFTS.concat(ENG_TESTS).forEach(function(l){var ds=metDaysSince(l.k);if(ds!=null&&ds>=42)out.push({k:l.k,n:l.n,days:ds,group:(ENG_TESTS.indexOf(l)>=0?'engine':'strength')});});return out.sort(function(a,b){return b.days-a.days;}).slice(0,3);}
+function memSuggestHTML(){var s=memSuggest();if(!s.length)return '';return '<div class="md-sec-h">Time to retest</div>'+s.map(function(x){return '<div class="md-suggest" onclick="openMetric(\''+x.group+'\',\''+x.k+'\')">It’s been '+Math.round(x.days/7)+' weeks — retest your '+esc(x.n)+'? <span class="md-suggest-go">Log →</span></div>';}).join('');}
+/* --- edit account --- */
+let meSex='m';
+function meSexPick(s,el){meSex=s;if(el&&el.parentNode){el.parentNode.querySelectorAll('.rsex-btn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}}
+function openMemEdit(){meSex=(memberProfile&&memberProfile.sex)||'m';openModal('memedit');}
+function memEditHTML(){var p=memberProfile||{};
+  return '<div class="fld"><label>Name</label><input id="me-name" value="'+esc(p.name||'')+'"></div>'+
+    '<div class="fld"><label>Sex</label><div class="rsex"><button type="button" class="rsex-btn'+((p.sex||'m')==='m'?' on':'')+'" onclick="meSexPick(\'m\',this)">Male</button><button type="button" class="rsex-btn'+(p.sex==='f'?' on':'')+'" onclick="meSexPick(\'f\',this)">Female</button></div></div>'+
+    '<div class="fld"><label>Age</label><input id="me-age" inputmode="numeric" maxlength="3" value="'+(p.age||'')+'"></div>'+
+    '<div class="fld"><label>Mobile number (your password)</label><input id="me-phone" inputmode="tel" maxlength="12" placeholder="leave blank to keep current" oninput="this.value=bmFmtPhone(this.value)"></div>'+
+    '<div class="mauth-note">Changing your mobile changes the password you log in with.</div>'+
+    '<button class="btn-full" onclick="memSaveAccount()">Save</button>';
+}
+async function memSaveAccount(){
+  if(!isMember()||!LIVE)return;var name=(val('me-name')||'').trim(),age=parseInt(val('me-age'),10)||null,phone=memNorm(val('me-phone'));
+  if(!name){toast('Enter your name.');return;}
+  if(phone&&!/^04\d{8}$/.test(phone)){toast('Enter a valid 04xx mobile, or leave blank.');return;}
+  try{await sb.from('member_profiles').upsert({id:currentMember.id,name:name,sex:meSex,age:age});}catch(e){toast('Save failed');return;}
+  if(phone){try{await sb.auth.updateUser({password:phone});}catch(e){}}
+  await loadMemberProfile();closeModal();toast('Account updated.');renderMemberDash();renderMemberChip();
+}
+/* --- locked-out reset request --- */
+async function memResetRequest(){
+  var email=(prompt('Enter your account email and the gym will reset your login:','')||'').trim().toLowerCase();
+  if(!email||email.indexOf('@')<1)return;
+  var phone=memNorm(prompt('Your current mobile number (we’ll set it as your new password):','')||'');
+  if(!LIVE){toast('Needs the live site.');return;}
+  try{await sb.from('reset_requests').insert({email:email,phone:phone||null,note:'member request'});toast('Sent — the gym will sort it out soon.');}catch(e){toast('Could not send — please contact the gym.');}
+}
+/* --- open the member nav menu (Hey {name} is the only door to the account) --- */
+function openMemberMenu(){var n=document.getElementById('nav');if(n)n.classList.add('show');clearTimeout(navTimer);}
+function navLogoTap(){logoTap();setMode('wod');}
 
 /* ---------- MODE ---------- */
 function setMode(mode){if(mode==='plan'&&!isUnlocked()){showPwGate();return;}if(mode==='disp')activeScreenSlug=null;_setMode(mode);clearTimeout(navTimer);navTimer=setTimeout(hideNav,2500);}
@@ -3243,9 +3447,12 @@ async function renderMembersAdmin(){var el=document.getElementById('members-admi
     var byM={};L.forEach(function(x){byM[x.member_id]=(byM[x.member_id]||0)+1;});
     var stats='<div class="md-stats" style="margin:12px 0;">'+memStat(members.length,'members')+memStat(active,'active 7d')+memStat(L.length,'completions')+'</div>';
     var list=members.length?members.map(function(m){return '<div class="rlist-row"><span class="rl-name">'+esc(m.name||'—')+(m.age?(' · '+m.age):'')+'</span><span class="rl-sex">'+((m.sex||'')==='f'?'F':(m.sex==='m'?'M':''))+'</span><span class="rl-time">'+(byM[m.id]||0)+'</span><button class="btn-sm" onclick="memberAdminAct(\''+m.id+'\')">Manage</button></div>';}).join(''):'<div class="rb-empty">No members yet.</div>';
-    var box=document.getElementById('mem-admin-list');if(box)box.outerHTML=stats+'<div class="set-section" style="margin:6px 0;">Members ('+members.length+')</div>'+list;
+    var rrq=await sb.from('reset_requests').select('*').order('created_at',{ascending:false});var RR=(rrq&&rrq.data)||[];
+    var rrHTML=RR.length?('<div class="set-section" style="margin:14px 0 6px;color:var(--red);">Login reset requests ('+RR.length+')</div>'+RR.map(function(r){return '<div class="rlist-row"><span class="rl-name">'+esc(r.email||'')+(r.phone?(' · new #: '+esc(r.phone)):'')+'</span><button class="btn-sm" onclick="resetReqClear(\''+r.id+'\')">Clear</button></div>';}).join('')+'<div class="ot-sub" style="margin:4px 0 0;">Reset the member from the list below (Manage → reset), then Clear.</div>'):'';
+    var box=document.getElementById('mem-admin-list');if(box)box.outerHTML=stats+rrHTML+'<div class="set-section" style="margin:6px 0;">Members ('+members.length+')</div>'+list;
   }catch(e){var b2=document.getElementById('mem-admin-list');if(b2)b2.textContent='Could not load members.';}
 }
+async function resetReqClear(id){if(!LIVE)return;try{await sb.from('reset_requests').delete().eq('id',id);}catch(e){}renderMembersAdmin();}
 async function memberAdminAct(id){var m=(cache.member_profiles||[]).find(function(x){return x.id===id;})||{};
   var act=(prompt('Manage '+(m.name||'member')+':\n\nType  reset   to set a new password (their mobile)\nType  remove  to permanently delete the account','')||'').trim().toLowerCase();
   if(!act)return;
