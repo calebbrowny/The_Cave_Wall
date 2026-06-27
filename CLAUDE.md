@@ -125,6 +125,18 @@ No-API, built from The Cave's HYROX logic. Key pieces:
   toggle = `appearance.tab_emojis` → `body.no-tab-emoji`; nav labels live in `.tl`, emoji in `.te`. On phones the
   Cave logo is hidden (`@media(max-width:760px) .nav .logo{display:none}`) so tabs get full width.
 
+## Admin layout — collapsible categories (`buildAdminCategories`)
+The planner's flat `.planner-sec` panels are grouped at runtime into collapsible top-level **categories**
+(drag-to-reorder removed). `ADM_CATS` = Programming (`wod`) / Community (`leaderboards`, `customboards`,
+`challenge`, `submissions`) / Events (`events`, `eventpage`) / Screens & display (`screens`, `ads`) / Members
+(new). `buildAdminCategories()` (called from `renderAll`, once via `admCatBuilt`) re-parents each existing
+panel into its category body **by `appendChild` so every panel ID + renderer is preserved**, and injects the
+`#members-admin` panel into the Members category. Open/closed state per category persists in localStorage
+(`cave_admcat_<key>`); `toggleAdmCat` flips it (and renders the members panel on open). The old `applyOrder`/
+`initDrag` (free drag-reorder) are no longer called; drag handles are hidden (`.drag-handle{display:none}`).
+Owner controls + Super Admin remain their own accordions below the categories. CSS: `.adm-cat/.adm-cat-head/
+.adm-cat-body` + reused `.wod-chev`.
+
 ## Recipe: a new batch of uploaded workouts
 The owner uploads via the WOD admin (rows land in `wods`). To give a batch the standard treatment:
 1. **Back up first:** `create table if not exists wods_backup_<note> as select * from wods;`
@@ -147,27 +159,58 @@ in the output. Also run a quick inline-`<script>` syntax check (`new vm.Script(s
 ## Member platform (member logins, workout/metrics tracking, accountability)
 Members are a SECOND auth tier, distinct from admins. Anonymous public viewing is unchanged.
 - **Auth = email + phone-as-password (owner's call), no codes.** Supabase **email+password** auth where the
-  password value is the member's mobile digits (`memNorm`). Join = `sb.auth.signUp({email,password:phone})` +
-  upsert `member_profiles`; Login = `sb.auth.signInWithPassword`. **Requires Supabase Auth → Email →
-  "Confirm email" OFF** (no signup email/code is sent; not settable via MCP — dashboard only). Low-entropy
-  password is a documented tradeoff for low-stakes data; phone is the password only (never stored in a
-  readable column). Reset (changed number) = owner resets in the Supabase dashboard.
+  password value is the member's mobile digits (`memNorm`). Join = `sb.auth.signUp({email,password:phone})`;
+  Login = `sb.auth.signInWithPassword`. **Requires Supabase Auth → Email → "Confirm email" OFF** (no signup
+  email/code is sent; not settable via MCP — dashboard only). Low-entropy password is a documented tradeoff
+  for low-stakes data; phone is the password only (never stored in a readable column). Reset (changed number)
+  = the **Members admin** (edge function) or the Supabase dashboard.
+- **Profile creation is tied to the session, not the signup call (login-bug fix).** The `member_profiles`
+  upsert must NOT run right after `signUp` — the new JWT isn't attached yet, so RLS silently blocks the insert
+  (symptom: auth users with 0 profiles). Instead `memberJoin` stashes `pendingProfile={name,sex,age}`, and
+  `ensureMemberProfile()` (called from `handleSession`'s member branch, after the session is live) creates the
+  profile then, reloads, clears the stash. `memberJoin`/`memberLogin` **block admin emails** (`emailAllowed()`
+  → "use the gear to sign in as admin"; those OTP accounts have no password) and surface real errors
+  ("already registered" → switch to Login; bad creds → "first time? Sign up"; "not confirmed" → clear note).
 - **handleSession** branches: authed + `emailAllowed()` → admin (unchanged); authed + not admin → **member**
-  (`currentMember`, `memberProfile` via `loadMemberProfile`), NOT signed out. `isMember()`; members are never
-  admins (`is_cave_admin()` stays false). `boot`'s getSession restores either tier.
+  (`currentMember`, `memberProfile` via `ensureMemberProfile`→`loadMemberProfile`), NOT signed out. `isMember()`;
+  members are never admins (`is_cave_admin()` stays false). `boot`'s getSession restores either tier.
+- **Logins on/off + feature toggles (owner control):** `settings.members_on` (default true) → `membersOn()`
+  gates the chip + join/login; `settings.member_complete_on` / `settings.member_metrics_on` (default true) →
+  `memCompleteOn()`/`memMetricsOn()` gate the WOD card's "mark complete" + metrics entry. All in `DEFAULT_SETTINGS`,
+  toggled in the **Members** admin category.
 - **Tables (per-member RLS, `auth.uid()`):** `member_profiles` (id=auth.uid; name/sex/age — no phone),
   `workout_logs` (member_id, date, wod_ref; unique(member_id,date) → idempotent one-tap-per-day),
   `body_metrics` (member_id, date, kind bodyweight/squat/bench/deadlift/note, value, unit). RLS: all
   CRUD `member_id=auth.uid()`; SELECT also `OR is_cave_admin()` (coach view). NOT in realtime publication
   (writes update `cache` directly via `refreshMemberData`). Fetched in `fetchAll` only when `currentMember`.
-- **UI:** nav greeting chip `#member-chip` (`renderMemberChip`: "Log in" → `openMemberAuth`, or "Hey {name}"
-  → My Hub); member auth modal `openModal('member')` (`memberAuthHTML`, login/join toggle). WOD page shows
-  `#wod-member` (`renderWodMember`): ✓ Mark complete (`wmComplete` upsert) + optional metrics (`wmSaveMetrics`).
-  **My Hub** dashboard = mode `'me'` (`#member` section, nav tab `#m-me`, hash `#me`/`#hub`): streak calendar
-  (`memCalendarHTML`), stats (`streakInfo`/`thisWeekCount`), metric sparklines (`memSpark`), auto badges
-  (`BADGES`/`memBadgesHTML` — derived, no table), and the how-to (`settings.howto`, editable in Owner controls).
-- **One-time setup before members can join:** Supabase dashboard → Auth → Email → turn **"Confirm email" OFF**
-  (otherwise `signUp` sends a confirmation email and the account can't log in until clicked — defeats "no codes").
+- **UI (clean, emoji-free):** nav greeting chip `#member-chip` sits **immediately left of the ☰ burger**
+  (`renderMemberChip`: "Log in" → `openMemberAuth`, or "Hey {name}" → My Hub; empty innerHTML when hidden, kept
+  in flow). Member auth modal `openModal('member')` (`memberAuthHTML`, login/join toggle) has a **"First time
+  here? Sign up" / "Already have an account? Log in"** CTA (`.mauth-alt`/`.mauth-link` → `setMemberAuthTab`).
+  WOD page shows `#wod-member` (`renderWodMember`, gated by `memCompleteOn()`/`memMetricsOn()`): Mark complete
+  (`wmComplete` upsert) + optional metrics (`wmSaveMetrics`). **My Hub** dashboard = mode `'me'` (`#member`
+  section, nav tab `#m-me`, hash `#me`/`#hub`): "Hey {name}", streak calendar (`memCalendarHTML`), stats
+  (`memStat`, no icons), metric sparklines (`memSpark`), auto badges (`BADGES`/`memBadgesHTML` — monochrome
+  `.md-badge-mark` ✓, derived, no table), the how-to (`settings.howto`). **No decorative emojis** on any
+  member-facing surface (only the ✓ done-mark + ▾/▸ chevrons as UI glyphs).
+- **PB → achievements board (opt-in, one system):** after `wmSaveMetrics`/`wmComplete`, `maybeSharePB(date)`
+  detects a squat/bench/deadlift above the member's previous best (`memBestBefore` over `cache.body_metrics`)
+  and offers (confirm dialog) to share. `sharePBNow` inserts a `submissions` row `{category:'achievement',
+  detail:'Squat PB — 140 kg', status:'pending'}` → lands in **Pending Submissions** → owner approves →
+  existing auto-promote posts it to the **achievements board**. Reuses the moderated pipeline; no new RLS.
+- **Members admin** (admin → **Members** category → "Member hub", `renderMembersAdmin` into `#members-admin`):
+  stats (members / active-7d / completions via admin SELECTs — RLS allows `is_cave_admin()` read), member list
+  (name/sex/age/completions, **Manage** → `memberAdminAct` prompt: reset / remove), the three feature toggles
+  (`swRow`/`toggleMembersOn`/`toggleMemberFeature`), and the how-to editor. Reset/remove call
+  `memberEdgeCall` → edge function **`admin-members`** (`supabase/functions/admin-members/index.ts`): verifies
+  the caller is an admin (their JWT + SECURITY DEFINER `is_cave_admin()` RPC), then service-role
+  `updateUserById` (password = new mobile) / `deleteUser` (member tables FK `auth.users` ON DELETE CASCADE →
+  data removed too). 403 for non-admins; service key never leaves the function. **If the function isn't
+  deployed, reset/remove show a clear "not enabled yet" message** — list/stats/toggles/how-to all still work.
+- **One-time setup before members can join:** (1) Supabase dashboard → Auth → Email → turn **"Confirm email"
+  OFF** (otherwise `signUp` sends a confirmation email and the account can't log in until clicked — defeats
+  "no codes"). (2) Deploy the `admin-members` edge function (Supabase CLI or dashboard) to enable member
+  reset/remove.
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,

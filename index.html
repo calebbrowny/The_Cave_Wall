@@ -31,14 +31,17 @@ input,select,textarea{font-family:inherit;}
 body.nav-wrap .mode-toggle{flex-wrap:wrap;overflow-x:visible;row-gap:6px;}
 .nav-clock{display:none;font-size:15px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums;white-space:nowrap;}
 .nav-x{display:none;width:40px;height:36px;flex-shrink:0;align-items:center;justify-content:center;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:18px;line-height:1;cursor:pointer;}
+#member-chip{display:inline-flex;align-items:center;flex-shrink:0;}
 /* HEADER mode: persistent bar [logo · clock] ........ [☰]; tabs drop below on tap */
 body.nav-header .nav{position:sticky;transform:none;backdrop-filter:none;background:rgba(32,33,36,1);box-shadow:0 2px 14px rgba(0,0,0,.45);}
 body.nav-header #nav-peek,body.nav-header #nav-hot{display:none;}
 body.nav-header .nav-i{flex-wrap:wrap;row-gap:10px;}
 body.nav-header .nav .logo{display:flex;}
 body.nav-header .nav-clock{display:inline-block;}
-body.nav-header .nav-x{display:flex;order:2;margin-left:auto;}
-body.nav-header .nav-right{order:3;flex-basis:100%;display:none;justify-content:flex-start;}
+body.nav-header .nav-x{display:flex;order:3;}
+body.nav-header #member-chip{order:2;margin-left:auto;}
+body.nav-pinned #member-chip{margin-left:auto;}
+body.nav-header .nav-right{order:4;flex-basis:100%;display:none;justify-content:flex-start;}
 body.nav-header .nav.show .nav-x{background:var(--blue);color:var(--dk);border-color:var(--blue);}
 body.nav-header .nav.show .nav-right{display:flex;}
 body.nav-header .disp-logo,body.nav-header .disp-clock{display:none;}
@@ -74,14 +77,19 @@ body.no-tab-emoji .te{display:none;}
 /* ---------- PLANNER ---------- */
 .planner{padding:34px 0 60px;}
 .planner.hidden{display:none;}
-.planner-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.planner-grid{display:block;}
 .planner-sec{position:relative;transition:opacity .2s;}
+.adm-cat{border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;background:var(--bg-card);}
+.adm-cat-head{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:15px 16px;background:var(--bg-light);cursor:pointer;user-select:none;font-weight:800;font-size:15px;color:var(--text);}
+.adm-cat-head .wod-chev{transition:transform .2s;transform:rotate(-90deg);}
+.adm-cat-head.open .wod-chev{transform:rotate(0deg);}
+.adm-cat-body{padding:14px;flex-direction:column;gap:14px;}
 .planner-sec[data-size="full"]{grid-column:1 / -1;}
 .planner-sec[data-size="half"]{grid-column:span 1;}
 .planner-sec.dragging{opacity:.35;}
 .planner-sec.drop-before::before,.planner-sec.drop-after::after{content:'';position:absolute;left:0;right:0;height:3px;background:var(--blue);border-radius:2px;box-shadow:0 0 10px rgba(138,180,248,.6);z-index:5;}
 .planner-sec.drop-before::before{top:-10px;}.planner-sec.drop-after::after{bottom:-10px;}
-.drag-handle{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;color:var(--muted);font-size:14px;cursor:grab;user-select:none;margin-right:6px;flex-shrink:0;}
+.drag-handle{display:none;}
 .drag-handle:hover{background:var(--bg-light);color:var(--text);}
 
 .wk-banner{position:relative;background:linear-gradient(135deg,var(--blue-d),var(--purple-d));border:1px solid rgba(138,180,248,.2);border-radius:14px;padding:22px 24px 22px 46px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
@@ -366,6 +374,8 @@ body.no-tab-emoji .te{display:none;}
 .mauth-tab{flex:1;background:var(--bg-light);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:9px;font-weight:800;font-size:13px;cursor:pointer;}
 .mauth-tab.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
 .mauth-note{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.mauth-alt{font-size:13px;color:var(--muted);margin-top:14px;text-align:center;}
+.mauth-link{background:none;border:none;color:var(--blue);font-weight:800;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;}
 .wm-card{max-width:680px;margin:14px auto 30px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:left;}
 .wm-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
 .wm-h{font-size:15px;font-weight:800;}
@@ -394,9 +404,9 @@ body.no-tab-emoji .te{display:none;}
 .md-badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .md-badge{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;opacity:.55;}
 .md-badge.on{opacity:1;border-color:var(--green);background:linear-gradient(180deg,rgba(129,201,149,.12),transparent);}
-.md-badge-ic{font-size:24px;filter:grayscale(1);}
-.md-badge.on .md-badge-ic{filter:none;}
-.md-badge-l{font-size:12px;font-weight:800;margin-top:4px;}
+.md-badge-mark{width:26px;height:26px;margin:0 auto;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:transparent;}
+.md-badge.on .md-badge-mark{border-color:var(--green);color:var(--dk);background:var(--green);}
+.md-badge-l{font-size:12px;font-weight:800;margin-top:6px;}
 .md-badge-c{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.3;}
 .md-badge.on .md-badge-c{color:var(--green);font-weight:700;}
 .md-howto{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.7;color:var(--text);}
@@ -998,10 +1008,10 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
       <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
       <button id="m-me" onclick="setMode('me')" style="display:none;"><span class="te">🏠 </span><span class="tl">My Hub</span></button>
     </div>
-    <span id="member-chip"></span>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
     <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
   </div>
+  <span id="member-chip"></span>
   <button class="nav-x" id="nav-x" onclick="toggleNav()" aria-label="Menu" title="Menu">☰</button>
 </div></div>
 <div class="nav-peek" id="nav-peek" onclick="peekNav()">• • •</div>
@@ -1256,7 +1266,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'peek',nav_wrap:true};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'peek',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -1619,7 +1629,7 @@ function openModal(type,id,extra){
   else if(type==='history'){t.textContent='🕘 Version history';b.innerHTML=historyHTML();}
   else if(type==='row'){t.textContent='🚣 500m Row Challenge';b.innerHTML=rowAdminHTML();}
   else if(type==='benchmark'){t.textContent='🏅 Benchmark test';b.innerHTML=bmAdminHTML();}
-  else if(type==='member'){t.textContent='🏠 Cave Hub account';b.innerHTML=memberAuthHTML();}
+  else if(type==='member'){t.textContent='Cave Hub account';b.innerHTML=memberAuthHTML();}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -2731,20 +2741,24 @@ function handleSession(session){
   currentUser=null;setUnlocked(false);
   if(u){
     const wasMember=!!currentMember;currentMember=u;
-    loadMemberProfile().then(function(){return refreshMemberData();}).then(function(){renderMemberChip();renderWodMember();var _mp=document.getElementById('member');if(_mp&&_mp.classList.contains('active'))renderMemberDash();if(!wasMember)toast('Hey '+(memFirst()||'there')+' 👋');});
+    ensureMemberProfile().then(function(){return refreshMemberData();}).then(function(){renderMemberChip();renderWodMember();var _mp=document.getElementById('member');if(_mp&&_mp.classList.contains('active'))renderMemberDash();if(!wasMember)toast('Hey '+(memFirst()||'there'));});
   }else{currentMember=null;memberProfile=null;cache.workout_logs=[];cache.body_metrics=[];renderMemberChip();renderWodMember();}
 }
 function lockPlanner(){signOut();}
 
 /* ================= MEMBER PLATFORM ================= */
-let currentMember=null, memberProfile=null, memAuthTab='login', memSex='m', wmMetricsOpen=false;
-const DEFAULT_HOWTO='1. Open the WOD each day.\n2. Tap “✓ Mark complete” when you finish.\n3. Log your bodyweight or key lifts to track progress over time.\n4. Build streaks and earn badges — just keep showing up. 🔥';
+let currentMember=null, memberProfile=null, memAuthTab='login', memSex='m', wmMetricsOpen=false, pendingProfile=null;
+const DEFAULT_HOWTO='1. Open the WOD each day.\n2. Tap “Mark complete” when you finish.\n3. Log your bodyweight or key lifts to track progress over time.\n4. Build streaks and earn badges — just keep showing up.';
+function membersOn(){return settings().members_on!==false;}
+function memMetricsOn(){return settings().member_metrics_on!==false;}
+function memCompleteOn(){return settings().member_complete_on!==false;}
 function isMember(){return !!currentMember;}
 function memNorm(p){return String(p==null?'':p).replace(/\D/g,'');}
 function memName(){return (memberProfile&&memberProfile.name)?memberProfile.name:'';}
 function memFirst(){return (memName().trim().split(/\s+/)[0])||'';}
 async function loadMemberProfile(){if(!LIVE||!currentMember){memberProfile=null;return;}try{const{data}=await sb.from('member_profiles').select('*').eq('id',currentMember.id).maybeSingle();memberProfile=data||null;}catch(e){memberProfile=null;}}
 async function refreshMemberData(){if(!LIVE||!currentMember){cache.workout_logs=[];cache.body_metrics=[];return;}try{const[wl,bx]=await Promise.all([sb.from('workout_logs').select('*'),sb.from('body_metrics').select('*')]);cache.workout_logs=wl.data||[];cache.body_metrics=bx.data||[];}catch(e){}}
+async function ensureMemberProfile(){if(!LIVE||!currentMember)return;await loadMemberProfile();if(!memberProfile){var pp=pendingProfile||{name:((currentMember.email||'').split('@')[0]||'Member')};pendingProfile=null;try{await sb.from('member_profiles').upsert(Object.assign({id:currentMember.id},pp));}catch(e){}await loadMemberProfile();}}
 
 /* --- member auth modal --- */
 function memberAuthHTML(){
@@ -2759,7 +2773,8 @@ function memberAuthHTML(){
   }
   h+='<button class="btn-full" onclick="'+(memAuthTab==='join'?'memberJoin()':'memberLogin()')+'">'+(memAuthTab==='join'?'Create my account':'Log in')+'</button>';
   h+='<div id="mem-err" style="color:var(--red);font-size:12px;margin-top:8px;min-height:1em;"></div>';
-  h+='<div class="mauth-note">'+(memAuthTab==='join'?'Minimal info, no spam, no codes. Your mobile number is your password — remember it.':'Log in with your email and the mobile number you joined with.')+'</div>';
+  h+='<div class="mauth-alt">'+(memAuthTab==='join'?'Already have an account? <button type="button" class="mauth-link" onclick="setMemberAuthTab(\'login\')">Log in</button>':'First time here? <button type="button" class="mauth-link" onclick="setMemberAuthTab(\'join\')">Sign up</button>')+'</div>';
+  h+='<div class="mauth-note">'+(memAuthTab==='join'?'Minimal info, no spam, no codes. Your mobile number is your password.':'Log in with your email and the mobile number you joined with.')+'</div>';
   return h;
 }
 function memPickSex(s,el){memSex=s;if(el&&el.parentNode){el.parentNode.querySelectorAll('.rsex-btn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}}
@@ -2768,25 +2783,28 @@ function openMemberAuth(tab){memAuthTab=tab||'login';memSex='m';openModal('membe
 function memErr(m){const e=document.getElementById('mem-err');if(e)e.textContent=m||'';}
 async function memberJoin(){
   if(!LIVE){memErr('Accounts need the live site.');return;}
+  if(!membersOn()){memErr('Member sign-ups are off right now.');return;}
   const email=(val('mem-email')||'').trim().toLowerCase(),phone=memNorm(val('mem-phone')),name=(val('mem-name')||'').trim(),sex=memSex,age=parseInt(val('mem-age'),10)||null;
   if(!email||email.indexOf('@')<1){memErr('Enter a valid email.');return;}
+  if(emailAllowed(email)){memErr('That’s a staff email — use the ⚙️ gear to sign in as admin.');return;}
   if(!/^04\d{8}$/.test(phone)){memErr('Enter a valid Australian mobile (04xx xxx xxx).');return;}
   if(!name){memErr('Enter your name.');return;}
-  memErr('');
+  memErr('Creating your account…');
+  pendingProfile={name:name,sex:sex,age:age};
   const{data,error}=await sb.auth.signUp({email:email,password:phone});
-  if(error){memErr(error.message);return;}
-  const id=(data&&data.user&&data.user.id)||null;
-  if(id){try{await sb.from('member_profiles').upsert({id:id,name:name,sex:sex,age:age});}catch(e){}}
-  if(data&&data.session){currentMember=data.session.user;await loadMemberProfile();await refreshMemberData();closeModal();renderMemberChip();toast('Welcome to the Cave Hub, '+(name.split(' ')[0])+'! 🎉');_setMode('me');confettiBurst();}
-  else{closeModal();toast('Account created — now log in.');openMemberAuth('login');}
+  if(error){pendingProfile=null;if(/already|registered|exists/i.test(error.message||'')){memErr('That email is already registered — log in instead.');setMemberAuthTab('login');}else memErr(error.message||'Could not create your account.');return;}
+  if(data&&data.session){currentMember=data.session.user;await ensureMemberProfile();await refreshMemberData();closeModal();renderMemberChip();toast('Welcome to the Cave Hub, '+((name.split(' ')[0])||'')+'!');_setMode('me');confettiBurst();}
+  else{pendingProfile=null;closeModal();toast('Account created — log in to continue.');openMemberAuth('login');}
 }
 async function memberLogin(){
   if(!LIVE){memErr('Login needs the live site.');return;}
+  if(!membersOn()){memErr('Member logins are off right now.');return;}
   const email=(val('mem-email')||'').trim().toLowerCase(),phone=memNorm(val('mem-phone'));
   if(!email||!phone){memErr('Enter your email and mobile number.');return;}
-  memErr('');
+  if(emailAllowed(email)){memErr('That’s a staff email — use the ⚙️ gear to sign in as admin.');return;}
+  memErr('Logging in…');
   const{error}=await sb.auth.signInWithPassword({email:email,password:phone});
-  if(error){memErr('Email or mobile number is incorrect.');return;}
+  if(error){var m=error.message||'';if(/not confirmed/i.test(m))memErr('Your email isn’t confirmed yet — ask the gym to switch on instant sign-in.');else memErr('We couldn’t find that. First time? Tap “Sign up”.');return;}
   closeModal();/* handleSession finishes the login */
 }
 async function memberSignOut(){if(LIVE){try{await sb.auth.signOut();}catch(e){}}currentMember=null;memberProfile=null;cache.workout_logs=[];cache.body_metrics=[];renderMemberChip();renderWodMember();_setMode('wod');toast('Logged out');}
@@ -2795,21 +2813,23 @@ async function memberSignOut(){if(LIVE){try{await sb.auth.signOut();}catch(e){}}
 function renderMemberChip(){var el=document.getElementById('member-chip');var tab=document.getElementById('m-me');
   if(tab)tab.style.display=isMember()?'':'none';
   if(!el)return;
-  if(isUnlocked()){el.style.display='none';el.innerHTML='';return;}/* admins use the cog/lock */
-  el.style.display='';
-  if(isMember())el.innerHTML='<button class="mem-chip" onclick="setMode(\'me\')">Hey '+esc(memFirst()||'there')+' 👋</button>';
+  if(isUnlocked()||(!membersOn()&&!isMember())){el.innerHTML='';return;}/* admins use the cog/lock; hidden when logins off */
+  if(isMember())el.innerHTML='<button class="mem-chip" onclick="setMode(\'me\')">Hey '+esc(memFirst()||'there')+'</button>';
   else el.innerHTML='<button class="mem-chip ghost" onclick="openMemberAuth(\'login\')">Log in</button>';
 }
 
 /* --- workout completion + metrics (on the WOD page) --- */
 function myLogForDate(d){return (cache.workout_logs||[]).find(function(x){return x.date===d;});}
 function renderWodMember(){var el=document.getElementById('wod-member');if(!el)return;
-  if(!isMember()){el.innerHTML='';return;}
+  if(!isMember()||(!memCompleteOn()&&!memMetricsOn())){el.innerHTML='';return;}
   var d=publicWodDate||todayKey(),done=!!myLogForDate(d),today=todayKey();
   var dl=(d===today)?'today':dateLabel(d,{weekday:'short',day:'numeric',month:'short'});
   var h='<div class="wm-card">';
-  h+='<div class="wm-top"><span class="wm-h">'+(done?'✅ Completed — '+dl:'Did this workout?')+'</span>'+(done?'<button class="btn-sm" onclick="wmUncomplete(\''+d+'\')">Undo</button>':'')+'</div>';
-  if(!done)h+='<button class="btn-full" onclick="wmComplete(\''+d+'\')">✓ Mark complete</button>';
+  if(memCompleteOn()){
+    h+='<div class="wm-top"><span class="wm-h">'+(done?'✓ Completed — '+dl:'Did this workout?')+'</span>'+(done?'<button class="btn-sm" onclick="wmUncomplete(\''+d+'\')">Undo</button>':'')+'</div>';
+    if(!done)h+='<button class="btn-full" onclick="wmComplete(\''+d+'\')">✓ Mark complete</button>';
+  }
+  if(memMetricsOn()){
   h+='<button class="wm-mtoggle" onclick="wmToggleMetrics()">'+(wmMetricsOpen?'▾':'▸')+' Log metrics (optional)</button>';
   if(wmMetricsOpen){
     h+='<div class="wm-metrics"><div class="fld"><label>Bodyweight (kg)</label><input id="wm-bw" inputmode="decimal" maxlength="6" placeholder="e.g. 82"></div>'+
@@ -2817,13 +2837,14 @@ function renderWodMember(){var el=document.getElementById('wod-member');if(!el)r
       '<div class="fld"><label>Note</label><input id="wm-note" maxlength="120" placeholder="How did it feel?"></div>'+
       '<button class="btn-full" onclick="wmSaveMetrics(\''+d+'\')">Save metrics</button></div>';
   }
+  }
   h+='</div>';el.innerHTML=h;
 }
 function wmToggleMetrics(){wmMetricsOpen=!wmMetricsOpen;renderWodMember();}
 async function wmComplete(d){if(!isMember()||!LIVE)return;
   if(!myLogForDate(d))cache.workout_logs.push({id:uid(),member_id:currentMember.id,date:d,wod_ref:d});renderWodMember();
   try{await sb.from('workout_logs').upsert({member_id:currentMember.id,date:d,wod_ref:d},{onConflict:'member_id,date'});}catch(e){}
-  await refreshMemberData();confettiBurst();toast('Logged! Keep the streak 🔥');renderWodMember();renderMemberChip();
+  await refreshMemberData();confettiBurst();toast('Logged — nice work.');maybeSharePB(d);renderWodMember();renderMemberChip();
 }
 async function wmUncomplete(d){if(!isMember()||!LIVE)return;
   cache.workout_logs=(cache.workout_logs||[]).filter(function(x){return x.date!==d;});renderWodMember();
@@ -2838,7 +2859,7 @@ async function wmSaveMetrics(d){if(!isMember()||!LIVE)return;
   if(note){if(rows.length)rows[0].note=note;else rows.push({member_id:currentMember.id,date:d,kind:'note',note:note});}
   try{const{error}=await sb.from('body_metrics').insert(rows);if(error){toast('Save failed');return;}}catch(e){}
   if(!myLogForDate(d))await wmComplete(d);
-  wmMetricsOpen=false;await refreshMemberData();toast('Metrics saved 💪');renderWodMember();
+  wmMetricsOpen=false;await refreshMemberData();toast('Metrics saved.');maybeSharePB(d);renderWodMember();
 }
 
 /* --- streaks, stats, badges --- */
@@ -2851,24 +2872,24 @@ function streakInfo(){var set=myDoneSet(),today=todayKey();
 }
 function thisWeekCount(){var set=myDoneSet(),today=todayKey(),n=0;for(var i=0;i<7;i++){if(set[mesoAddDays(today,-i)])n++;}return n;}
 const BADGES=[
-  {icon:'🌱',label:'First workout',test:function(s){return s.total>=1;},crit:'Log your first workout'},
-  {icon:'💪',label:'10 workouts',test:function(s){return s.total>=10;},crit:'Log 10 workouts'},
-  {icon:'🏋️',label:'50 workouts',test:function(s){return s.total>=50;},crit:'Log 50 workouts'},
-  {icon:'💯',label:'100 workouts',test:function(s){return s.total>=100;},crit:'Log 100 workouts'},
-  {icon:'🔥',label:'7-day streak',test:function(s){return s.longest>=7;},crit:'7 days in a row'},
-  {icon:'⚡',label:'30-day streak',test:function(s){return s.longest>=30;},crit:'30 days in a row'},
-  {icon:'🚀',label:'100-day streak',test:function(s){return s.longest>=100;},crit:'100 days in a row'},
-  {icon:'⚖️',label:'Tracked metrics',test:function(s){return s.metrics>0;},crit:'Log a bodyweight or lift'},
-  {icon:'🏅',label:'Benchmark done',test:function(s){return s.benchmarks>0;},crit:'Post a benchmark score'}
+  {label:'First workout',test:function(s){return s.total>=1;},crit:'Log your first workout'},
+  {label:'10 workouts',test:function(s){return s.total>=10;},crit:'Log 10 workouts'},
+  {label:'50 workouts',test:function(s){return s.total>=50;},crit:'Log 50 workouts'},
+  {label:'100 workouts',test:function(s){return s.total>=100;},crit:'Log 100 workouts'},
+  {label:'7-day streak',test:function(s){return s.longest>=7;},crit:'7 days in a row'},
+  {label:'30-day streak',test:function(s){return s.longest>=30;},crit:'30 days in a row'},
+  {label:'100-day streak',test:function(s){return s.longest>=100;},crit:'100 days in a row'},
+  {label:'Tracked metrics',test:function(s){return s.metrics>0;},crit:'Log a bodyweight or lift'},
+  {label:'Benchmark done',test:function(s){return s.benchmarks>0;},crit:'Post a benchmark score'}
 ];
 function memberStats(){var s=streakInfo();s.week=thisWeekCount();s.metrics=(cache.body_metrics||[]).filter(function(m){return m.value!=null;}).length;var nm=memberProfile?bmKey(memberProfile):'';s.benchmarks=nm?(cache.benchmarks||[]).filter(function(e){return bmKey(e)===nm;}).length:0;return s;}
 
 /* --- member dashboard --- */
 function renderMemberDash(){var el=document.getElementById('member-body');if(!el)return;
-  if(!isMember()){el.innerHTML='<div class="md-empty"><div class="md-empty-h">🏠 Cave Hub</div><p>Log in to track your workouts, build streaks and earn badges.</p><button class="btn-full" style="max-width:260px;margin:16px auto 0;" onclick="openMemberAuth(\'login\')">Log in / Join</button></div>';return;}
+  if(!isMember()){el.innerHTML='<div class="md-empty"><div class="md-empty-h">Cave Hub</div><p>Log in to track your workouts, build streaks and earn badges.</p><button class="btn-full" style="max-width:260px;margin:16px auto 0;" onclick="openMemberAuth(\'login\')">Log in / Join</button></div>';return;}
   var s=memberStats();
-  var h='<div class="md-wrap"><div class="md-hello">Hey '+esc(memFirst()||'there')+' 👋</div>';
-  h+='<div class="md-stats">'+memStat('🔥',s.current,'day streak')+memStat('🏆',s.longest,'best streak')+memStat('✅',s.total,'workouts')+memStat('📅',s.week+'/7','this week')+'</div>';
+  var h='<div class="md-wrap"><div class="md-hello">Hey '+esc(memFirst()||'there')+'</div>';
+  h+='<div class="md-stats">'+memStat(s.current,'day streak')+memStat(s.longest,'best streak')+memStat(s.total,'workouts')+memStat(s.week+'/7','this week')+'</div>';
   h+='<div class="md-sec-h">This month</div>'+memCalendarHTML();
   h+=memMetricsHTML();
   h+='<div class="md-sec-h">Achievements</div>'+memBadgesHTML(s);
@@ -2877,7 +2898,7 @@ function renderMemberDash(){var el=document.getElementById('member-body');if(!el
   h+='<div style="height:40px;"></div></div>';
   el.innerHTML=h;
 }
-function memStat(icon,v,l){return '<div class="md-stat"><div class="md-stat-ic">'+icon+'</div><div class="md-stat-v">'+v+'</div><div class="md-stat-l">'+l+'</div></div>';}
+function memStat(v,l){return '<div class="md-stat"><div class="md-stat-v">'+v+'</div><div class="md-stat-l">'+l+'</div></div>';}
 function memCalendarHTML(){var set=myDoneSet(),now=new Date(todayKey()+'T00:00:00'),y=now.getFullYear(),mo=now.getMonth();
   var startDow=(new Date(y,mo,1).getDay()+6)%7,days=new Date(y,mo+1,0).getDate(),today=todayKey();
   var cells='';['M','T','W','T','F','S','S'].forEach(function(x){cells+='<div class="mc-dow">'+x+'</div>';});
@@ -2897,7 +2918,15 @@ function memSpark(pts,color){if(pts.length<2)return '<div class="mm-spark-one">1
   var d=pts.map(function(p,i){var x=(i/(pts.length-1))*W,yv=H-4-((+p.value-mn)/rng)*(H-8);return (i?'L':'M')+x.toFixed(1)+' '+yv.toFixed(1);}).join(' ');
   return '<svg class="mm-spark" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 }
-function memBadgesHTML(s){return '<div class="md-badges">'+BADGES.map(function(b){var on=b.test(s);return '<div class="md-badge'+(on?' on':'')+'"><div class="md-badge-ic">'+b.icon+'</div><div class="md-badge-l">'+esc(b.label)+'</div><div class="md-badge-c">'+(on?'Earned':esc(b.crit))+'</div></div>';}).join('')+'</div>';}
+function memBadgesHTML(s){return '<div class="md-badges">'+BADGES.map(function(b){var on=b.test(s);return '<div class="md-badge'+(on?' on':'')+'"><div class="md-badge-mark">'+(on?'✓':'')+'</div><div class="md-badge-l">'+esc(b.label)+'</div><div class="md-badge-c">'+(on?'Earned':esc(b.crit))+'</div></div>';}).join('')+'</div>';}
+/* PB → achievements board (opt-in share via the moderated submissions queue) */
+function memBestBefore(kind,date){var b=null;(cache.body_metrics||[]).forEach(function(m){if(m.kind===kind&&m.value!=null&&m.date<date){var v=+m.value;if(b==null||v>b)b=v;}});return b;}
+function maybeSharePB(date){if(!isMember()||!memberProfile||!LIVE)return;var labels={squat:'Squat',bench:'Bench',deadlift:'Deadlift'};var best=null;
+  ['squat','bench','deadlift'].forEach(function(k){var todays=(cache.body_metrics||[]).filter(function(m){return m.kind===k&&m.date===date&&m.value!=null;});if(!todays.length)return;var v=Math.max.apply(null,todays.map(function(m){return +m.value;}));var prev=memBestBefore(k,date);if(prev!=null&&v>prev&&(!best||v>best.v))best={v:v,label:labels[k]};});
+  if(!best)return;
+  if(confirm('New '+best.label+' PB — '+best.v+' kg!\n\nShare it to the gym achievements board?'))sharePBNow(best.label+' PB — '+best.v+' kg');
+}
+async function sharePBNow(detail){if(!memberProfile||!LIVE)return;try{await rowInsert('submissions',{name:memberProfile.name||'Member',category:'achievement',detail:detail,gender:(memberProfile.sex||'m'),score:'',unit:'',status:'pending'});toast('Sent to the board — pending approval.');}catch(e){toast('Could not share right now.');}}
 
 /* ---------- MODE ---------- */
 function setMode(mode){if(mode==='plan'&&!isUnlocked()){showPwGate();return;}if(mode==='disp')activeScreenSlug=null;_setMode(mode);clearTimeout(navTimer);navTimer=setTimeout(hideNav,2500);}
@@ -3175,6 +3204,56 @@ function initNav(){
 /* ---------- DRAG REORDER (layout pref kept local per device) ---------- */
 const DEFAULT_ORDER=['submissions','wod','leaderboards','customboards','challenge','events','eventpage','screens','ads'];
 function getOrder(){try{const s=JSON.parse(localStorage.getItem('cave_order'));if(Array.isArray(s)){const f=s.filter(x=>DEFAULT_ORDER.includes(x));DEFAULT_ORDER.forEach(x=>{if(!f.includes(x))f.push(x);});return f;}}catch(e){}return DEFAULT_ORDER.slice();}
+/* ---- Admin: collapsible category groups (re-parents existing panels; IDs preserved) ---- */
+const ADM_CATS=[
+  {key:'programming',label:'🔥 Programming',secs:['wod']},
+  {key:'community',label:'🏆 Community',secs:['leaderboards','customboards','challenge','submissions']},
+  {key:'events',label:'📅 Events',secs:['events','eventpage']},
+  {key:'screens',label:'🖥️ Screens & display',secs:['screens','ads']},
+  {key:'members',label:'👥 Members',secs:[]}
+];
+let admCatBuilt=false;
+function admCatOpen(k){try{return localStorage.getItem('cave_admcat_'+k)==='1';}catch(e){return false;}}
+function toggleAdmCat(k){var open=!admCatOpen(k);try{localStorage.setItem('cave_admcat_'+k,open?'1':'0');}catch(e){}var b=document.getElementById('admcat-'+k),h=document.getElementById('admcat-h-'+k);if(b)b.style.display=open?'flex':'none';if(h)h.classList.toggle('open',open);if(open&&k==='members')renderMembersAdmin();}
+function buildAdminCategories(){if(admCatBuilt)return;var grid=document.getElementById('planner-grid');if(!grid)return;
+  ADM_CATS.forEach(function(c){var open=admCatOpen(c.key);var cat=document.createElement('div');cat.className='adm-cat';
+    cat.innerHTML='<div class="adm-cat-head'+(open?' open':'')+'" id="admcat-h-'+c.key+'" onclick="toggleAdmCat(\''+c.key+'\')"><span>'+c.label+'</span><span class="wod-chev">▾</span></div><div class="adm-cat-body" id="admcat-'+c.key+'" style="'+(open?'':'display:none;')+'"></div>';
+    grid.appendChild(cat);var body=cat.querySelector('.adm-cat-body');
+    c.secs.forEach(function(sec){var p=grid.querySelector(':scope > .planner-sec[data-sec="'+sec+'"]');if(p){p.removeAttribute('draggable');body.appendChild(p);}});
+    if(c.key==='members'){var mp=document.createElement('div');mp.className='planner-sec';mp.innerHTML='<div class="panel"><div class="panel-h"><div class="panel-t">👥 Member hub</div></div><div id="members-admin"></div></div>';body.appendChild(mp);}
+  });
+  admCatBuilt=true;if(admCatOpen('members'))renderMembersAdmin();
+}
+function swRow(on,lbl,sub,fn){return '<div class="ot-row"><div><div class="ot-lbl">'+esc(lbl)+'</div><div class="ot-sub">'+esc(sub)+'</div></div><span class="sw'+(on?' on':'')+'" onclick="'+fn+'"></span></div>';}
+async function toggleMembersOn(){const s=settings();s.members_on=!(s.members_on!==false);await stateUpdate({settings:s});renderMembersAdmin();renderMemberChip();toast(s.members_on?'Member logins ON':'Member logins OFF');}
+async function toggleMemberFeature(key){const s=settings();s[key]=!(s[key]!==false);await stateUpdate({settings:s});renderMembersAdmin();renderWodMember();toast('Saved');}
+async function renderMembersAdmin(){var el=document.getElementById('members-admin');if(!el)return;if(!isUnlocked()){el.innerHTML='<div class="ot-sub">Owner only.</div>';return;}
+  var s=settings();
+  var togs='<div class="ot-cap" style="margin-bottom:6px;">Members sign in with their email + mobile number. The mobile is their password.</div>'+
+    swRow(membersOn(),'Member logins','Let members sign up & log in.','toggleMembersOn();')+
+    swRow(memCompleteOn(),'Allow “mark complete”','Members can tick the day’s WOD as done.','toggleMemberFeature(\'member_complete_on\');')+
+    swRow(memMetricsOn(),'Allow metrics logging','Members can log bodyweight & lifts.','toggleMemberFeature(\'member_metrics_on\');');
+  var howto='<div class="ot-row" style="display:block;"><div style="margin-bottom:6px;"><div class="ot-lbl">Member hub — how-to text</div></div><textarea class="meso-focus" rows="4" onchange="setHowto(this.value)">'+esc(s.howto||DEFAULT_HOWTO)+'</textarea></div>';
+  if(!LIVE){el.innerHTML=togs+howto;return;}
+  el.innerHTML=togs+howto+'<div class="ot-sub" id="mem-admin-list">Loading members…</div>';
+  try{
+    var prof=await sb.from('member_profiles').select('*').order('created_at');var members=prof.data||[];cache.member_profiles=members;
+    var logs=await sb.from('workout_logs').select('member_id,date');var L=(logs&&logs.data)||[];
+    var since=mesoAddDays(todayKey(),-6);var active=new Set(L.filter(function(x){return x.date>=since;}).map(function(x){return x.member_id;})).size;
+    var byM={};L.forEach(function(x){byM[x.member_id]=(byM[x.member_id]||0)+1;});
+    var stats='<div class="md-stats" style="margin:12px 0;">'+memStat(members.length,'members')+memStat(active,'active 7d')+memStat(L.length,'completions')+'</div>';
+    var list=members.length?members.map(function(m){return '<div class="rlist-row"><span class="rl-name">'+esc(m.name||'—')+(m.age?(' · '+m.age):'')+'</span><span class="rl-sex">'+((m.sex||'')==='f'?'F':(m.sex==='m'?'M':''))+'</span><span class="rl-time">'+(byM[m.id]||0)+'</span><button class="btn-sm" onclick="memberAdminAct(\''+m.id+'\')">Manage</button></div>';}).join(''):'<div class="rb-empty">No members yet.</div>';
+    var box=document.getElementById('mem-admin-list');if(box)box.outerHTML=stats+'<div class="set-section" style="margin:6px 0;">Members ('+members.length+')</div>'+list;
+  }catch(e){var b2=document.getElementById('mem-admin-list');if(b2)b2.textContent='Could not load members.';}
+}
+async function memberAdminAct(id){var m=(cache.member_profiles||[]).find(function(x){return x.id===id;})||{};
+  var act=(prompt('Manage '+(m.name||'member')+':\n\nType  reset   to set a new password (their mobile)\nType  remove  to permanently delete the account','')||'').trim().toLowerCase();
+  if(!act)return;
+  if(act==='reset'){var ph=(prompt('New mobile number (their new password):','')||'').replace(/\D/g,'');if(!/^04\d{8}$/.test(ph)){alert('Enter a valid 04xx xxx xxx mobile.');return;}await memberEdgeCall('reset',id,ph);}
+  else if(act==='remove'){if(confirm('Permanently remove '+(m.name||'this member')+' and ALL their data? This cannot be undone.'))await memberEdgeCall('delete',id);}
+  else alert('Type “reset” or “remove”.');
+}
+async function memberEdgeCall(action,member_id,password){if(!LIVE)return;try{const{data,error}=await sb.functions.invoke('admin-members',{body:{action:action,member_id:member_id,password:password}});if(error||(data&&data.error)){var msg=(error&&error.message)||(data&&data.error)||'error';if(/not found|404|failed to send/i.test(msg))msg='Member reset/remove isn’t enabled yet (admin function not deployed).';alert('Failed: '+msg);return;}toast(action==='reset'?'Password reset':'Member removed');renderMembersAdmin();}catch(e){alert('Failed: '+(e.message||e));}}
 function applyOrder(){const g=document.getElementById('planner-grid');if(!g)return;getOrder().forEach(sec=>{const el=g.querySelector(`.planner-sec[data-sec="${sec}"]`);if(el)g.appendChild(el);});}
 let dragSrc=null;
 function initDrag(){document.querySelectorAll('.planner-sec').forEach(sec=>{
@@ -3191,7 +3270,7 @@ function renderLive(){applyScales();applyAppearance();applyNavMode();renderFocus
   var _ral=document.getElementById('row-admin-list');if(_ral)_ral.innerHTML=rowAdminListHTML();
   var _bl=document.getElementById('bm-admin-list');if(_bl){var _bc=bmConfig(),_bi=bmCycleInfo();if(_bi.valid&&!_bi.before)_bl.innerHTML=bmAdminListHTML(bmRealCycle(_bi.cycleKey).slice().sort(function(a,b){return (_bc.dir==='low')?(a.score-b.score):(b.score-a.score);}),_bc);}
   applyMaintenance();}
-function renderAll(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();renderMemberChip();loadWODForm();renderWOD();applyOrder();initDrag();renderUndoBar();}
+function renderAll(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();renderMemberChip();loadWODForm();renderWOD();buildAdminCategories();renderUndoBar();}
 
 /* ===================== TIMER (SmartWOD-style, off by default) ===================== */
 const TMR_COL={amrap:'#fda942',fortime:'#5b8cff',emom:'#b06bff',tabata:'#22c598',mix:'#8ab4f8',rest:'#9aa0a6',work:'#22c598',ready:'#8ab4f8'};
