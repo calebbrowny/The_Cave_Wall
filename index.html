@@ -59,6 +59,30 @@ body.nav-pinned .disp-head{justify-content:flex-end;border-bottom:none;padding-t
 .mode-toggle{display:flex;background:none;padding:0;gap:6px;align-items:center;}
 .mode-toggle button{background:var(--bg-light);color:var(--muted);font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;border:1px solid var(--border);transition:all .15s;white-space:nowrap;}
 .mode-toggle button.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
+/* pinned one-line nav with icon cluster */
+.nav-acts{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.nav-ic{width:38px;height:36px;display:inline-flex;align-items:center;justify-content:center;background:var(--bg-light);border:1px solid var(--border);border-radius:999px;color:var(--text);cursor:pointer;padding:0;flex-shrink:0;}
+.nav-ic:hover{border-color:var(--blue);color:var(--blue);}
+.nav-ic.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
+.mode-toggle{flex:1 1 auto;min-width:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
+.mode-toggle::-webkit-scrollbar{display:none;}
+body.nav-pinned .nav-x{display:inline-flex;}
+body.nav-pinned #member-chip,body.nav-header #member-chip{margin-left:0;}
+body.nav-expand .mode-toggle{flex-wrap:wrap;overflow:visible;}
+/* home dashboard */
+.home-page{display:none;min-height:100vh;}
+.home-page.active{display:block;}
+#home-body{max-width:900px;margin:0 auto;padding:30px 16px 60px;text-align:left;}
+.ho-head{font-size:clamp(24px,6vw,40px);font-weight:900;margin:6px 0 20px;}
+.ho-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+.ho-tile{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:20px;cursor:pointer;transition:border-color .15s,transform .1s;}
+.ho-tile:hover{border-color:var(--blue);transform:translateY(-2px);}
+.ho-k{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.ho-date{font-size:15px;font-weight:800;color:var(--blue);margin-top:8px;}
+.ho-v{font-size:16px;font-weight:700;margin-top:6px;line-height:1.35;}
+.ho-big{font-size:40px;font-weight:900;color:var(--blue);margin-top:6px;line-height:1;}
+.ho-big span{font-size:14px;color:var(--muted);font-weight:700;}
+.ho-go{font-size:13px;font-weight:700;color:var(--blue);margin-top:14px;}
 body.no-tab-emoji .te{display:none;}
 .icon-btn{background:var(--bg-light);color:var(--muted);font-size:13px;padding:6px 11px;border-radius:16px;transition:all .15s;}
 .icon-btn:hover{color:var(--text);}
@@ -716,7 +740,10 @@ body.wod-fill .wod-block.bonus{background:rgba(187,134,252,.14);border-color:rgb
   .logo{font-size:14px;flex-shrink:0;}
   .nav .logo{display:none;}/* hide logo on phones so the tabs get the full width */
   .nav-right{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:8px;}
-  .mode-toggle{flex:0 1 auto;min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;justify-content:flex-start;}
+  .nav-acts{gap:5px;flex-shrink:0;}
+  .nav-ic{width:34px;height:32px;}
+  body.nav-pinned .nav-clock,body.nav-header .nav-clock{display:none;}/* phones: drop clock so the tabs fit on the line */
+  .mode-toggle{flex:1 1 auto;min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;justify-content:flex-start;}
   .mode-toggle::-webkit-scrollbar{display:none;}
   .mode-toggle button{padding:7px 12px;flex-shrink:0;}
   .live-dot{flex-shrink:0;}
@@ -1015,23 +1042,24 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <!-- HOVER NAV -->
 <div class="nav-hot" id="nav-hot"></div>
 <div class="nav" id="nav"><div class="nav-i">
-  <div class="nav-brand"><div class="logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><span class="nav-clock" id="nav-clock"></span></div>
-  <div class="nav-right">
-    <div class="mode-toggle">
-      <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span><span class="tl">WOD</span></button>
-      <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span><span class="tl">Challenge</span></button>
-      <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
-      <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span><span class="tl">The Wall</span></button>
-      <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span><span class="tl">Submit</span></button>
-      <button id="m-row" onclick="setMode('row')" style="display:none;"><span class="te">🚣 </span><span class="tl">Row</span></button>
-      <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
-      <button id="m-me" onclick="setMode('me')" style="display:none;"><span class="te">🏠 </span><span class="tl">My Account</span></button>
-    </div>
-    <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
-    <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
+  <div class="nav-brand"><div class="logo" onclick="navLogoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><span class="nav-clock" id="nav-clock" onclick="setMode('wod')" title="Go to WOD"></span></div>
+  <div class="mode-toggle" id="mode-toggle">
+    <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span><span class="tl">WOD</span></button>
+    <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span><span class="tl">Challenge</span></button>
+    <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
+    <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span><span class="tl">The Wall</span></button>
+    <button id="m-row" onclick="setMode('row')" style="display:none;"><span class="te">🚣 </span><span class="tl">Row</span></button>
+    <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
+    <button id="m-me" onclick="setMode('me')" style="display:none;"><span class="te">🏠 </span><span class="tl">My Account</span></button>
   </div>
-  <span id="member-chip"></span>
-  <button class="nav-x" id="nav-x" onclick="toggleNav()" aria-label="Menu" title="Menu">☰</button>
+  <div class="nav-acts">
+    <button class="nav-ic" id="m-home" onclick="setMode('home')" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></button>
+    <button class="nav-ic" id="m-sub" onclick="setMode('submit')" title="Submit a result" aria-label="Submit"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+    <span id="member-chip"></span>
+    <button class="nav-x" id="nav-x" onclick="navBurger()" aria-label="More" title="More">☰</button>
+    <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
+    <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
+  </div>
 </div></div>
 <div class="nav-peek" id="nav-peek" onclick="peekNav()">• • •</div>
 
@@ -1231,6 +1259,11 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div id="wod-member"></div>
 </div>
 
+<!-- HOME DASHBOARD -->
+<div class="home-page" id="home">
+  <div id="home-body"></div>
+</div>
+
 <!-- MEMBER HUB -->
 <div class="member-page" id="member">
   <div class="disp-head"><div class="disp-logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><div class="disp-clock" id="me-clock"></div></div>
@@ -1285,7 +1318,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'peek',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'pinned',nav_wrap:false,members_on:true,member_metrics_on:true,member_complete_on:true};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -3130,10 +3163,24 @@ async function memResetRequest(){
 /* --- open the member nav menu (Hey {name} is the only door to the account) --- */
 function openMemberMenu(){var n=document.getElementById('nav');if(n)n.classList.add('show');clearTimeout(navTimer);}
 function navLogoTap(){logoTap();setMode('wod');}
+function navBurger(){document.body.classList.toggle('nav-expand');}
+/* --- HOME dashboard (simple 3-tile landing) --- */
+function renderHome(){var el=document.getElementById('home-body');if(!el)return;
+  var d=todayKey(),w=wodForDate(d,'a')||{},f=(w.focus||focusForDate(d));
+  var live=wodLive(d)&&wodHasContent(w);
+  var wodLine=live?esc((w.title||(f+' Day')))+' · '+esc(f):'Coming soon';
+  var h='<div class="ho-head">'+(isMember()?('Hey '+esc(memFirst()||'there')):'The Cave')+'</div><div class="ho-grid">';
+  h+='<div class="ho-tile" onclick="setMode(\'wod\')"><div class="ho-k">Today’s WOD</div><div class="ho-date">'+dateLabel(d,{weekday:'long',day:'numeric',month:'long'})+'</div><div class="ho-v">'+wodLine+'</div><div class="ho-go">Open the WOD →</div></div>';
+  if(isMember()){var s=memberStats();h+='<div class="ho-tile" onclick="setMode(\'me\')"><div class="ho-k">Your training</div><div class="ho-big">'+s.current+'<span> day streak</span></div><div class="ho-v">'+s.week+'/7 this week · '+s.total+' total</div><div class="ho-go">My Account →</div></div>';}
+  else h+='<div class="ho-tile" onclick="openMemberAuth(\'login\')"><div class="ho-k">Your training</div><div class="ho-v">Log in to track workouts, lifts &amp; streaks — and post on the daily leaderboard.</div><div class="ho-go">Log in / Join →</div></div>';
+  var ct=(cache.state&&cache.state.challenge_title)||'Monthly Challenge';
+  h+='<div class="ho-tile" onclick="setMode(\'chal\')"><div class="ho-k">This month</div><div class="ho-v">'+esc(ct)+'</div><div class="ho-go">See the challenge →</div></div>';
+  h+='</div>';el.innerHTML=h;
+}
 
 /* ---------- MODE ---------- */
 function setMode(mode){if(mode==='plan'&&!isUnlocked()){showPwGate();return;}if(mode==='disp')activeScreenSlug=null;_setMode(mode);clearTimeout(navTimer);navTimer=setTimeout(hideNav,2500);}
-function applyHashRoute(){const h=(location.hash||'').replace('#','').toLowerCase();if(!h)return false;const parts=h.split('/');const map={submit:'submit',wod:'wod',challenge:'chal',event:'event',display:'disp',board:'disp'};if(map[parts[0]]){activeScreenSlug=(parts[0]==='display'||parts[0]==='board')?(parts[1]||null):activeScreenSlug;_setMode(map[parts[0]]);return true;}
+function applyHashRoute(){const h=(location.hash||'').replace('#','').toLowerCase();if(!h)return false;const parts=h.split('/');const map={home:'home',submit:'submit',wod:'wod',challenge:'chal',event:'event',display:'disp',board:'disp',me:'me',hub:'me'};if(map[parts[0]]){activeScreenSlug=(parts[0]==='display'||parts[0]==='board')?(parts[1]||null):activeScreenSlug;_setMode(map[parts[0]]);return true;}
   if(parts[0]==='row'){_setMode('row');return true;}
   if(parts[0]==='rowcoach'){rowCoachKeyTry=parts[1]||'';_setMode('rowcoach');return true;}
   if(parts[0]==='me'||parts[0]==='hub'){_setMode('me');return true;}
@@ -3160,6 +3207,8 @@ function _setMode(mode){
   var _ts=document.getElementById('timer');if(_ts)_ts.classList.toggle('active',mode==='timer');
   var _mme=document.getElementById('m-me');if(_mme)_mme.classList.toggle('on',mode==='me');
   var _mpg=document.getElementById('member');if(_mpg)_mpg.classList.toggle('active',mode==='me');
+  var _mh=document.getElementById('m-home');if(_mh)_mh.classList.toggle('on',mode==='home');
+  var _hp=document.getElementById('home');if(_hp)_hp.classList.toggle('active',mode==='home');
   if(evTimer){clearInterval(evTimer);evTimer=null;}
   if(mode==='disp'){renderDisplay();startDisplay();}else stopDisplay();
   if(mode==='wod'){publicWodDate=todayKey();renderWOD();}
@@ -3170,6 +3219,7 @@ function _setMode(mode){
   if(mode==='row')renderRowBoard();
   if(mode==='rowcoach')renderRowCoach();
   if(mode==='me')renderMemberDash();
+  if(mode==='home')renderHome();
   applyMaintenance();
 }
 
@@ -3286,7 +3336,7 @@ async function toggleMaintenance(){const s=settings();s.maintenance_on=!(s.maint
 function navModeLabel(m){return {peek:'Pull-down',header:'Header bar',pinned:'Pinned'}[m]||m;}
 function deviceNavMode(){try{return (JSON.parse(localStorage.getItem('cave_nav_dev')||'{}')||{}).mode||'';}catch(e){return '';}}
 function setDeviceNavMode(m){try{var d=JSON.parse(localStorage.getItem('cave_nav_dev')||'{}')||{};if(m)d.mode=m;else delete d.mode;localStorage.setItem('cave_nav_dev',JSON.stringify(d));}catch(e){}applyNavMode();renderOwnerTools();toast(m?('This device: '+navModeLabel(m)):'This device follows the default');}
-function applyNavMode(){var m=deviceNavMode()||(settings().nav_mode)||'peek';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');b.classList.toggle('nav-wrap',settings().nav_wrap!==false);var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');}
+function applyNavMode(){var m=deviceNavMode()||(settings().nav_mode)||'pinned';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned','nav-expand');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');b.classList.toggle('nav-wrap',settings().nav_wrap===true);var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');}
 async function setNavMode(m){const s=settings();s.nav_mode=m;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();toast('All screens: '+navModeLabel(m));}
 async function toggleNavWrap(){const s=settings();const cur=s.nav_wrap!==false;s.nav_wrap=!cur;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();toast(s.nav_wrap?'Tabs wrap onto multiple lines':'Tabs stay on one line (scroll)');}
 async function ownerSetAccent(val){const s=settings();s.appearance=Object.assign({},s.appearance,{accent:val});await stateUpdate({settings:s});applyAppearance();renderOwnerTools();renderDisplay();toast(val==='#20b0e0'?'Accent: Brand blue':(val==='#8ab4f8'?'Accent: Soft blue':'Accent set'));}
@@ -3698,7 +3748,7 @@ async function boot(){
   applyMaintenance();
   applyDemo();
   renderAll();
-  if(!applyHashRoute() && !isUnlocked())_setMode('wod'); // gym-safe default
+  if(!applyHashRoute() && !isUnlocked())_setMode('home'); // dashboard homepage
   logView();
   window.addEventListener('hashchange',applyHashRoute);
   document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
