@@ -125,19 +125,17 @@ No-API, built from The Cave's HYROX logic. Key pieces:
   toggle = `appearance.tab_emojis` → `body.no-tab-emoji`; nav labels live in `.tl`, emoji in `.te`. On phones the
   Cave logo + clock are hidden so tabs get the width.
 
-## Home dashboard + pinned icon nav
+## Home dashboard + minimal header nav
 - **Home dashboard** is the default landing (`_setMode('home')` in `boot` when no hash + not admin; route `#home`).
   Mode `'home'` → `#home` section, `renderHome()` into `#home-body`: a clean 3-tile grid (`.ho-tile`) — **Today's
   WOD** (date + title·focus → WOD), **Your training** (member streak/this week → My Account, or a login CTA), and
-  **This month** (`cache.state.challenge_title` → challenge). The house icon (`#m-home`) returns here.
-- **Nav is pinned + one line by default** (`DEFAULT_SETTINGS.nav_mode='pinned'`, `nav_wrap=false`; live
-  `app_state.settings` set to match). Structure: `.nav-brand` (logo + clock) · `.mode-toggle` (the page tabs —
-  `flex:1`, `overflow-x:auto`, never wraps) · `.nav-acts` (right cluster). Submit left the tab row and is now an
-  **arrow icon** (`#m-sub`); a **house icon** (`#m-home`) sits beside it; then the `#member-chip` login/Hey chip,
-  the `☰` burger (`navBurger()` toggles `body.nav-expand` to wrap/show all tabs), and the **⚙️ admin cog last
-  (far right)**. Clock + Cave logo now jump to the WOD (`navLogoTap`, clock `onclick`). On phones the clock hides
-  and the tab strip scrolls sideways (everything stays on one line — the `☰` expands the full tab list).
-  The old peek/header nav modes still exist but pinned is the default.
+  **This month** (`cache.state.challenge_title` → challenge). Reached via the **Home** tab in the menu.
+- **Nav default = `header` (minimal bar)** (`DEFAULT_SETTINGS.nav_mode='header'`, `nav_wrap=true`; live
+  `app_state.settings` set to match). Top bar shows **only logo, clock, login chip (`#member-chip`), and the `☰`
+  burger** — `toggleNav()` reveals `.nav-right` (the `.mode-toggle` page tabs incl. **Home**/WOD/Challenge/The
+  Wall/Submit/My Account + the **⚙️ admin cog**). Clock + Cave logo jump to the WOD (`navLogoTap`, clock `onclick`).
+  (An owner once tried a pinned one-line icon nav — reverted to this minimal bar by request; pinned/peek modes
+  still exist as options, and the `.nav-acts`/`.nav-ic` styles are dormant.)
 
 ## Admin layout — collapsible categories (`buildAdminCategories`)
 The planner's flat `.planner-sec` panels are grouped at runtime into collapsible top-level **categories**

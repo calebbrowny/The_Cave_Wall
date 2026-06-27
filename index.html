@@ -67,7 +67,7 @@ body.nav-pinned .disp-head{justify-content:flex-end;border-bottom:none;padding-t
 .mode-toggle{flex:1 1 auto;min-width:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
 .mode-toggle::-webkit-scrollbar{display:none;}
 body.nav-pinned .nav-x{display:inline-flex;}
-body.nav-pinned #member-chip,body.nav-header #member-chip{margin-left:0;}
+body.nav-pinned #member-chip{margin-left:0;}
 body.nav-expand .mode-toggle{flex-wrap:wrap;overflow:visible;}
 /* home dashboard */
 .home-page{display:none;min-height:100vh;}
@@ -738,11 +738,11 @@ body.wod-fill .wod-block.bonus{background:rgba(187,134,252,.14);border-color:rgb
   .lb-split{grid-template-columns:1fr;gap:18px;}
   .nav-i{flex-wrap:nowrap;height:auto;padding:10px 14px;gap:10px;}
   .logo{font-size:14px;flex-shrink:0;}
-  .nav .logo{display:none;}/* hide logo on phones so the tabs get the full width */
+  body.nav-pinned .nav .logo{display:none;}/* hide logo on phones only in the pinned one-line layout */
   .nav-right{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:8px;}
   .nav-acts{gap:5px;flex-shrink:0;}
   .nav-ic{width:34px;height:32px;}
-  body.nav-pinned .nav-clock,body.nav-header .nav-clock{display:none;}/* phones: drop clock so the tabs fit on the line */
+  body.nav-pinned .nav-clock{display:none;}/* phones: drop clock only in the pinned one-line layout */
   .mode-toggle{flex:1 1 auto;min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;justify-content:flex-start;}
   .mode-toggle::-webkit-scrollbar{display:none;}
   .mode-toggle button{padding:7px 12px;flex-shrink:0;}
@@ -1043,23 +1043,23 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <div class="nav-hot" id="nav-hot"></div>
 <div class="nav" id="nav"><div class="nav-i">
   <div class="nav-brand"><div class="logo" onclick="navLogoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><span class="nav-clock" id="nav-clock" onclick="setMode('wod')" title="Go to WOD"></span></div>
-  <div class="mode-toggle" id="mode-toggle">
-    <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span><span class="tl">WOD</span></button>
-    <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span><span class="tl">Challenge</span></button>
-    <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
-    <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span><span class="tl">The Wall</span></button>
-    <button id="m-row" onclick="setMode('row')" style="display:none;"><span class="te">🚣 </span><span class="tl">Row</span></button>
-    <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
-    <button id="m-me" onclick="setMode('me')" style="display:none;"><span class="te">🏠 </span><span class="tl">My Account</span></button>
-  </div>
-  <div class="nav-acts">
-    <button class="nav-ic" id="m-home" onclick="setMode('home')" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></button>
-    <button class="nav-ic" id="m-sub" onclick="setMode('submit')" title="Submit a result" aria-label="Submit"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
-    <span id="member-chip"></span>
-    <button class="nav-x" id="nav-x" onclick="navBurger()" aria-label="More" title="More">☰</button>
-    <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
+  <div class="nav-right">
+    <div class="mode-toggle">
+      <button id="m-home" onclick="setMode('home')"><span class="te">🏠 </span><span class="tl">Home</span></button>
+      <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span><span class="tl">WOD</span></button>
+      <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span><span class="tl">Challenge</span></button>
+      <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
+      <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span><span class="tl">The Wall</span></button>
+      <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span><span class="tl">Submit</span></button>
+      <button id="m-row" onclick="setMode('row')" style="display:none;"><span class="te">🚣 </span><span class="tl">Row</span></button>
+      <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
+      <button id="m-me" onclick="setMode('me')" style="display:none;"><span class="te">👤 </span><span class="tl">My Account</span></button>
+    </div>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
+    <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
   </div>
+  <span id="member-chip"></span>
+  <button class="nav-x" id="nav-x" onclick="toggleNav()" aria-label="Menu" title="Menu">☰</button>
 </div></div>
 <div class="nav-peek" id="nav-peek" onclick="peekNav()">• • •</div>
 
@@ -1318,7 +1318,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'pinned',nav_wrap:false,members_on:true,member_metrics_on:true,member_complete_on:true};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'header',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -3336,7 +3336,7 @@ async function toggleMaintenance(){const s=settings();s.maintenance_on=!(s.maint
 function navModeLabel(m){return {peek:'Pull-down',header:'Header bar',pinned:'Pinned'}[m]||m;}
 function deviceNavMode(){try{return (JSON.parse(localStorage.getItem('cave_nav_dev')||'{}')||{}).mode||'';}catch(e){return '';}}
 function setDeviceNavMode(m){try{var d=JSON.parse(localStorage.getItem('cave_nav_dev')||'{}')||{};if(m)d.mode=m;else delete d.mode;localStorage.setItem('cave_nav_dev',JSON.stringify(d));}catch(e){}applyNavMode();renderOwnerTools();toast(m?('This device: '+navModeLabel(m)):'This device follows the default');}
-function applyNavMode(){var m=deviceNavMode()||(settings().nav_mode)||'pinned';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned','nav-expand');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');b.classList.toggle('nav-wrap',settings().nav_wrap===true);var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');}
+function applyNavMode(){var m=deviceNavMode()||(settings().nav_mode)||'header';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned','nav-expand');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');b.classList.toggle('nav-wrap',settings().nav_wrap===true);var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');}
 async function setNavMode(m){const s=settings();s.nav_mode=m;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();toast('All screens: '+navModeLabel(m));}
 async function toggleNavWrap(){const s=settings();const cur=s.nav_wrap!==false;s.nav_wrap=!cur;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();toast(s.nav_wrap?'Tabs wrap onto multiple lines':'Tabs stay on one line (scroll)');}
 async function ownerSetAccent(val){const s=settings();s.appearance=Object.assign({},s.appearance,{accent:val});await stateUpdate({settings:s});applyAppearance();renderOwnerTools();renderDisplay();toast(val==='#20b0e0'?'Accent: Brand blue':(val==='#8ab4f8'?'Accent: Soft blue':'Accent set'));}
