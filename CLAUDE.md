@@ -229,6 +229,25 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
   `sb.auth.updateUser({password})`. Locked-out members use "Trouble logging in?" on the login modal
   (`memResetRequest` → inserts `reset_requests`, public-insert / admin-read+delete RLS); requests show in the
   Members admin (`resetReqClear` to dismiss), and the admin resets via Manage → reset (edge function).
+- **Profile metric UI (`metSectionHTML`/`metRowHTML`).** Each section lists **every** catalog metric as a row:
+  name · PB (best, or latest for body) · **improvement arrow** (`metTrendArrow`: ▲ green if the latest attempt
+  beat the prior best, ▼ red if down) · a **History** toggle (`metHistToggle`/`metHistoryHTML` — per-entry
+  delete via `metDelete`) · an **✕** to hide it (`metHide`/`metUnhide`, stored in `member_profiles.prefs.hidden`
+  jsonb; hidden ones reappear as "+ add" chips). Tapping a row opens the log modal pre-set to that metric.
+  `est1RM` caps reps at 12 (Epley only reliable that far). Names are **Title-Cased** everywhere (`titleCase`,
+  applied on display + save; existing rows `initcap`-ed in the DB).
+- **Benchmarks & tests section (`benchSectionHTML`).** In My Account, shows the member's recurring-benchmark
+  results matched by name (`bmKey`) across cycles with improvement arrows + a PB line; prompts to log on the WOD
+  page when a test week is active. Read-only view over the existing public `benchmarks` data.
+- **Audit hardening (this pass).** Sign-out now also clears `cache.daily_results`/`my_results` + `drLoadedDate`/
+  `drOpen`/`metHistOpen` (prevents a second member on a shared device briefly seeing the first's board);
+  `renderWodMember` only shows **Mark complete** on live days with content (`liveDay`); the daily board reloads
+  on each WOD entry (`drLoadedDate=null` in `_setMode('wod')`); `detectLift` uses word-boundary + optional-plural
+  matching and `wodResultSpec` no longer guesses "load" without a strength signal; daily `load`/`time` results
+  that beat a stored best offer to update it. **RLS perf:** all member-table policies wrap `auth.uid()`/
+  `is_cave_admin()` in `(select …)` (one eval per query). Advisor notes left as-is by design: public-INSERT
+  policies (submissions/benchmarks/row500/reset_requests/activity_log), `is_cave_admin()` anon-executable (only
+  reveals the caller's own admin bool), leaked-password protection off (password is the member's phone by design).
 - **PB → achievements board (opt-in, one system):** a new strength/engine best (detected in `metSaveClick`/
   `drSave` vs `metBest`) offers (confirm) to share. `sharePBNow` inserts a `submissions` row `{category:
   'achievement', detail:'Back Squat 1RM ≈ 140 kg', status:'pending'}` → **Pending Submissions** → owner
