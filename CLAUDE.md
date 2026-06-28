@@ -131,13 +131,16 @@ No-API, built from The Cave's HYROX logic. Key pieces:
   never runs and `#home` stays `display:none`. To re-enable: add the Home tab back to `.mode-toggle`, set the boot
   default to `'home'`, and add `home:'home'` to the `applyHashRoute` map. Mode `'home'` → `#home` section,
   `renderHome()` → 3-tile grid (`.ho-tile`): **Today's WOD**, **Your training** (streak or login CTA), **This month**.
-- **Nav default = `header` (minimal bar)** (`DEFAULT_SETTINGS.nav_mode='header'`, `nav_wrap=true`; live
-  `app_state.settings` set to match). Top bar shows **only logo, clock, login chip (`#member-chip`), and the `☰`
-  burger** — `toggleNav()` reveals `.nav-right` (the `.mode-toggle` page tabs WOD/Challenge/The Wall/Submit + the
-  **⚙️ admin cog**). The **"Hey {name}" chip is the only entry to My Account** (the redundant My Account tab was
-  removed); for members it `setMode('me')`. Clock + Cave logo jump to the WOD (`navLogoTap`, clock `onclick`).
-  (An owner once tried a pinned one-line icon nav — reverted to this minimal bar by request; pinned/peek modes
-  still exist as options, and the `.nav-acts`/`.nav-ic` styles are dormant.)
+- **Nav = top bar + bottom tab bar (app-style).** Top bar (`#nav`, `.nav-i`): logo + clock on the left,
+  `.nav-top-acts` on the right (the `#member-chip` login/"Hey {name}" chip + the **⚙️ admin cog `#m-plan`** +
+  hidden `#lock-btn`). **No hamburger.** Page navigation lives in a **fixed bottom tab bar** (`#tabbar`, `.tb`
+  buttons with minimalist inline-SVG line icons + `.tl` labels): **WOD / Challenge / The Wall / Submit** (+
+  Event/Row/Timer when enabled). The buttons keep their original `#m-*` ids so `_setMode` toggles `.on` (active =
+  blue). `_setMode` hides the tab bar + drops `body.tabbar-on` padding **only when `activeScreenSlug`** is set (a
+  dedicated TV-screen kiosk) so members never get trapped on The Wall. The **"Hey {name}" chip is the only entry
+  to My Account** (`setMode('me')`); clock + logo jump to the WOD (`navLogoTap`, clock `onclick`).
+  (Earlier nav iterations — peek/header/pinned modes, the `.mode-toggle`/`.nav-acts`/`.nav-ic` styles, `toggleNav`/
+  `navBurger` — are now dormant but left in place.)
 
 ## Admin layout — collapsible categories (`buildAdminCategories`)
 The planner's flat `.planner-sec` panels are grouped at runtime into collapsible top-level **categories**

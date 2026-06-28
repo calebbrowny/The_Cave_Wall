@@ -69,6 +69,17 @@ body.nav-pinned .disp-head{justify-content:flex-end;border-bottom:none;padding-t
 body.nav-pinned .nav-x{display:inline-flex;}
 body.nav-pinned #member-chip{margin-left:0;}
 body.nav-expand .mode-toggle{flex-wrap:wrap;overflow:visible;}
+/* top-bar actions (chip + cog) and the fixed bottom tab bar */
+.nav-top-acts{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-top-acts #member-chip{margin-left:0;order:0;}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:stretch;background:rgba(32,33,36,.97);border-top:1px solid var(--border);padding:6px 2px calc(6px + env(safe-area-inset-bottom)) 2px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+.tabbar .tb{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;background:none;border:none;color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;padding:4px 2px;min-width:0;letter-spacing:.2px;transition:color .15s;}
+.tabbar .tb svg{width:23px;height:23px;display:block;}
+.tabbar .tb .tl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tabbar .tb .te{display:none;}
+.tabbar .tb.on{color:var(--blue);}
+.tabbar .tb:active{transform:scale(.92);}
+body.tabbar-on{padding-bottom:calc(58px + env(safe-area-inset-bottom));}
 /* home dashboard */
 .home-page{display:none;min-height:100vh;}
 .home-page.active{display:block;}
@@ -1077,23 +1088,22 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <div class="nav-hot" id="nav-hot"></div>
 <div class="nav" id="nav"><div class="nav-i">
   <div class="nav-brand"><div class="logo" onclick="navLogoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><span class="nav-clock" id="nav-clock" onclick="setMode('wod')" title="Go to WOD"></span></div>
-  <div class="nav-right">
-    <div class="mode-toggle">
-      <button id="m-wod" class="on" onclick="setMode('wod')"><span class="te">🔥 </span><span class="tl">WOD</span></button>
-      <button id="m-chal" onclick="setMode('chal')"><span class="te">🏅 </span><span class="tl">Challenge</span></button>
-      <button id="m-event" onclick="setMode('event')" style="display:none;"><span class="te">📅 </span>Event</button>
-      <button id="m-disp" onclick="setMode('disp')"><span class="te">📊 </span><span class="tl">The Wall</span></button>
-      <button id="m-sub" onclick="setMode('submit')"><span class="te">✍️ </span><span class="tl">Submit</span></button>
-      <button id="m-row" onclick="setMode('row')" style="display:none;"><span class="te">🚣 </span><span class="tl">Row</span></button>
-      <button id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="te">⏱ </span><span class="tl">Timer</span></button>
-    </div>
+  <div class="nav-top-acts">
+    <span id="member-chip"></span>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
     <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
   </div>
-  <span id="member-chip"></span>
-  <button class="nav-x" id="nav-x" onclick="toggleNav()" aria-label="Menu" title="Menu">☰</button>
 </div></div>
 <div class="nav-peek" id="nav-peek" onclick="peekNav()">• • •</div>
+<nav class="tabbar" id="tabbar" aria-label="Main navigation">
+  <button class="tb on" id="m-wod" onclick="setMode('wod')"><span class="tb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg></span><span class="tl">WOD</span></button>
+  <button class="tb" id="m-chal" onclick="setMode('chal')"><span class="tb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14.5L8 22l4-2.5 4 2.5-1-7.5"/></svg></span><span class="tl">Challenge</span></button>
+  <button class="tb" id="m-event" onclick="setMode('event')" style="display:none;"><span class="tb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg></span><span class="tl">Event</span></button>
+  <button class="tb" id="m-disp" onclick="setMode('disp')"><span class="tb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-5M12 20V5M18 20v-9"/></svg></span><span class="tl">The Wall</span></button>
+  <button class="tb" id="m-sub" onclick="setMode('submit')"><span class="tb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></span><span class="tl">Submit</span></button>
+  <button class="tb" id="m-row" onclick="setMode('row')" style="display:none;"><span class="tb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l3-6 4 12 3-6h5"/></svg></span><span class="tl">Row</span></button>
+  <button class="tb" id="m-timer" onclick="setMode('timer')" style="display:none;"><span class="tb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg></span><span class="tl">Timer</span></button>
+</nav>
 
 <div class="page">
 
@@ -3296,6 +3306,7 @@ function _setMode(mode){
   if(mode==='rowcoach')renderRowCoach();
   if(mode==='me')renderMemberDash();
   if(mode==='home')renderHome();
+  var _noTab=!!activeScreenSlug;/* hide only on a dedicated TV-screen kiosk; keep nav everywhere else */var _tbb=document.getElementById('tabbar');if(_tbb)_tbb.style.display=_noTab?'none':'flex';document.body.classList.toggle('tabbar-on',!_noTab);
   applyMaintenance();
 }
 
