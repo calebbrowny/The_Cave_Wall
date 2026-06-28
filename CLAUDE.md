@@ -10,7 +10,15 @@ step — backed by Supabase and hosted on Netlify.
 - **Backend:** Supabase (Postgres + Auth + Storage). Project **`unfoqmfislfcnzxoivta`** ("cave-ops").
   Tables: `leaderboard`, `achievements`, `events`, `todos`, `kpis`, `challenges`, `submissions`,
   `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`, `row500`, `benchmarks`,
-  `benchmark_phones`, `member_profiles`, `workout_logs`, `body_metrics`.
+  `benchmark_phones`, `member_profiles`, `workout_logs`, `body_metrics`, `daily_results`,
+  `reset_requests`, `records`.
+  - `records` = the **all-time records / hall-of-fame wall** (public read; admin-only insert/update/
+    delete via `is_cave_admin()`, all perf-wrapped in `(select …)`; in the realtime publication). Cols:
+    cat, rkey (feat key, e.g. `back_squat`), label, sex ('m'/'f' split, or 'x' for a single non-gendered
+    record), holder, display (formatted value string, e.g. `200 kg` / `1:28`), value (numeric, for
+    comparison), dir ('high'/'low'), date. **No `proof_url` is persisted** — proof is verified at approval
+    time then the file is deleted (honours "stored for verification only"). Unique(rkey,sex). See the
+    "All-time records" section below.
   - `benchmarks` = recurring benchmark test (public read+insert, admin edit/delete, realtime). Cols:
     name, sex ('m'/'f'), score (seconds for time / reps), cycle (the cycle-start date). **No phone
     column** — the public board is phone-free. Config in `settings.benchmark` {on,title,start,weeks,
@@ -274,6 +282,46 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
   OFF** (otherwise `signUp` sends a confirmation email and the account can't log in until clicked — defeats
   "no codes"). (2) Deploy the `admin-members` edge function (Supabase CLI or dashboard) to enable member
   reset/remove.
+
+## All-time records (The Wall master board)
+The hall of fame: one best **Male + best Female** (or one overall) per feat, grouped by category. Backed by
+the `records` table (above). Built to be **mobile-first as the default view of The Wall**, with a per-TV
+rotator option for gym screens. ClubFit API auto-population is a future tie-in (not built).
+- **Catalog = `REC_CATS`** (single source of truth): five categories — **strength** (1RM lifts, kg, high),
+  **fitness** (row/ski/run times = low + 60s bike cals = high), **hyrox** (Open/Pro/`hyrox_doubles` (single,
+  non-gendered)/100 wall balls, all time/low), **gymnastics** (max-rep feats, high) and **community**
+  (`single:true` — most classes / most WODs / longest streak, admin-set for now). Each item: `{k,l,dir,u,
+  input}` where `input` ∈ kg/time/reps/cals. `REC_MAP` flattens it to `rkey → {…,cat}`.
+- **Helpers:** `recItem(rkey)`, `recSex(it,sex)` (→ 'm'/'f' or 'x' for single), `recFor(rkey,sex)` (the
+  cache row), `recSecToClock`/`recClockToSec` (h:mm:ss ↔ secs), `recParseInput(it,raw)` → `{value,display}`
+  (time→secs+clock; kg/cals→number+unit; reps→bare number), `recFmt`, `recBeats(it,nv,ov)` (dir-aware),
+  `recRowHTML`/`recBoardHTML(catKey)` (M/F two-column card, or single full-width amber card).
+- **Mobile master page = the default Wall view.** `renderDisplay()` branches on `dispIsMaster()` (= no
+  `activeScreenSlug`): master mode renders `#master` (`renderMaster`) — eyebrow/title, a sticky horizontal
+  **category tab strip** (`mw-tab` → `recTab(key)`: strength/fitness/hyrox/gym/community + **Achievements**
+  (`masterAchHTML`) + **What's coming** (`masterComingHTML` = active challenge + upcoming events)), the board,
+  and a "Set a record" CTA → Submit. Hides the rotator (`#slides`/dots/QR/`.disp-head`). `startDisplay()`
+  early-returns in master mode (no rotation timer, no wake-lock on phones).
+- **Gym screen (kiosk) rotator.** When `activeScreenSlug` is set (a `#display/<slug>` per-TV screen),
+  `renderDisplay` keeps the existing dots rotator. Record slides are added in `buildSlides` (one per
+  category that has any record) when `vis('records')` — gated globally by `settings.show_records` (default
+  true; toggle in ⚙️ Display settings) and per-screen by the new `records` key in `SCREEN_KEYS`/screen
+  profiles. Rendered via the `s.recordsCat` branch (`.rec-disp` 2-col grid).
+- **Submit a record (members, proof required).** Submit tab has a **🏆 Gym record** category: pick the feat
+  (`<optgroup>` per category), gender (hidden for single feats), a value input whose type follows
+  `it.input` (time vs number), and **required** photo/video proof. `doSubmitRecord` validates via
+  `recParseInput`, stores `{category:'record', detail:rkey, score:String(value), unit, gender, proof_url,
+  status:'pending'}` into `submissions` (public-insert; members never write `records` directly).
+- **Approve → auto-takes the top spot.** `approveSubmission` handles `category:'record'`: re-parses the
+  value, and **if it beats the current record** (`recBeats`, dir-aware) upserts the `records` row
+  (insert or update the existing rkey/sex). Proof is **always deleted** on approval (verified, not kept).
+  Readable admin text via `subDetailText`/`CAT_LABEL` ("… · NEW best" / "… · current X").
+- **Admin records panel** (Community category, `#records-admin`, `renderRecordsAdmin`, owner-gated): every
+  feat listed with its current M/W (or single) holder · value + **Set/Edit** (`openModal('record','rkey|sex')`
+  → `saveRecord`) and **Clear** (`recClear`). Lets the owner fill/fix the wall directly without a submission.
+- **Dynamic bottom tabs.** `refreshNav` shows/hides the bottom-bar tabs by state: Challenge (`challengeOn()`),
+  Event (`evp().enabled` — updates the `.tl` label, keeps its SVG icon), Timer (`show_timer`), Row
+  (`row500_tab` && `row500On()`). WOD / The Wall / Submit are always present.
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,

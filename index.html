@@ -311,6 +311,58 @@ body.no-tab-emoji .te{display:none;}
 .lb-split .lb-score{font-size:clamp(18px,1.9vw,36px);}
 .lb-split .lb-detail,.lb-split .lb-unit{font-size:clamp(11px,.95vw,17px);}
 
+/* ---------- ALL-TIME RECORDS (master wall + TV slides) ---------- */
+.display.master-mode{display:none;min-height:100vh;}
+.display.master-mode.active{display:block;}
+.display.master-mode .disp-head{display:none;}
+#master{max-width:760px;margin:0 auto;padding:0 16px 40px;}
+.mw-head{text-align:center;padding:clamp(18px,4vw,30px) 6px 14px;}
+.mw-eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.mw-title{font-size:clamp(28px,8vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.02;}
+.mw-sub{font-size:13px;color:var(--muted);margin-top:8px;max-width:30ch;margin-inline:auto;}
+.mw-tabs{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:sticky;top:0;background:var(--bg);z-index:3;}
+.mw-tabs::-webkit-scrollbar{display:none;}
+.mw-tab{flex:0 0 auto;border:1px solid var(--border);background:var(--bg-card);color:var(--muted);font-weight:700;font-size:13px;padding:9px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.mw-tab.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.rec-list{display:flex;flex-direction:column;gap:10px;}
+.rec-item{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:13px 15px;}
+.rec-feat{font-size:13px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--text);margin-bottom:10px;}
+.rec-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.rec-side{border-radius:10px;padding:10px 12px;background:var(--bg-light);border:1px solid var(--border);}
+.rec-side.male{border-left:3px solid var(--blue);}
+.rec-side.female{border-left:3px solid var(--pink);}
+.rec-side-h{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.rec-side.male .rec-side-h{color:var(--blue);}
+.rec-side.female .rec-side-h{color:var(--pink);}
+.rec-one{border-radius:10px;padding:10px 12px;background:var(--bg-light);border:1px solid var(--border);border-left:3px solid var(--amber,#f5a623);}
+.rec-holder{font-size:15px;font-weight:700;line-height:1.2;}
+.rec-val{font-size:20px;font-weight:800;color:var(--blue);letter-spacing:-.5px;margin-top:2px;}
+.rec-up{font-size:13px;color:var(--muted);font-style:italic;}
+.rec-none{text-align:center;color:var(--muted);font-size:14px;padding:40px 20px;}
+.rec-ach{display:flex;flex-direction:column;gap:9px;}
+.rec-ach-row{display:flex;align-items:center;gap:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;}
+.rec-ach-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex:0 0 auto;}
+.rec-ach-row .lb-av{width:38px;height:38px;flex:0 0 auto;}
+.rec-ach-name{font-size:15px;font-weight:700;}
+.rec-ach-detail{font-size:13px;color:var(--muted);margin-top:1px;}
+.rec-coming{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:10px;}
+.rc-tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--blue);background:color-mix(in srgb,var(--blue) 14%,var(--bg-card));padding:3px 9px;border-radius:6px;margin-bottom:7px;}
+.rc-title{font-size:17px;font-weight:800;line-height:1.15;}
+.rc-sub{font-size:13px;color:var(--muted);margin-top:3px;}
+.rc-desc{font-size:13px;color:var(--text);margin-top:6px;line-height:1.4;}
+.mw-cta{margin-top:22px;text-align:center;}
+.mw-cta .btn-full{max-width:280px;margin:0 auto;}
+.mw-cta-sub{font-size:12px;color:var(--muted);margin-top:8px;}
+/* records on the TV rotator */
+.rec-disp{max-width:min(1400px,94vw);margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.4vw,22px);}
+.rec-disp .rec-item{padding:clamp(12px,1.4vw,22px) clamp(14px,1.6vw,26px);border-radius:16px;}
+.rec-disp .rec-feat{font-size:clamp(15px,1.5vw,28px);margin-bottom:clamp(8px,1vw,14px);}
+.rec-disp .rec-holder{font-size:clamp(15px,1.5vw,28px);}
+.rec-disp .rec-val{font-size:clamp(20px,2.2vw,42px);}
+.rec-disp .rec-side-h{font-size:clamp(10px,.9vw,16px);}
+.rec-disp .rec-up{font-size:clamp(13px,1.1vw,20px);}
+@media(max-width:760px){.rec-disp{grid-template-columns:1fr;}}
+
 /* ---------- CHALLENGE TAB ---------- */
 .challenge{display:none;min-height:100vh;}
 .challenge.active{display:block;}
@@ -1325,6 +1377,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="disp-dots" id="disp-dots"></div>
   <div class="disp-qr" id="disp-qr" style="display:none"></div>
   <div id="slides"></div>
+  <div id="master" style="display:none"></div>
 </div>
 
 </div><!-- /page -->
@@ -1359,8 +1412,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
-const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'header',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true};
+const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],records:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_records:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'header',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -1454,7 +1507,7 @@ function seedLocal(){
   cache.boards=[];
 }
 async function fetchAll(){
-  const [lb,ac,ev,td,kp,ch,sub,wd,ad,bd,st,rw,bm]=await Promise.all([
+  const [lb,ac,ev,td,kp,ch,sub,wd,ad,bd,st,rw,bm,rc]=await Promise.all([
     sb.from('leaderboard').select('*').order('created_at'),
     sb.from('achievements').select('*').order('created_at'),
     sb.from('events').select('*').order('date'),
@@ -1467,9 +1520,10 @@ async function fetchAll(){
     sb.from('boards').select('*').order('sort').order('created_at'),
     sb.from('app_state').select('*').eq('id',1).maybeSingle(),
     sb.from('row500').select('*').order('seconds'),
-    sb.from('benchmarks').select('*').order('created_at')
+    sb.from('benchmarks').select('*').order('created_at'),
+    sb.from('records').select('*').order('cat')
   ]);
-  cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];cache.row500=(rw&&rw.data)||[];cache.benchmarks=(bm&&bm.data)||[];applyDemo();
+  cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];cache.row500=(rw&&rw.data)||[];cache.benchmarks=(bm&&bm.data)||[];cache.records=(rc&&rc.data)||[];applyDemo();
   if(st.data)cache.state={wod:st.data.wod||{},settings:st.data.settings||{},focus_override:st.data.focus_override||null,challenge_title:st.data.challenge_title||'Monthly Challenge',event_page:st.data.event_page||{enabled:false,title:'Event',subtitle:'',sections:[]}};
   if(currentUser){try{const{data:bp}=await sb.from('benchmark_phones').select('*');cache.benchmark_phones=bp||[];}catch(e){}}
   if(currentMember){try{const[wl,bx,mr]=await Promise.all([sb.from('workout_logs').select('*'),sb.from('body_metrics').select('*'),sb.from('daily_results').select('*').eq('member_id',currentMember.id)]);cache.workout_logs=wl.data||[];cache.body_metrics=bx.data||[];cache.my_results=mr.data||[];}catch(e){}}else{cache.workout_logs=[];cache.body_metrics=[];cache.my_results=[];}
@@ -1660,7 +1714,7 @@ const TAB_DEFAULTS={wod:'WOD',chal:'Challenge',sub:'Submit',disp:'The Wall',row:
 function tabNames(){const s=settings();return (s&&s.tab_names)||{};}
 function tabName(k){const n=tabNames()[k];return (n&&String(n).trim())||TAB_DEFAULTS[k]||k;}
 function applyTabNames(){Object.keys(TAB_DEFAULTS).forEach(function(k){const btn=document.getElementById('m-'+k);if(!btn)return;const tl=btn.querySelector('.tl');if(tl)tl.textContent=tabName(k);});}
-function refreshNav(){applyTabNames();const cb=document.getElementById('m-chal');if(cb)cb.style.display=challengeOn()?'':'none';const btn=document.getElementById('m-event');if(btn){const ep=evp();btn.style.display=ep.enabled?'':'none';btn.innerHTML='<span class="te">📅 </span>'+esc(ep.title||'Event');}var mt=document.getElementById('m-timer');if(mt)mt.style.display=settings().show_timer?'':'none';var mr=document.getElementById('m-row');if(mr)mr.style.display=(settings().row500_tab===true&&row500On())?'':'none';}
+function refreshNav(){applyTabNames();const cb=document.getElementById('m-chal');if(cb)cb.style.display=challengeOn()?'':'none';const btn=document.getElementById('m-event');if(btn){const ep=evp();btn.style.display=ep.enabled?'':'none';const lbl=btn.querySelector('.tl');if(lbl)lbl.textContent=ep.title||'Event';}var mt=document.getElementById('m-timer');if(mt)mt.style.display=settings().show_timer?'':'none';var mr=document.getElementById('m-row');if(mr)mr.style.display=(settings().row500_tab===true&&row500On())?'':'none';}
 async function evToggleEnabled(el){const nv=!evp().enabled;await evpSave({enabled:nv});if(el)el.classList.toggle('on',nv);refreshNav();renderEventPage();}
 async function evSaveMeta(){await evpSave({title:val('f-evtitle')||'Event',subtitle:val('f-evsub')});refreshNav();renderEventPage();}
 async function evAddSection(type){const base=Object.assign({id:uid(),type},EV_DEFAULTS[type]||{heading:'Section',body:''});const sections=(evp().sections||[]).concat([base]);await evpSetSections(sections);renderEventAdmin();renderEventPage();openModal('evsection',base.id);}
@@ -1726,6 +1780,11 @@ function openModal(type,id,extra){
   else if(type==='member'){t.textContent='Cave Hub account';b.innerHTML=memberAuthHTML();}
   else if(type==='metric'){t.textContent='Log a number';b.innerHTML=metricModalHTML();}
   else if(type==='memedit'){t.textContent='My account';b.innerHTML=memEditHTML();}
+  else if(type==='record'){const parts=String(id||'').split('|');const rk=parts[0],sex=parts[1]||'m';const it=recItem(rk)||{};const r=recFor(rk,sex);t.textContent=(r?'Edit':'Set')+' record';
+    const sexFld=it.single?'':`<div class="fld"><label>Category</label><input value="${sex==='f'?'Women':'Men'}" readonly></div>`;
+    const ph=it.input==='time'?'e.g. 1:08:40 or 7:45':(it.input==='kg'?'e.g. 180':'e.g. 30');
+    const cur=r?(it.input==='time'?recSecToClock(r.value):r.value):'';
+    b.innerHTML=`<div class="note" style="margin-bottom:10px;">${esc(it.l||'')}</div><input type="hidden" id="f-rec-key" value="${esc(rk)}"><input type="hidden" id="f-rec-sex" value="${esc(sex)}">${sexFld}<div class="fld"><label>Record holder</label><input id="f-rec-holder" value="${r?esc(r.holder):''}" placeholder="e.g. Jordan K."></div><div class="fld"><label>${esc(it.l||'Value')}${it.u?(' ('+esc(it.u)+')'):''}</label><input id="f-rec-val" value="${esc(String(cur))}" placeholder="${ph}"></div><button class="btn-full" onclick="saveRecord()">${r?'Save record':'Set record'}</button>${r?`<button class="btn-sm" style="width:100%;margin-top:8px;" onclick="recClear('${rk}|${sex}')">Clear this record</button>`:''}<div class="note">Set directly here, or approve a member submission to fill the wall automatically.</div>`;}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -1808,10 +1867,10 @@ function renderChallengeTab(){
 }
 
 /* ---------- SUBMISSIONS (admin approval) ---------- */
-const CAT_LABEL={strength:'Strength',hyrox:'HYROX',challenge:'Challenge',achievement:'Achievement'};
+const CAT_LABEL={strength:'Strength',hyrox:'HYROX',challenge:'Challenge',achievement:'Achievement',record:'Gym record'};
 function catLabel(s){if(s&&s.category==='customboard')return settings().customboard_submit_label||'Leaderboard';return CAT_LABEL[(s&&s.category)]||(s&&s.category)||'';}
 function subAv(s){if(settings().show_photos&&s.photo_url)return `<div class="sub-av" style="${bgUrl(s.photo_url)}"></div>`;return `<div class="sub-av">${esc((s.name||'?').slice(0,1))}</div>`;}
-function subDetailText(s){if(s.category==='achievement')return esc(s.detail||'');if(s.category==='hyrox')return esc((s.detail||'Result')+' · '+s.score);if(s.category==='challenge')return esc((s.score||'')+' '+(s.unit||''));if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);return esc((bd?bd.title:'Leaderboard')+' · '+(s.score||'')+' '+(s.unit||''));}return esc((s.detail||'')+' · '+s.score+' '+(s.unit||''));}
+function subDetailText(s){if(s.category==='achievement')return esc(s.detail||'');if(s.category==='record'){const it=recItem(s.detail);const sx=s.gender==='f'?'Women':(s.gender==='x'?'':'Men');const v=it?recFmt(it,parseFloat(s.score)):s.score;const cur=recFor(s.detail,s.gender);const beats=it&&cur?(recBeats(it,parseFloat(s.score),cur.value)?' · NEW best':' · current '+(cur.display||recFmt(it,cur.value))):'';return esc((it?it.l:s.detail)+(sx?(' · '+sx):'')+' · '+v+beats);}if(s.category==='hyrox')return esc((s.detail||'Result')+' · '+s.score);if(s.category==='challenge')return esc((s.score||'')+' '+(s.unit||''));if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);return esc((bd?bd.title:'Leaderboard')+' · '+(s.score||'')+' '+(s.unit||''));}return esc((s.detail||'')+' · '+s.score+' '+(s.unit||''));}
 function isVideoUrl(u){return /\.(mp4|mov|m4v|webm|avi|ogg|ogv|3gp|mkv)(\?|$)/i.test(u||'');}
 function renderSubmissions(){
   const el=document.getElementById('submissions-list');if(!el)return;
@@ -1826,7 +1885,7 @@ function renderSubmissions(){
       proofBlock=parts.length?`<div class="sub-proof-grid">${parts.join('')}</div>`:`<div class="sub-proof-missing">\u26A0 No videos attached</div>`;
     }
     else if(s.proof_url){const u=safeUrl(s.proof_url);proofBlock=isVideoUrl(s.proof_url)?`<video src="${u}" class="sub-proof-media" controls muted playsinline preload="metadata"></video>`:`<img src="${u}" class="sub-proof-media" alt="proof" onclick="window.open('${u}','_blank')">`;proofBlock+=`<a href="${u}" target="_blank" rel="noopener noreferrer" class="sub-proof" style="margin-left:0;">\uD83D\uDCCE Open full size</a>`;}
-    else if(s.category==='hyrox'||s.category==='challenge'||s.category==='customboard'){proofBlock=`<div class="sub-proof-missing">\u26A0 No proof attached</div>`;}
+    else if(s.category==='hyrox'||s.category==='challenge'||s.category==='customboard'||s.category==='record'){proofBlock=`<div class="sub-proof-missing">\u26A0 No proof attached</div>`;}
     return `<div class="sub-item">${subAv(s)}<div class="sub-info"><div class="sub-name">${esc(s.name)}<span class="sub-cat">${esc(catLabel(s))}</span></div><div class="sub-detail">${subDetailText(s)}</div>${proofBlock}</div><div class="sub-actions"><button class="ap" onclick="approveSubmission('${s.id}')">Approve</button><button class="rj" onclick="rejectSubmission('${s.id}')">Reject</button></div></div>`;
   }).join('');
 }
@@ -1843,16 +1902,17 @@ async function approveSubmission(id){
   else if(s.category==='achievement'){await rowInsert('achievements',{name:s.name,detail:s.detail||'',photo_url:s.photo_url||null});}
   else if(s.category==='challenge'){const c=await ensureActiveChallenge();const entries=(c.entries||[]).slice();entries.push({id:uid(),name:s.name,gender:s.gender||'m',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null,proof_url:s.proof_url||null});await rowUpdate('challenges',c.id,{entries});}
   else if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);if(bd){await rowInsert('leaderboard',{board:bd.id,name:s.name,gender:s.gender||'m',detail:'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}}
+  else if(s.category==='record'){const it=recItem(s.detail);const parsed=it?recParseInput(it,s.score):null;if(it&&parsed){const cur=recFor(s.detail,s.gender);if(!cur||recBeats(it,parsed.value,cur.value)){const row={cat:it.cat,rkey:s.detail,label:it.l,sex:recSex(it,s.gender),holder:titleCase(s.name||''),display:parsed.display,value:parsed.value,dir:it.dir,date:todayKey()};if(cur)await rowUpdate('records',cur.id,row);else await rowInsert('records',row);logActivity('record_set',(it.l)+' record → '+(s.name||''));}}}
   if(s.category!=='challenge'){await deleteProofFile(s.proof_url);if(s.proof_url2)await deleteProofFile(s.proof_url2);if(s.proof_url3)await deleteProofFile(s.proof_url3);}
   await rowDelete('submissions',id,true);
   logActivity('submission_approved','Approved '+(s.category||'')+' submission from '+(s.name||''));
   confettiBurst();
-  renderSubmissions();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderChallengeMgmt();renderChallengeTab();renderCustomBoards();renderDisplay();
+  renderSubmissions();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderChallengeMgmt();renderChallengeTab();renderCustomBoards();renderRecordsAdmin();renderDisplay();
 }
 async function rejectSubmission(id){if(!confirm('Reject and delete this submission?'))return;const s=cache.submissions.find(x=>x.id===id);await rowDelete('submissions',id);if(s){await deleteProofFile(s.proof_url);if(s.proof_url2)await deleteProofFile(s.proof_url2);if(s.proof_url3)await deleteProofFile(s.proof_url3);await deleteProofFile(s.photo_url);}logActivity('submission_rejected','Rejected submission'+(s?' from '+(s.name||''):''));renderSubmissions();}
 
 /* ---------- SUBMIT FORM (public) ---------- */
-let subCat='strength',subBoard=null,subPhotoFile=null,subProofFile=null,subStrengthProofs={squat:null,bench:null,deadlift:null},subDone=false;
+let subCat='strength',subBoard=null,subRecKey=null,subPhotoFile=null,subProofFile=null,subStrengthProofs={squat:null,bench:null,deadlift:null},subDone=false;
 function submittableBoards(){return (cache.boards||[]).filter(b=>b.enabled!==false);}
 function pickSubBoard(id){subBoard=id;renderSubmitFields();}
 function renderSubmitForm(){
@@ -1861,7 +1921,7 @@ function renderSubmitForm(){
   if(subDone){card.innerHTML=`<div class="submit-done"><div class="big">✅</div><h3>Submitted!</h3><p>Thanks — your entry is with the team for approval. Once it's approved it'll show up on the boards.</p><button class="btn-full" style="max-width:240px;margin:0 auto;" onclick="resetSubmit()">Submit another</button></div>`;return;}
   if(subCat==='challenge'&&!challengeOn())subCat='strength';
   if(subCat==='customboard'&&!customBoardsOn())subCat='strength';
-  const cats=[['strength','💪','Strength'],['hyrox','🏃','HYROX'],['challenge','🏅','Challenge'],['achievement','⭐','Achievement']].filter(c=>c[0]!=='challenge'||challengeOn());
+  const cats=[['strength','💪','Strength'],['hyrox','🏃','HYROX'],['record','🏆','Gym record'],['challenge','🏅','Challenge'],['achievement','⭐','Achievement']].filter(c=>c[0]!=='challenge'||challengeOn());
   if(customBoardsOn())cats.push(['customboard','🏆',settings().customboard_submit_label||'Leaderboard']);
   let h=`<div class="fld"><label>Your name</label><input id="s-name" placeholder="e.g. Jordan K."></div>`;
   h+=`<div class="fld"><label>What are you submitting?</label><div class="cat-pick">`+cats.map(c=>`<button class="cat-btn ${subCat===c[0]?'on':''}" onclick="selectCat('${c[0]}')"><span class="ic">${c[1]}</span>${c[2]}</button>`).join('')+`</div></div>`;
@@ -1894,6 +1954,11 @@ function renderSubmitFields(){
   }else if(subCat==='challenge'){
     const c=activeChallenge();const ttl=c?esc(c.title):"this month's challenge";
     el.innerHTML='<div class="note" style="margin-bottom:12px;">Submitting to: <strong>'+ttl+'</strong></div>'+g+'<div class="fld-row"><div class="fld"><label>Score</label><input id="s-score" placeholder="e.g. 4:32"></div><div class="fld"><label>Unit</label><input id="s-unit" placeholder="reps / hold / m"></div></div>'+proofField(true);
+  }else if(subCat==='record'){
+    if(!subRecKey||!recItem(subRecKey))subRecKey=REC_CATS[0].items[0].k;
+    const opts=REC_CATS.map(function(c){return '<optgroup label="'+esc(c.label)+'">'+c.items.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
+    el.innerHTML='<div class="note" style="margin-bottom:12px;">The all-time wall. If it beats the current record, it takes the top spot once we verify your proof.</div><div class="fld"><label>Which record?</label><select id="s-rec" onchange="onRecPick(this.value)">'+opts+'</select></div><div id="s-rec-fields"></div>';
+    renderRecFields();
   }else if(subCat==='customboard'){
     const boards=submittableBoards();
     const bid=(subBoard&&boards.some(b=>b.id===subBoard))?subBoard:(boards[0]&&boards[0].id);subBoard=bid;
@@ -1907,6 +1972,14 @@ function renderSubmitFields(){
   }else{
     el.innerHTML='<div class="fld"><label>What did you achieve?</label><input id="s-detail" placeholder="e.g. First full HYROX sim 🎉"></div><input type="hidden" id="s-score" value=""><input type="hidden" id="s-unit" value=""><input type="hidden" id="s-gender" value="m">'+proofField(false);
   }
+}
+function onRecPick(v){subRecKey=v;renderRecFields();}
+function renderRecFields(){const el=document.getElementById('s-rec-fields');if(!el)return;const it=recItem(subRecKey);if(!it){el.innerHTML='';return;}
+  const g=it.single?'<input type="hidden" id="s-gender" value="x">':'<div class="fld"><label>Category</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
+  let valFld;
+  if(it.input==='time')valFld='<div class="fld"><label>Time</label><input id="s-score" placeholder="e.g. 1:08:40 or 7:45"></div>';
+  else valFld='<div class="fld"><label>'+esc(it.l)+(it.u?(' ('+esc(it.u)+')'):'')+'</label><input id="s-score" type="number" inputmode="decimal" placeholder="e.g. '+(it.input==='kg'?'180':'30')+'"></div>';
+  el.innerHTML=g+valFld+'<input type="hidden" id="s-unit" value="'+esc(it.u||'')+'">'+proofField(true);
 }
 function onSubmitPhotoPick(inp){const f=inp.files&&inp.files[0];if(!f)return;subPhotoFile=f;const url=URL.createObjectURL(f);const p=document.getElementById('s-photo-prev');p.style.backgroundImage=`url('${url}')`;p.textContent='';document.getElementById('s-photo-status').textContent=f.name;}
 function onSubmitProofPick(inp){const f=inp.files&&inp.files[0];if(!f)return;subProofFile=f;const p=document.getElementById('s-proof-prev');const st=document.getElementById('s-proof-status');if(f.type.startsWith('image/')){p.style.backgroundImage=`url('${URL.createObjectURL(f)}')`;p.textContent='';}else{p.textContent='🎬';}if(st)st.textContent=f.name;}
@@ -1924,13 +1997,15 @@ async function doSubmit(){
   if(subCat!=='achievement'&&!score){alert('Please enter your score.');return;}
   if(subCat==='achievement'&&!val('s-detail')){alert('Please enter your achievement.');return;}
   if(subCat==='customboard'&&!subBoard){alert('Please pick a leaderboard to submit to.');return;}
-  if((subCat==='strength'||subCat==='hyrox'||subCat==='challenge'||subCat==='customboard')&&!subProofFile){alert('Photo or video proof is required for this submission. Please upload it.');return;}
+  if((subCat==='strength'||subCat==='hyrox'||subCat==='challenge'||subCat==='customboard'||subCat==='record')&&!subProofFile){alert('Photo or video proof is required for this submission. Please upload it.');return;}
+  if(subCat==='record')return doSubmitRecord(name,score);
   let photo=null;if(subPhotoFile){const st=document.getElementById('s-photo-status');if(st)st.textContent='Uploading…';photo=await uploadPhoto(subPhotoFile);}
   let proof=null;if(subProofFile){const st=document.getElementById('s-proof-status');if(st)st.textContent='Uploading proof…';proof=await uploadPhoto(subProofFile);}
   await rowInsert('submissions',{name,category:subCat,gender:val('s-gender')||'m',detail:(subCat==='customboard'?subBoard:val('s-detail'))||'',score,unit:val('s-unit'),photo_url:photo,proof_url:proof,status:'pending'});
   subDone=true;subPhotoFile=null;subProofFile=null;renderSubmitForm();renderSubmissions();
 }
-function resetSubmit(){subDone=false;subCat='strength';subBoard=null;subPhotoFile=null;subProofFile=null;subStrengthProofs={squat:null,bench:null,deadlift:null};renderSubmitForm();}
+async function doSubmitRecord(name,score){var it=recItem(subRecKey);if(!it){alert('Please pick a record.');return;}var parsed=recParseInput(it,score);if(!parsed){alert(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}var proof=null;var st=document.getElementById('s-proof-status');if(st)st.textContent='Uploading proof…';proof=await uploadPhoto(subProofFile);await rowInsert('submissions',{name:name,category:'record',gender:(it.single?'x':(val('s-gender')||'m')),detail:subRecKey,score:String(parsed.value),unit:it.u||'',proof_url:proof,status:'pending'});subDone=true;subPhotoFile=null;subProofFile=null;renderSubmitForm();renderSubmissions();}
+function resetSubmit(){subDone=false;subCat='strength';subBoard=null;subRecKey=null;subPhotoFile=null;subProofFile=null;subStrengthProofs={squat:null,bench:null,deadlift:null};renderSubmitForm();}
 
 /* ---------- WOD ---------- */
 const WOD_BLOCKS=[{k:'purpose',cls:'purpose',i:'🎯',l:'Purpose'},{k:'warmup',cls:'warmup',i:'🟢',l:'Warm-up'},{k:'core',cls:'core',i:'🔴',l:'Main'},{k:'cool',cls:'cool',i:'🔵',l:'Cool-down'},{k:'bonus',cls:'bonus',i:'🟣',l:'Optional Bonus'}];
@@ -2401,6 +2476,54 @@ function renderWOD(){
 function pickPublicWod(d){publicWodDate=d;publicWodSlot='a';renderWOD();}
 function pickPublicSlot(slot){publicWodSlot=slot;renderWOD();}
 
+/* ---------- ALL-TIME RECORDS (The Wall master board) ---------- */
+// The hall of fame: one best Male + best Female (or one overall) per feat, grouped by category.
+// Records come from the `records` table — members submit with proof, an admin approves and the
+// best automatically takes the top spot; an admin can also set/clear any record directly.
+const REC_CATS=[
+  {key:'strength',label:'Strength',items:[
+    {k:'back_squat',l:'Back Squat'},{k:'front_squat',l:'Front Squat'},{k:'deadlift',l:'Deadlift'},
+    {k:'bench',l:'Bench Press'},{k:'strict_press',l:'Strict Press'},{k:'push_press',l:'Push Press'},
+    {k:'power_clean',l:'Power Clean'},{k:'clean_jerk',l:'Clean & Jerk'},{k:'snatch',l:'Snatch'}
+  ].map(function(x){return Object.assign({dir:'high',u:'kg',input:'kg'},x);})},
+  {key:'fitness',label:'Fitness',items:[
+    {k:'row_500',l:'500m Row',dir:'low',input:'time'},{k:'row_1000',l:'1000m Row',dir:'low',input:'time'},
+    {k:'row_2000',l:'2000m Row',dir:'low',input:'time'},{k:'ski_500',l:'500m Ski',dir:'low',input:'time'},
+    {k:'ski_1000',l:'1000m Ski',dir:'low',input:'time'},{k:'run_5k',l:'5km Run',dir:'low',input:'time'},
+    {k:'bike_60',l:'Bike · 60s Cals',dir:'high',u:'cals',input:'cals'}
+  ].map(function(x){return Object.assign({u:''},x);})},
+  {key:'hyrox',label:'HYROX',items:[
+    {k:'hyrox_open',l:'HYROX Open',dir:'low',input:'time'},{k:'hyrox_pro',l:'HYROX Pro',dir:'low',input:'time'},
+    {k:'hyrox_doubles',l:'HYROX Doubles',dir:'low',input:'time',single:true},{k:'wallball_100',l:'100 Wall Balls',dir:'low',input:'time'}
+  ].map(function(x){return Object.assign({u:''},x);})},
+  {key:'gym',label:'Gymnastics',items:[
+    {k:'max_pullup',l:'Max Pull-ups'},{k:'max_strict_pullup',l:'Max Strict Pull-ups'},{k:'max_ttb',l:'Max Toes-to-Bar'},
+    {k:'max_hspu',l:'Max HSPU'},{k:'max_wallwalk',l:'Max Wall Walks'},{k:'max_du',l:'Max Double-Unders'}
+  ].map(function(x){return Object.assign({dir:'high',u:'reps',input:'reps'},x);})},
+  {key:'community',label:'Community',single:true,items:[
+    {k:'most_classes',l:'Most Classes · Month',u:''},{k:'most_wods',l:'Most WODs Logged',u:''},{k:'longest_streak',l:'Longest Streak',u:'days'}
+  ].map(function(x){return Object.assign({dir:'high',input:'reps',single:true},x);})}
+];
+const REC_MAP={};REC_CATS.forEach(function(c){c.items.forEach(function(it){REC_MAP[it.k]=Object.assign({cat:c.key},it);});});
+function recItem(rkey){return REC_MAP[rkey]||null;}
+function recSex(it,sex){return (it&&it.single)?'x':(sex==='f'?'f':'m');}
+function recFor(rkey,sex){const it=recItem(rkey);if(!it)return null;const sx=recSex(it,sex);return (cache.records||[]).find(function(r){return r.rkey===rkey&&(r.sex||'m')===sx;})||null;}
+function recPad(n){return String(n).padStart(2,'0');}
+function recSecToClock(s){s=Math.max(0,Math.round(+s||0));const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h?(h+':'+recPad(m)+':'+recPad(sec)):(m+':'+recPad(sec));}
+function recClockToSec(str){str=String(str==null?'':str).trim();if(!str)return null;if(/^\d+(\.\d+)?$/.test(str))return Math.round(parseFloat(str));const p=str.split(':');if(p.length<2||p.length>3)return null;for(let i=0;i<p.length;i++){if(p[i].trim()===''||isNaN(p[i]))return null;}let s=0;for(let i=0;i<p.length;i++)s=s*60+parseFloat(p[i]);return Math.round(s);}
+function recParseInput(it,raw){raw=String(raw==null?'':raw).trim();if(!it||!raw)return null;
+  if(it.input==='time'){const s=recClockToSec(raw);if(s==null||!(s>0))return null;return {value:s,display:recSecToClock(s)};}
+  const n=parseFloat(raw);if(isNaN(n)||n<0)return null;const v=Math.round(n*100)/100;
+  const num=Number.isInteger(v)?String(v):String(v);const unit=(it.u&&it.u!=='reps')?(' '+it.u):'';
+  return {value:v,display:num+unit};}
+function recFmt(it,value,display){if(display)return display;if(!it)return String(value);if(it.input==='time')return recSecToClock(value);const unit=(it.u&&it.u!=='reps')?(' '+it.u):'';return (Number.isInteger(value)?value:value)+unit;}
+function recBeats(it,nv,ov){if(ov==null)return true;return (it&&it.dir==='low')?(nv<ov):(nv>ov);}
+function recRowHTML(it){
+  const cell=function(sex){const r=recFor(it.k,sex);if(r&&r.holder)return '<div class="rec-holder">'+esc(titleCase(r.holder))+'</div><div class="rec-val">'+esc(r.display||recFmt(it,r.value))+'</div>';return '<div class="rec-up">Up for grabs</div>';};
+  if(it.single)return '<div class="rec-item single"><div class="rec-feat">'+esc(it.l)+'</div><div class="rec-one">'+cell('x')+'</div></div>';
+  return '<div class="rec-item"><div class="rec-feat">'+esc(it.l)+'</div><div class="rec-pair"><div class="rec-side male"><div class="rec-side-h">Men</div>'+cell('m')+'</div><div class="rec-side female"><div class="rec-side-h">Women</div>'+cell('f')+'</div></div></div>';}
+function recBoardHTML(catKey){const c=REC_CATS.find(function(x){return x.key===catKey;});if(!c)return '';return '<div class="rec-list">'+c.items.map(recRowHTML).join('')+'</div>';}
+
 /* ---------- DISPLAY ---------- */
 let slideIdx=0,slideTimer=null,clockTimer=null,displaying=false;
 function clearSlideTimer(){if(slideTimer){clearTimeout(slideTimer);slideTimer=null;}}
@@ -2412,12 +2535,13 @@ function colHtml(rows){if(!rows.length)return '<div class="disp-empty" style="pa
 function buildSlides(){
   const s=settings(),slides=[];const w=wodForDate(todayKey())||{};const f=getTodayFocus();
   const prof=screenProfile();
-  const vis=k=>{if(prof)return !!(prof.show&&prof.show[k]);switch(k){case 'wod':return s.show_wod!==false;case 'strength':return s.show_strength!==false;case 'hyrox':return s.show_hyrox!==false;case 'challenge':return s.show_challenge!==false;case 'achievements':return s.show_achievements!==false;case 'events':return s.show_events!==false;case 'ads':return s.show_ads!==false;case 'countdown':case 'quotes':return true;case 'event':return false;}return false;};
+  const vis=k=>{if(prof)return !!(prof.show&&prof.show[k]);switch(k){case 'wod':return s.show_wod!==false;case 'strength':return s.show_strength!==false;case 'hyrox':return s.show_hyrox!==false;case 'challenge':return s.show_challenge!==false;case 'achievements':return s.show_achievements!==false;case 'records':return s.show_records!==false;case 'events':return s.show_events!==false;case 'ads':return s.show_ads!==false;case 'countdown':case 'quotes':return true;case 'event':return false;}return false;};
   if(vis('wod')){if(!wodLive(todayKey()))slides.push({title:"⏳ WODs Coming Soon",sub:"Coach-written workouts, available to all Cave members",teaser:true});else if(wodHasContent(w))slides.push({title:"🔥 "+(w.title||(f+" Day")),sub:"Today's workout",wod:w});}
   if(vis('strength'))slides.push({title:"💪 Strength Leaderboard",sub:"Squat · Bench · Deadlift Total",split:split(sortScore(getBoard('strength')))});
   if(vis('hyrox'))slides.push({title:"🏃 HYROX Leaderboard",sub:"Fastest times at The Cave",single:sortTime(getBoard('hyrox'))});
   if(vis('challenge')&&challengeOn()){const ac=activeChallenge();if(ac){const range=chDateRange(ac);let days=null;if(ac.end_date){const now=new Date();now.setHours(0,0,0,0);const end=new Date(ac.end_date);days=Math.ceil((end-now)/864e5);}slides.push({title:"🏅 "+(ac.title||"Monthly Challenge"),sub:ac.prize?("🏆 "+ac.prize):"This month's community challenge",split:split(ac.entries||[]),chRange:range,chDays:days});}}
   if(vis('achievements'))slides.push({title:"⭐ Recent Achievements",sub:"Celebrating our members",ach:cache.achievements});
+  if(vis('records')&&(cache.records||[]).length)REC_CATS.forEach(function(rc){const has=rc.items.some(function(it){return recFor(it.k,'m')||recFor(it.k,'f')||recFor(it.k,'x');});if(has)slides.push({recordsCat:rc.key,title:"🏆 "+rc.label+" — All-Time",sub:"The best of the best at The Cave"});});
   if(customBoardsOn())cache.boards.forEach(b=>{if(b.enabled===false)return;const inc=prof?(prof.boards||[]).includes(b.id):(b.show_in_display!==false);if(!inc)return;const items=getBoard(b.id);const sorted=b.sort_type==='time'?sortTime(items):(b.sort_type==='none'?items.slice():sortScore(items));const base={title:'🏆 '+b.title,sub:b.subtitle||''};if(b.gender_split!==false)slides.push(Object.assign(base,{split:split(sorted)}));else slides.push(Object.assign(base,{single:sorted}));});
   if(vis('event')){const ep=evp();if(ep.enabled)slides.push({evslide:ep});}
   const evs=cache.events.slice().sort((a,b)=>new Date(a.date)-new Date(b.date)).filter(e=>new Date(e.date)>=new Date().setHours(0,0,0,0));
@@ -2428,8 +2552,19 @@ function buildSlides(){
   if(vis('ads'))cache.ads.forEach(a=>{if(a.enabled!==false)slides.push({ad:a});});
   return slides;
 }
+function dispIsMaster(){return !activeScreenSlug;}
 function renderDisplay(){
   const st=settings();
+  const disp=document.getElementById('display');
+  const mEl=document.getElementById('master'),slEl=document.getElementById('slides'),dotEl=document.getElementById('disp-dots'),qrEl0=document.getElementById('disp-qr');
+  if(dispIsMaster()){
+    if(disp)disp.classList.add('master-mode');
+    if(slEl)slEl.style.display='none';if(dotEl)dotEl.style.display='none';if(qrEl0)qrEl0.style.display='none';
+    if(mEl)mEl.style.display='block';
+    renderMaster();return;
+  }
+  if(disp)disp.classList.remove('master-mode');
+  if(mEl)mEl.style.display='none';if(slEl)slEl.style.display='';if(dotEl)dotEl.style.display='';
   const slides=buildSlides(),c=document.getElementById('slides');
   const qrEl=document.getElementById('disp-qr');
   if(qrEl){if(st.qr_on_display===true){const du=qrDataUrl(location.origin+location.pathname+'#submit',180);qrEl.innerHTML=du?`<img src="${du}" alt="QR code"><span>Scan to submit a score</span>`:'';qrEl.style.display=du?'flex':'none';}else{qrEl.style.display='none';}}
@@ -2440,6 +2575,7 @@ function renderDisplay(){
     if(s.big){body=`<div class="cd-big">${s.sub}</div>`;return `<div class="slide ${i===0?'on':''}"><div class="slide-title" style="font-size:clamp(60px,12vw,200px);color:var(--blue);">${s.title}</div><div class="cd-sub">${esc(s.sub)}</div></div>`;}
     if(s.quote){return `<div class="slide ${i===0?'on':''}"><div class="quote-mark">“</div><div class="quote-text">${esc(s.quote)}</div></div>`;}
     if(s.teaser){return `<div class="slide ${i===0?'on':''}"><div class="slide-title">${s.title}</div><div class="slide-sub">${esc(s.sub)}</div><div class="wod-teaser disp"><div class="teaser-ic">⏳</div><div class="teaser-h">Coming soon</div><div class="teaser-b">Awesome coach-written WODs are landing here soon, available to all Cave members.</div></div></div>`;}
+    if(s.recordsCat){return `<div class="slide ${i===0?'on':''}"><div class="slide-title">${s.title}</div><div class="slide-sub">${esc(s.sub)}</div><div class="rec-disp">${recBoardHTML(s.recordsCat)}</div></div>`;}
     if(s.wod){body=wodBlocksHTML(s.wod);}
     else if(s.ev){body=`<div class="lb-table">`+s.ev.slice(0,5).map(e=>{const d=new Date(e.date);return `<div class="lb-row"><div class="lb-rank" style="font-size:clamp(16px,1.6vw,28px);color:var(--blue)">${d.getDate()}/${d.getMonth()+1}</div><div class="lb-name">${esc(e.title)}<div class="lb-detail">${esc(e.note||'')}</div></div></div>`;}).join('')+`</div>`;}
     else if(s.ach){body=`<div class="lb-table">`+(s.ach.length?s.ach.slice(0,6).map(a=>`<div class="lb-row">${settings().show_photos?avHtml(a):'<div class="lb-rank">⭐</div>'}<div class="lb-name">${esc(a.name)}<div class="lb-detail">${esc(a.detail)}</div></div></div>`).join(''):'<div class="disp-empty">No achievements yet</div>')+`</div>`;}
@@ -2450,6 +2586,32 @@ function renderDisplay(){
   }).join('');
   document.getElementById('disp-dots').innerHTML=slides.map((s,i)=>`<div class="disp-dot ${i===0?'on':''}" onclick="goSlide(${i})"></div>`).join('');
   slideIdx=0;goSlide(0);
+}
+let recTabKey='strength';
+function recTabsDef(){const tabs=REC_CATS.map(function(c){return {k:c.key,l:c.label};});tabs.push({k:'ach',l:'Achievements'});tabs.push({k:'coming',l:"What's coming"});return tabs;}
+function renderMaster(){
+  const el=document.getElementById('master');if(!el)return;
+  const tabs=recTabsDef();if(!tabs.some(function(t){return t.k===recTabKey;}))recTabKey='strength';
+  let body;
+  if(recTabKey==='ach')body=masterAchHTML();
+  else if(recTabKey==='coming')body=masterComingHTML();
+  else body=recBoardHTML(recTabKey);
+  el.innerHTML='<div class="mw">'
+    +'<div class="mw-head"><div class="mw-eyebrow">The Cave</div><div class="mw-title">All-Time Records</div><div class="mw-sub">The best of the best — be the next name on the wall.</div></div>'
+    +'<div class="mw-tabs">'+tabs.map(function(t){return '<button class="mw-tab'+(t.k===recTabKey?' on':'')+'" onclick="recTab(\''+t.k+'\')">'+esc(t.l)+'</button>';}).join('')+'</div>'
+    +'<div class="mw-body">'+body+'</div>'
+    +'<div class="mw-cta"><button class="btn-full" onclick="setMode(\'submit\')">Set a record</button><div class="mw-cta-sub">Submit with a video or photo and the team will verify it.</div></div>'
+    +'</div>';
+}
+function recTab(k){recTabKey=k;renderMaster();const el=document.getElementById('master');if(el){const on=el.querySelector('.mw-tab.on');if(on&&on.scrollIntoView){try{on.scrollIntoView({inline:'center',block:'nearest'});}catch(e){}}}}
+function masterAchHTML(){const a=cache.achievements||[];if(!a.length)return '<div class="rec-none">No achievements posted yet — yours could be first.</div>';return '<div class="rec-ach">'+a.slice(0,30).map(function(x){return '<div class="rec-ach-row">'+((settings().show_photos&&x.photo_url)?('<div class="lb-av" style="'+bgUrl(x.photo_url)+'"></div>'):'<div class="rec-ach-dot"></div>')+'<div class="rec-ach-tx"><div class="rec-ach-name">'+esc(titleCase(x.name||''))+'</div><div class="rec-ach-detail">'+esc(x.detail||'')+'</div></div></div>';}).join('')+'</div>';}
+function masterComingHTML(){
+  const today=new Date(todayKey()+'T00:00:00');
+  const evs=(cache.events||[]).slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);}).filter(function(e){return new Date(e.date+'T00:00:00')>=today;});
+  let h='';
+  if(challengeOn()){const c=activeChallenge();if(c)h+='<div class="rec-coming"><div class="rc-tag">Challenge</div><div class="rc-title">'+esc(c.title||'Monthly Challenge')+'</div>'+(c.prize?'<div class="rc-sub">🏆 '+esc(c.prize)+'</div>':'')+(c.description?'<div class="rc-desc">'+esc(c.description)+'</div>':'')+'</div>';}
+  if(evs.length)h+=evs.slice(0,8).map(function(e){const d=new Date(e.date+'T00:00:00');return '<div class="rec-coming"><div class="rc-tag">'+d.getDate()+' '+d.toLocaleDateString('en-AU',{month:'short'})+'</div><div class="rc-title">'+esc(e.title)+'</div>'+(e.note?'<div class="rc-sub">'+esc(e.note)+'</div>':'')+'</div>';}).join('');
+  return h||'<div class="rec-none">Nothing on the calendar right now — check back soon.</div>';
 }
 function goSlide(i){const sl=document.querySelectorAll('.slide'),dt=document.querySelectorAll('.disp-dot');if(!sl.length)return;slideIdx=i%sl.length;const cur=sl[slideIdx];sl.forEach(s=>{s.classList.remove('on');const v=s.querySelector('video');if(v&&s!==cur){try{v.pause();}catch(e){}v.onended=null;}});dt.forEach(d=>d.classList.remove('on'));cur.classList.add('on');if(dt[slideIdx])dt[slideIdx].classList.add('on');const disp=document.getElementById('display');if(disp)disp.classList.toggle('ad-active',cur.classList.contains('ad-slide'));if(displaying)scheduleNext(cur);}
 function nextSlide(){goSlide(slideIdx+1);}
@@ -2467,7 +2629,7 @@ function scheduleNext(cur){
   const secs=parseFloat(cur.dataset.dur)||(prof&&prof.rotate)||(settings().rotate_seconds||8);
   slideTimer=setTimeout(nextSlide,secs*1000);
 }
-function startDisplay(){stopDisplay();displaying=true;tickClock();clockTimer=setInterval(tickClock,1000);acquireWake();const sl=document.querySelectorAll('.slide');if(sl.length)goSlide(slideIdx<sl.length?slideIdx:0);}
+function startDisplay(){stopDisplay();if(dispIsMaster())return;displaying=true;tickClock();clockTimer=setInterval(tickClock,1000);acquireWake();const sl=document.querySelectorAll('.slide');if(sl.length)goSlide(slideIdx<sl.length?slideIdx:0);}
 function stopDisplay(){displaying=false;clearSlideTimer();if(clockTimer){clearInterval(clockTimer);clockTimer=null;}releaseWake();}
 
 /* ---------- KIOSK HARDENING ---------- */
@@ -2475,7 +2637,7 @@ let wakeLock=null,kioskDay=todayKey(),cursorTimer=null;
 function isDisplayActive(){const d=document.getElementById('display');return d&&d.classList.contains('active');}
 async function acquireWake(){try{if('wakeLock' in navigator&&isDisplayActive()){wakeLock=await navigator.wakeLock.request('screen');}}catch(e){}}
 function releaseWake(){try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch(e){}}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&isDisplayActive()){acquireWake();renderDisplay();startDisplay();}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&isDisplayActive()){if(!dispIsMaster())acquireWake();renderDisplay();startDisplay();}});
 setInterval(()=>{if(todayKey()!==kioskDay){if(isDisplayActive()){location.reload();}else{kioskDay=todayKey();publicWodDate=todayKey();renderWOD();buildAdminStrip();}}},60000);
 function toggleFullscreen(){if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}else{document.documentElement.requestFullscreen().catch(()=>{});}}
 document.addEventListener('mousemove',()=>{document.body.classList.remove('idle-cursor');clearTimeout(cursorTimer);cursorTimer=setTimeout(()=>{if(isDisplayActive())document.body.classList.add('idle-cursor');},5000);});
@@ -2487,7 +2649,7 @@ function downloadQR(tab){const url=location.origin+location.pathname+'#'+tab;con
 
 /* ---------- DISPLAY SCREEN PROFILES ---------- */
 let activeScreenSlug=null;
-const SCREEN_KEYS=[['wod','🔥 WOD'],['strength','💪 Strength'],['hyrox','🏃 HYROX'],['challenge','🏅 Challenge'],['achievements','⭐ Achievements'],['events','🎉 Upcoming events'],['countdown','⏳ Countdown'],['quotes','💬 Quotes'],['ads','📣 Ads'],['event','📅 Event page / live']];
+const SCREEN_KEYS=[['wod','🔥 WOD'],['strength','💪 Strength'],['hyrox','🏃 HYROX'],['challenge','🏅 Challenge'],['achievements','⭐ Achievements'],['records','🏆 All-time records'],['events','🎉 Upcoming events'],['countdown','⏳ Countdown'],['quotes','💬 Quotes'],['ads','📣 Ads'],['event','📅 Event page / live']];
 function screenProfile(){if(!activeScreenSlug)return null;return (settings().screens||[]).find(p=>p.slug===activeScreenSlug)||null;}
 function slugify(n){let s=String(n||'screen').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'screen';const taken=(settings().screens||[]).filter(x=>x.id!==editId).map(x=>x.slug);let out=s,i=2;while(taken.includes(out))out=s+'-'+(i++);return out;}
 function renderScreens(){const el=document.getElementById('screens-list');if(!el)return;const scr=settings().screens||[];el.innerHTML=scr.length?scr.map(p=>{const on=Object.values(p.show||{}).filter(Boolean).length+(p.boards||[]).length;return `<div class="scr-card"><div style="min-width:0;"><div class="cb-title">${esc(p.name)}</div><div class="cb-sub">#display/${esc(p.slug)} · ${on} section${on===1?'':'s'}${p.rotate?' · '+p.rotate+'s rotation':''}</div></div><div class="cb-actions" style="margin:0;"><button class="btn-sm" onclick="shareLink('display/${esc(p.slug)}')">Copy link</button><button class="btn-sm" onclick="openModal('screen','${p.id}')">Edit</button><button class="btn-sm" onclick="delScreen('${p.id}')">Delete</button></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--muted);">No screen profiles yet. Your 📊 The Wall tab shows the global mix; create profiles here to give each TV its own.</div>';}
@@ -2718,7 +2880,7 @@ function renderSettings(){
   let body='';
   if(settingsTab==='display'){
     const tog=(k,lbl,sub)=>`<div class="set-row"><div><div class="set-lbl">${lbl}</div><div class="set-sub">${sub}</div></div><div class="sw ${s[k]?'on':''}" onclick="toggleSetting('${k}',this)"></div></div>`;
-    body='<div class="set-section">On the gym screen</div>'+tog('show_wod','Workout of the Day','Show the WOD slide on the screen')+tog('show_strength','Strength leaderboard','')+tog('show_hyrox','HYROX leaderboard','')+tog('show_challenge','Monthly challenge','')+tog('show_achievements','Achievements','')+tog('show_events','Upcoming events','')+tog('show_photos','Member photos','Show profile photos on leaderboards')+tog('show_ads','Advertising','Show uploaded ads/sponsors in the rotation')+tog('qr_on_display','Submit QR on display','Small corner QR — members scan to submit a score. Hides during ads')+'<div class="set-section">Timer</div>'+tog('show_timer','Timer tab','Adds a Timer tab (AMRAP, EMOM, Tabata and more) for events and classes. Off by default.')+'<div class="set-section">Timing</div>'+
+    body='<div class="set-section">On the gym screen</div>'+tog('show_wod','Workout of the Day','Show the WOD slide on the screen')+tog('show_strength','Strength leaderboard','')+tog('show_hyrox','HYROX leaderboard','')+tog('show_challenge','Monthly challenge','')+tog('show_achievements','Achievements','')+tog('show_records','All-time records','Rotate the hall-of-fame record boards on the screen')+tog('show_events','Upcoming events','')+tog('show_photos','Member photos','Show profile photos on leaderboards')+tog('show_ads','Advertising','Show uploaded ads/sponsors in the rotation')+tog('qr_on_display','Submit QR on display','Small corner QR — members scan to submit a score. Hides during ads')+'<div class="set-section">Timer</div>'+tog('show_timer','Timer tab','Adds a Timer tab (AMRAP, EMOM, Tabata and more) for events and classes. Off by default.')+'<div class="set-section">Timing</div>'+
       `<div class="set-row"><div><div class="set-lbl">Rotation speed</div><div class="set-sub">Seconds per slide on the gym screen</div></div><input class="set-num" type="number" min="3" max="60" value="${s.rotate_seconds}" onchange="setRotate(this)"></div>`+'<div class="set-section">Default sizing</div><div class="set-sub" style="margin-bottom:6px;">These sync to every screen. To size just one screen (like the gym TV) use the This device tab.</div>'+
       `<div class="set-row" style="display:block;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div class="set-lbl">WOD size</div><div class="set-sub">Scale the WOD screen to fit your display</div></div><span class="set-pct" id="wod-scale-pct">${Math.round(s.wod_scale*100)}%</span></div><input type="range" class="set-range" min="0.6" max="1.6" step="0.05" value="${s.wod_scale}" oninput="liveScale('wod',this.value)" onchange="commitScale('wod',this.value)"></div>`+
       `<div class="set-row" style="display:block;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div class="set-lbl">Leaderboard / display size</div><div class="set-sub">Scale the gym screen boards</div></div><span class="set-pct" id="board-scale-pct">${Math.round(s.board_scale*100)}%</span></div><input type="range" class="set-range" min="0.6" max="1.6" step="0.05" value="${s.board_scale}" oninput="liveScale('board',this.value)" onchange="commitScale('board',this.value)"></div>`;
@@ -3565,8 +3727,9 @@ function buildAdminCategories(){if(admCatBuilt)return;var grid=document.getEleme
     grid.appendChild(cat);var body=cat.querySelector('.adm-cat-body');
     c.secs.forEach(function(sec){var p=grid.querySelector(':scope > .planner-sec[data-sec="'+sec+'"]');if(p){p.removeAttribute('draggable');body.appendChild(p);}});
     if(c.key==='members'){var mp=document.createElement('div');mp.className='planner-sec';mp.innerHTML='<div class="panel"><div class="panel-h"><div class="panel-t">👥 Member hub</div></div><div id="members-admin"></div></div>';body.appendChild(mp);}
+    if(c.key==='community'){var rp=document.createElement('div');rp.className='planner-sec';rp.innerHTML='<div class="panel"><div class="panel-h"><div class="panel-t">🏆 All-time records</div></div><div id="records-admin"></div></div>';body.appendChild(rp);}
   });
-  admCatBuilt=true;renderSubmissions();if(admCatOpen('members'))renderMembersAdmin();
+  admCatBuilt=true;renderSubmissions();renderRecordsAdmin();if(admCatOpen('members'))renderMembersAdmin();
 }
 function swRow(on,lbl,sub,fn){return '<div class="ot-row"><div><div class="ot-lbl">'+esc(lbl)+'</div><div class="ot-sub">'+esc(sub)+'</div></div><span class="sw'+(on?' on':'')+'" onclick="'+fn+'"></span></div>';}
 async function toggleMembersOn(){const s=settings();s.members_on=!(s.members_on!==false);await stateUpdate({settings:s});renderMembersAdmin();renderMemberChip();toast(s.members_on?'Member logins ON':'Member logins OFF');}
@@ -3593,6 +3756,14 @@ async function renderMembersAdmin(){var el=document.getElementById('members-admi
   }catch(e){var b2=document.getElementById('mem-admin-list');if(b2)b2.textContent='Could not load members.';}
 }
 async function resetReqClear(id){if(!LIVE)return;try{await sb.from('reset_requests').delete().eq('id',id);}catch(e){}renderMembersAdmin();}
+function recAdminRow(it,sex){var r=recFor(it.k,sex);var who=(r&&r.holder)?(esc(titleCase(r.holder))+' · '+esc(r.display||recFmt(it,r.value))):'—';var lbl=esc(it.l)+(it.single?'':(' · '+(sex==='f'?'W':'M')));return '<div class="rlist-row"><span class="rl-name" style="flex:1.2;">'+lbl+'</span><span class="rl-time" style="flex:1.3;text-align:right;color:'+(r?'var(--text)':'var(--muted)')+';">'+who+'</span><button class="btn-sm" onclick="openModal(\'record\',\''+it.k+'|'+sex+'\')">'+(r?'Edit':'Set')+'</button>'+(r?'<button class="btn-sm" onclick="recClear(\''+it.k+'|'+sex+'\')">Clear</button>':'')+'</div>';}
+function renderRecordsAdmin(){var el=document.getElementById('records-admin');if(!el)return;if(!isUnlocked()){el.innerHTML='<div class="ot-sub">Admin only.</div>';return;}
+  var h='<div class="ot-cap" style="margin-bottom:8px;">The hall of fame. Members submit with proof — approve a submission and the best automatically takes the top spot. You can also set or clear any record directly here.</div>';
+  REC_CATS.forEach(function(c){h+='<div class="set-section" style="margin:12px 0 4px;">'+esc(c.label)+'</div>';c.items.forEach(function(it){if(it.single){h+=recAdminRow(it,'x');}else{h+=recAdminRow(it,'m')+recAdminRow(it,'f');}});});
+  el.innerHTML=h;
+}
+async function saveRecord(){var rk=val('f-rec-key'),sex=val('f-rec-sex')||'m';var it=recItem(rk);if(!it)return;var holder=val('f-rec-holder');var raw=val('f-rec-val');if(!holder){alert('Enter the record holder name.');return;}var parsed=recParseInput(it,raw);if(!parsed){alert(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}var cur=recFor(rk,sex);var row={cat:it.cat,rkey:rk,label:it.l,sex:recSex(it,sex),holder:titleCase(holder),display:parsed.display,value:parsed.value,dir:it.dir,date:todayKey()};if(cur)await rowUpdate('records',cur.id,row);else await rowInsert('records',row);closeModal();renderRecordsAdmin();renderDisplay();toast('Record saved ✓');}
+async function recClear(idsex){var parts=String(idsex||'').split('|');var rk=parts[0],sex=parts[1]||'m';var it=recItem(rk);var r=recFor(rk,sex);if(!r)return;if(!confirm('Clear the '+(it?it.l:'')+' record'+(it&&!it.single?(' ('+(sex==='f'?'Women':'Men')+')'):'')+'?'))return;await rowDelete('records',r.id,true);closeModal();renderRecordsAdmin();renderDisplay();toast('Record cleared');}
 async function memberAdminAct(id){var m=(cache.member_profiles||[]).find(function(x){return x.id===id;})||{};
   var act=(prompt('Manage '+(m.name||'member')+':\n\nType  reset   to set a new password (their mobile)\nType  remove  to permanently delete the account','')||'').trim().toLowerCase();
   if(!act)return;
@@ -3613,13 +3784,13 @@ function initDrag(){document.querySelectorAll('.planner-sec').forEach(sec=>{
 });}
 
 /* ---------- RENDER ALL ---------- */
-function renderLive(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderDualControls();renderEvents();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();renderMemberChip();buildAdminStrip();renderWOD();if(document.getElementById('eventpage').classList.contains('active'))renderEventPage();if(document.getElementById('display').classList.contains('active'))renderDisplay();
+function renderLive(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderDualControls();renderEvents();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderRecordsAdmin();renderAds();renderEventAdmin();renderScreens();refreshNav();renderMemberChip();buildAdminStrip();renderWOD();if(document.getElementById('eventpage').classList.contains('active'))renderEventPage();if(document.getElementById('display').classList.contains('active'))renderDisplay();
   var _rb=document.getElementById('rowboard');if(_rb&&_rb.classList.contains('active'))renderRowBoard();
   var _rcb=document.getElementById('rowcoach-board');if(_rcb&&document.getElementById('rowcoach').classList.contains('active')&&row500On()&&rowCoachKeyTry===rowKey())_rcb.innerHTML=rowMiniBoardHTML();
   var _ral=document.getElementById('row-admin-list');if(_ral)_ral.innerHTML=rowAdminListHTML();
   var _bl=document.getElementById('bm-admin-list');if(_bl){var _bc=bmConfig(),_bi=bmCycleInfo();if(_bi.valid&&!_bi.before)_bl.innerHTML=bmAdminListHTML(bmRealCycle(_bi.cycleKey).slice().sort(function(a,b){return (_bc.dir==='low')?(a.score-b.score):(b.score-a.score);}),_bc);}
   applyMaintenance();}
-function renderAll(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();renderMemberChip();loadWODForm();renderWOD();buildAdminCategories();renderUndoBar();}
+function renderAll(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();renderMemberChip();loadWODForm();renderWOD();buildAdminCategories();renderRecordsAdmin();renderUndoBar();}
 
 /* ===================== TIMER (SmartWOD-style, off by default) ===================== */
 const TMR_COL={amrap:'#fda942',fortime:'#5b8cff',emom:'#b06bff',tabata:'#22c598',mix:'#8ab4f8',rest:'#9aa0a6',work:'#22c598',ready:'#8ab4f8'};
