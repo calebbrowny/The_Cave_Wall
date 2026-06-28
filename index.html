@@ -2579,7 +2579,7 @@ const REC_CATS=Object.keys(REC_MAP).map(function(k){return REC_MAP[k];});
 const REC_TABS=[{key:'alltime',label:'All-Time',title:'All-Time Records'},{key:'strength',label:'Strength',title:'Strength Leaderboard'},{key:'fitness',label:'Fitness',title:'Fitness Leaderboard'},{key:'community',label:'Community',title:'Community'}];
 const REC_CAT_LABEL={};REC_TABS.forEach(function(t){REC_CAT_LABEL[t.key]=t.label;});
 // curated marquee feats for the All-Time summary
-const REC_SUMMARY=['squat','deadlift','bench','snatch','clean_jerk','hyrox_open','hyrox_pro','row_2000','run_5k','max_pullup','longest_streak'];
+const REC_SUMMARY=['squat','deadlift','bench','snatch','clean_jerk','hyrox_open','row_500','row_2000','run_1k','run_5k','max_pullup'];
 function recItem(rkey){return REC_MAP[rkey]||null;}
 function recGroupsForCat(cat){return REC_GROUPS.filter(function(g){return g.cat===cat;});}
 function recGroupByKey(gk){return REC_GROUPS.find(function(g){return g.gkey===gk;})||null;}
