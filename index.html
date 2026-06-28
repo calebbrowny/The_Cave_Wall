@@ -3121,13 +3121,21 @@ function handleSession(session){
   currentUser=null;setUnlocked(false);
   if(u){
     const wasMember=!!currentMember;currentMember=u;
-    ensureMemberProfile().then(function(){return refreshMemberData();}).then(function(){renderMemberChip();renderWodMember();var _mp=document.getElementById('member');if(_mp&&_mp.classList.contains('active'))renderMemberDash();if(!wasMember)toast('Hey '+(memFirst()||'there'));});
+    /* explicit login/signup → greet + open My Hub; a silent restore (page reload / new
+       session) just refreshes the chip so the member stays where they are. */
+    const explicit=memExplicitAuth;memExplicitAuth=false;
+    ensureMemberProfile().then(function(){return refreshMemberData();}).then(function(){
+      renderMemberChip();renderWodMember();
+      var _mp=document.getElementById('member');if(_mp&&_mp.classList.contains('active'))renderMemberDash();
+      if(explicit){toast('Hey '+(memFirst()||'there'));_setMode('me');}
+      else if(!wasMember)renderMemberChip();
+    });
   }else{currentMember=null;memberProfile=null;cache.workout_logs=[];cache.body_metrics=[];cache.daily_results=[];cache.my_results=[];drLoadedDate=null;drOpen=false;metHistOpen.clear();renderMemberChip();renderWodMember();}
 }
 function lockPlanner(){signOut();}
 
 /* ================= MEMBER PLATFORM ================= */
-let currentMember=null, memberProfile=null, memAuthTab='login', memSex='m', wmMetricsOpen=false, pendingProfile=null;
+let currentMember=null, memberProfile=null, memAuthTab='login', memSex='m', wmMetricsOpen=false, pendingProfile=null, memExplicitAuth=false;
 const DEFAULT_HOWTO='1. Open the WOD each day.\n2. Tap “Mark complete” when you finish.\n3. Log your bodyweight or key lifts to track progress over time.\n4. Build streaks and earn badges — just keep showing up.';
 function membersOn(){return settings().members_on!==false;}
 function memMetricsOn(){return settings().member_metrics_on!==false;}
@@ -3175,10 +3183,17 @@ async function memberJoin(){
   if(!name){memErr('Enter your name.');return;}
   memErr('Creating your account…');
   pendingProfile={name:titleCase(name),sex:sex,age:age};
+  memExplicitAuth=true;
   const{data,error}=await sb.auth.signUp({email:email,password:phone});
-  if(error){pendingProfile=null;if(/already|registered|exists/i.test(error.message||'')){memErr('That email is already registered — log in instead.');setMemberAuthTab('login');}else memErr(error.message||'Could not create your account.');return;}
-  if(data&&data.session){currentMember=data.session.user;await ensureMemberProfile();await refreshMemberData();closeModal();renderMemberChip();toast('Welcome to the Cave Hub, '+((name.split(' ')[0])||'')+'!');_setMode('me');confettiBurst();}
-  else{pendingProfile=null;closeModal();toast('Account created — log in to continue.');openMemberAuth('login');}
+  if(error){memExplicitAuth=false;pendingProfile=null;if(/already|registered|exists/i.test(error.message||'')){memErr('That email is already registered — log in instead.');setMemberAuthTab('login');}else memErr(error.message||'Could not create your account.');return;}
+  /* Auto-login: signUp returns a session when email-confirmation is off (our setup), and
+     onAuthStateChange→handleSession signs them in, creates the profile + opens My Hub. If no
+     session came back, sign in immediately so the experience is identical. */
+  if(!(data&&data.session)){
+    const r=await sb.auth.signInWithPassword({email:email,password:phone});
+    if(r.error){memExplicitAuth=false;pendingProfile=null;closeModal();toast('Account created — log in to continue.');openMemberAuth('login');return;}
+  }
+  closeModal();confettiBurst();
 }
 async function memberLogin(){
   if(!LIVE){memErr('Login needs the live site.');return;}
@@ -3187,9 +3202,10 @@ async function memberLogin(){
   if(!email||!phone){memErr('Enter your email and mobile number.');return;}
   if(emailAllowed(email)){memErr('That’s a staff email — use the ⚙️ gear to sign in as admin.');return;}
   memErr('Logging in…');
+  memExplicitAuth=true;
   const{error}=await sb.auth.signInWithPassword({email:email,password:phone});
-  if(error){var m=error.message||'';if(/not confirmed/i.test(m))memErr('Your email isn’t confirmed yet — ask the gym to switch on instant sign-in.');else memErr('We couldn’t find that. First time? Tap “Sign up”.');return;}
-  closeModal();/* handleSession finishes the login */
+  if(error){memExplicitAuth=false;var m=error.message||'';if(/not confirmed/i.test(m))memErr('Your email isn’t confirmed yet — ask the gym to switch on instant sign-in.');else memErr('We couldn’t find that. First time? Tap “Sign up”.');return;}
+  closeModal();/* onAuthStateChange→handleSession greets + opens My Hub */
 }
 async function memberSignOut(){if(LIVE){try{await sb.auth.signOut();}catch(e){}}currentMember=null;memberProfile=null;cache.workout_logs=[];cache.body_metrics=[];cache.daily_results=[];cache.my_results=[];drLoadedDate=null;drOpen=false;metHistOpen.clear();renderMemberChip();renderWodMember();_setMode('wod');toast('Logged out');}
 
@@ -4133,7 +4149,7 @@ async function boot(){
   const dot=document.getElementById('live-dot'),txt=document.getElementById('live-txt');
   if(LIVE){if(dot)dot.classList.add('on');if(txt)txt.textContent='Live';
     sb.auth.onAuthStateChange((event,session)=>handleSession(session));
-    try{const{data}=await sb.auth.getSession();const u=data&&data.session&&data.session.user;if(u){if(emailAllowed(u.email))currentUser=u;else{currentMember=u;await loadMemberProfile();}}}catch(e){console.error(e);}
+    try{const{data}=await sb.auth.getSession();const u=data&&data.session&&data.session.user;if(u){if(emailAllowed(u.email))currentUser=u;else{currentMember=u;memExplicitAuth=false;await loadMemberProfile();await refreshMemberData();}}}catch(e){console.error(e);}
     try{await fetchAll();subscribe();loadHistory();}catch(e){console.error(e);}}
   else{if(txt)txt.textContent='Local';lsLoad();if(!cache.leaderboard.length){seedLocal();lsSave();}}
   setUnlocked(isUnlocked());

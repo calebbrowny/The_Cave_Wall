@@ -200,6 +200,15 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
 - **handleSession** branches: authed + `emailAllowed()` → admin (unchanged); authed + not admin → **member**
   (`currentMember`, `memberProfile` via `ensureMemberProfile`→`loadMemberProfile`), NOT signed out. `isMember()`;
   members are never admins (`is_cave_admin()` stays false). `boot`'s getSession restores either tier.
+- **Auto-login + remember-me (single source of truth = `handleSession`).** `signUp` returns a session
+  (Confirm-email is OFF — verified), so `onAuthStateChange`→`handleSession` signs the new member straight in,
+  creates the profile from `pendingProfile`, greets them and opens **My Hub** — no "now log in" step.
+  `memberJoin`/`memberLogin` set a `memExplicitAuth` flag so `handleSession` knows an **explicit** login/signup
+  (greet + `_setMode('me')`) from a **silent restore** (page reload / new browser session → just refreshes the
+  chip, member stays put). `memberJoin` falls back to `signInWithPassword` if `signUp` ever returns no session.
+  Persistence is the Supabase client default (`persistSession:true` + `autoRefreshToken:true`); on boot,
+  `getSession` restores the member and loads their data (`loadMemberProfile`+`refreshMemberData`). Sessions
+  persist across browser sessions until they sign out (the refresh token re-issues a session — verified live).
 - **Logins on/off + feature toggles (owner control):** `settings.members_on` (default true) → `membersOn()`
   gates the chip + join/login; `settings.member_complete_on` / `settings.member_metrics_on` (default true) →
   `memCompleteOn()`/`memMetricsOn()` gate the WOD card's "mark complete" + metrics entry. All in `DEFAULT_SETTINGS`,
