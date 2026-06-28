@@ -501,21 +501,23 @@ body.no-tab-emoji .te{display:none;}
 .wm-card{max-width:680px;margin:14px auto 30px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:left;}
 .wm-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
 .wm-h{font-size:15px;font-weight:800;}
-.wm-mtoggle{background:none;border:none;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;padding:10px 0 2px;}
+.wm-mtoggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;border:none;border-top:1px solid var(--border);color:var(--text);font-size:14px;font-weight:800;cursor:pointer;padding:14px 0 4px;margin-top:10px;text-align:left;}
+.wm-mt-type{font-size:11px;font-weight:700;color:var(--muted);}
+.wm-mt-chev{color:var(--muted);font-size:12px;flex-shrink:0;}
 .wm-metrics{margin-top:8px;}
 .wm-mine{font-size:14px;margin:8px 0;}.wm-mine b{color:var(--blue);}
 .wm-sc{font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:1px 5px;}
 .wm-board{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
 .wm-board-h{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;}
 .wm-board-empty{font-size:13px;color:var(--muted);margin-top:12px;}
-.dr-sex{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:10px 0 4px;}
-.dr-row{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:14px;}
-.dr-row.me{background:rgba(138,180,248,.15);border:1px solid var(--blue);}
-.dr-rk{width:20px;font-weight:900;color:var(--muted);text-align:center;}
-.dr-nm{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.dr-vl{font-weight:900;color:var(--blue);}
-.dr-done{font-size:12px;color:var(--muted);margin-top:8px;}
-.dr-rx{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:8px 0;cursor:pointer;}
+.reclb-row.me .reclb-name{color:var(--blue);font-weight:800;}
+.dr-you{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#0e1116;background:var(--blue);border-radius:5px;padding:1px 5px;margin-left:6px;}
+.dr-done{font-size:12px;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
+.dr-rxrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 4px;}
+.dr-rxlbl{font-size:11px;font-weight:700;color:var(--muted);}
+.dr-pills{display:flex;gap:6px;}
+.dr-pill{border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:700;font-size:12px;padding:6px 15px;border-radius:999px;cursor:pointer;}
+.dr-pill.on{background:var(--blue);border-color:var(--blue);color:#0e1116;}
 .wm-suggest{margin-top:12px;font-size:13px;color:var(--blue);background:rgba(138,180,248,.1);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;}
 .md-edit{font-size:12px;font-weight:700;color:var(--blue);background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;}
 .md-add{font-size:12px;font-weight:700;color:var(--blue);background:none;border:1px solid var(--border);border-radius:8px;padding:3px 9px;cursor:pointer;float:right;text-transform:none;letter-spacing:0;}
@@ -3234,7 +3236,7 @@ function renderWodMember(){var el=document.getElementById('wod-member');if(!el)r
   }
   if(memMetricsOn()&&liveDay){
     if(mine){var extra='';if(mine.kind==='load'&&mine.movement){var orm=metBest(mine.movement,false);if(orm)extra=' · '+Math.round(mine.value/orm*100)+'% of est. 1RM';}h+='<div class="wm-mine">Your result: <b>'+esc(mine.display)+'</b>'+(mine.rx?'':' <span class="wm-sc">scaled</span>')+extra+' <button class="btn-sm" onclick="drToggle()">Edit</button></div>';}
-    else h+='<button class="wm-mtoggle" onclick="drToggle()">'+(drOpen?'▾':'▸')+' Log your result ('+(DR_TYPE_LABEL[spec.type]||'result')+')</button>';
+    else h+='<button class="wm-mtoggle" onclick="drToggle()"><span>Log your result <span class="wm-mt-type">'+(DR_TYPE_LABEL[spec.type]||'result')+'</span></span><span class="wm-mt-chev">'+(drOpen?'▴':'▾')+'</span></button>';
     if(drOpen)h+='<div class="wm-metrics">'+drFormHTML(spec)+'</div>';
     h+=drBoardHTML(d,spec);
   }
@@ -3423,21 +3425,22 @@ function wodResultSpec(w){
 const DR_TYPE_LABEL={amrap:'rounds + reps',fortime:'your time',load:'top load',time:'your time',reps:'reps',done:'mark done'};
 function drLower(kind){return kind==='fortime'||kind==='time';}
 function myResultFor(date){var id=currentMember&&currentMember.id;return (cache.daily_results||[]).find(function(r){return r.member_id===id&&r.date===date;})||(cache.my_results||[]).find(function(r){return r.date===date&&r.member_id===id;})||null;}
-let drOpen=false,drLoadedDate=null;
-function drToggle(){drOpen=!drOpen;renderWodMember();}
+let drOpen=false,drLoadedDate=null,drRxState=true;
+function drToggle(){drOpen=!drOpen;if(drOpen)drRxState=true;renderWodMember();}
+function drSetRx(v){drRxState=!!v;var a=document.getElementById('dr-rx-rx'),b=document.getElementById('dr-rx-sc');if(a)a.classList.toggle('on',drRxState);if(b)b.classList.toggle('on',!drRxState);}
 function drFormHTML(spec){var t=spec.type,h='';
   if(t==='amrap'){h+='<div class="fld-row"><div class="fld"><label>Rounds</label><input id="dr-rounds" inputmode="numeric" placeholder="5"></div><div class="fld"><label>+ extra reps</label><input id="dr-reps" inputmode="numeric" placeholder="12"></div></div>';}
   else if(t==='fortime'){h+='<div class="fld"><label>Your time (mm:ss)</label><input id="dr-time" inputmode="numeric" placeholder="12:34"></div>';}
   else if(t==='load'){var one=metBest(spec.mv.k,false);h+='<div class="fld"><label>'+esc(spec.mv.n)+' — today’s top load (kg)</label><input id="dr-load" inputmode="decimal" placeholder="120"></div>'+(one?'<div class="mauth-note">Your 1RM is '+one+' kg.</div>':'<div class="mauth-note">Set your '+esc(spec.mv.n)+' 1RM in My Account to compare.</div>');}
   else if(t==='time'){h+='<div class="fld"><label>'+esc(spec.eng.n)+' — your time (mm:ss)</label><input id="dr-time" inputmode="numeric" placeholder="4:05"></div>';}
   else {h+='<div class="fld"><label>Your score</label><input id="dr-free" placeholder="e.g. 3 rounds, 80kg, felt strong"></div>';}
-  h+='<label class="dr-rx"><input type="checkbox" id="dr-rx" checked> Done as prescribed (RX)</label><button class="btn-full" onclick="drSave()">Post my result</button>';
+  h+='<div class="dr-rxrow"><span class="dr-rxlbl">How did you do it?</span><div class="dr-pills"><button type="button" id="dr-rx-rx" class="dr-pill'+(drRxState?' on':'')+'" onclick="drSetRx(1)">RX</button><button type="button" id="dr-rx-sc" class="dr-pill'+(drRxState?'':' on')+'" onclick="drSetRx(0)">Scaled</button></div></div><button class="btn-full" onclick="drSave()">Post my result</button>';
   return h;
 }
 async function drSave(){
   if(!isMember()||!LIVE)return;
   var d=publicWodDate||todayKey(),w=wodForDate(d,publicWodSlot)||{},spec=wodResultSpec(w);
-  var rx=!!(document.getElementById('dr-rx')&&document.getElementById('dr-rx').checked),kind=spec.type,value=null,display='';
+  var rx=drRxState,kind=spec.type,value=null,display='';
   if(kind==='amrap'){var R=parseInt(val('dr-rounds'),10)||0,rr=parseInt(val('dr-reps'),10)||0;if(!R&&!rr){toast('Enter your rounds.');return;}value=R*1000+rr;display=R+' + '+rr;}
   else if(kind==='fortime'||kind==='time'){var sec=secMMSS(val('dr-time'));if(!(sec>0)){toast('Enter a time like 12:34.');return;}value=sec;display=fmtMMSS(sec);}
   else if(kind==='load'){var ld=parseFloat(val('dr-load'));if(!(ld>0)){toast('Enter the weight.');return;}value=ld;display=ld+' kg';}
@@ -3445,19 +3448,29 @@ async function drSave(){
   var row={member_id:currentMember.id,date:d,wod_ref:d,name:titleCase((memberProfile&&memberProfile.name)||memFirst()||'Member'),sex:(memberProfile&&memberProfile.sex)||'m',kind:kind,value:value,display:display,rx:rx,movement:(spec.mv?spec.mv.k:(spec.eng?spec.eng.k:null))};
   try{const{error}=await sb.from('daily_results').upsert(row,{onConflict:'member_id,date'});if(error){toast('Could not post.');return;}}catch(e){toast('Could not post.');return;}
   if(!myLogForDate(d))await wmComplete(d);
-  drOpen=false;await loadDailyBoard(d);await refreshMemberData();confettiBurst();toast('Result posted!');
+  drOpen=false;drRxState=true;await loadDailyBoard(d);await refreshMemberData();confettiBurst();toast('Result posted!');
   if(kind==='time'&&spec.eng){var pb=metBest(spec.eng.k,true);if(pb==null||value<pb){if(confirm('That’s your best '+spec.eng.n+'! Save it to your profile?'))await metSave(spec.eng.k,value,'s','from daily WOD');}}
   if(kind==='load'&&spec.mv){var pbl=metBest(spec.mv.k,false);if(pbl==null||value>pbl){if(confirm('That top set beats your '+spec.mv.n+' best — set your 1RM to '+value+' kg?'))await metSave(spec.mv.k,value,'kg','from daily WOD');}}
   renderWodMember();renderMemberChip();
 }
 function drBoardHTML(d,spec){
   var rows=(cache.daily_results||[]).filter(function(r){return r.date===d;});
-  if(!rows.length)return '<div class="wm-board-empty">No results yet — be the first to post.</div>';
+  var h='<div class="wm-board"><div class="wm-board-h">Today’s board</div>';
+  if(!rows.length)return h+'<div class="wm-board-empty">No results yet — be the first to post.</div></div>';
   var lower=drLower(spec.type),scored=rows.filter(function(r){return r.kind!=='done'&&r.value!=null;}),doneN=rows.length-scored.length;
-  function sect(sex){var list=scored.filter(function(r){return (r.sex||'m')===sex;}).sort(function(a,b){return lower?(a.value-b.value):(b.value-a.value);});if(!list.length)return '';
-    return '<div class="dr-sex">'+(sex==='f'?'Women':'Men')+'</div>'+list.map(function(r,i){return '<div class="dr-row'+((currentMember&&r.member_id===currentMember.id)?' me':'')+'"><span class="dr-rk">'+(i+1)+'</span><span class="dr-nm">'+esc(titleCase(r.name||'Member'))+'</span><span class="dr-vl">'+esc(r.display)+(r.rx?'':' <span class="wm-sc">sc</span>')+'</span></div>';}).join('');}
-  var myRank='';if(currentMember){var meRow=scored.find(function(r){return r.member_id===currentMember.id;});if(meRow){var grp=scored.filter(function(r){return (r.sex||'m')===(meRow.sex||'m');}).sort(function(a,b){return lower?(a.value-b.value):(b.value-a.value);});var pos=grp.findIndex(function(r){return r.member_id===currentMember.id;})+1;if(pos>0)myRank='<div class="dr-myrank">You’re #'+pos+' of '+grp.length+'</div>';}}
-  return '<div class="wm-board"><div class="wm-board-h">Today’s board</div>'+myRank+sect('m')+sect('f')+(doneN?'<div class="dr-done">'+doneN+' more marked done</div>':'')+'</div>';
+  function col(sex,label){
+    var list=scored.filter(function(r){return (r.sex||'m')===sex;}).sort(function(a,b){return lower?(a.value-b.value):(b.value-a.value);});
+    var head='<div class="reclb-h">'+label+'</div>';
+    if(!list.length)return '<div class="reclb-col">'+head+'<div class="reclb-empty">No results yet</div></div>';
+    return '<div class="reclb-col">'+head+list.map(function(r,i){
+      var me=currentMember&&r.member_id===currentMember.id;
+      return '<div class="reclb-row'+(i<3?' top'+(i+1):'')+(me?' me':'')+'"><span class="reclb-rank">'+(i+1)+'</span><span class="reclb-name">'+esc(titleCase(r.name||'Member'))+(me?'<span class="dr-you">you</span>':'')+'</span><span class="reclb-val">'+esc(r.display)+(r.rx?'':' <span class="wm-sc">sc</span>')+'</span></div>';
+    }).join('')+'</div>';
+  }
+  if(currentMember){var meRow=scored.find(function(r){return r.member_id===currentMember.id;});if(meRow){var grp=scored.filter(function(r){return (r.sex||'m')===(meRow.sex||'m');}).sort(function(a,b){return lower?(a.value-b.value):(b.value-a.value);});var pos=grp.findIndex(function(r){return r.member_id===currentMember.id;})+1;if(pos>0)h+='<div class="dr-myrank">You’re #'+pos+' of '+grp.length+'</div>';}}
+  if(scored.length)h+='<div class="reclb">'+col('m','Men')+col('f','Women')+'</div>'+(doneN?'<div class="dr-done">'+doneN+' more marked done</div>':'');
+  else h+='<div class="wm-board-empty">'+doneN+' marked done — log a score to start the board.</div>';
+  return h+'</div>';
 }
 /* --- profile sections --- */
 /* --- profile metric rows: list every metric, PB + improvement arrow, History (w/ delete), ✕ to customise --- */
