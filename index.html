@@ -354,13 +354,15 @@ body.no-tab-emoji .te{display:none;}
 .rec-lb-wrap{padding:2px 2px 14px;}
 .reclb{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;}
 .reclb.single{grid-template-columns:1fr;}
+.reclb-col{display:flex;flex-direction:column;min-width:0;}
 .reclb-h{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin:6px 0 2px;}
 .reclb-row{display:flex;align-items:baseline;gap:9px;padding:6px 0;border-top:1px solid var(--border);font-size:13px;}
 .reclb-rank{flex:0 0 16px;font-weight:800;font-size:12px;color:var(--muted);}
 .reclb-row.top1 .reclb-rank{color:var(--blue);}
 .reclb-name{flex:1;min-width:0;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.reclb-val{font-weight:800;color:var(--text);flex:0 0 auto;}
+.reclb-val{font-weight:800;color:var(--blue);flex:0 0 auto;}
 .reclb-empty{font-size:12px;color:var(--muted);padding:6px 0;}
+@media(max-width:400px){.reclb{grid-template-columns:1fr;gap:4px;}}
 .rec-none{text-align:center;color:var(--muted);font-size:14px;padding:36px 20px;}
 /* community: achievements + champions (clean rows) */
 .rec-ach,.champ-list{display:block;}
@@ -374,10 +376,10 @@ body.no-tab-emoji .te{display:none;}
 .mw-cta .btn-full{max-width:290px;margin:0 auto;}
 .mw-cta-sub{font-size:12px;color:var(--muted);margin-top:8px;}
 /* What's On — calendar popup (flat blue) */
-.wo-list{display:flex;flex-direction:column;gap:11px;}
-.wo-card{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:12px;padding:12px 14px;}
+.wo-list{display:block;}
+.wo-card{padding:13px 2px;border-bottom:1px solid var(--border);}
 .wo-top{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
-.wo-date{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--blue);color:#10131a;border-radius:8px;padding:5px 9px;min-width:46px;line-height:1;flex:0 0 auto;}
+.wo-date{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--blue);color:#0e1116;border-radius:8px;padding:5px 9px;min-width:46px;line-height:1;flex:0 0 auto;}
 .wo-date .d{font-size:18px;font-weight:800;}
 .wo-date .m{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
 .wo-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);}
@@ -1793,7 +1795,7 @@ function renderEventPage(){const ep=evp();const tt=document.getElementById('evp-
 
 /* ---------- MODAL ---------- */
 let editId=null,pendingPhoto=null,existingPhoto=null;
-function gField(sel){return `<div class="fld"><label>Category</label><select id="f-gender"><option value="m"${sel==='m'?' selected':''}>♂ Male</option><option value="f"${sel==='f'?' selected':''}>♀ Female</option></select></div>`;}
+function gField(sel){return `<div class="fld"><label>Gender</label><select id="f-gender"><option value="m"${sel==='m'?' selected':''}>♂ Male</option><option value="f"${sel==='f'?' selected':''}>♀ Female</option></select></div>`;}
 function photoField(url){existingPhoto=url||null;pendingPhoto=null;const bg=url?`style="${bgUrl(url)}"`:'';return `<div class="photo-fld"><div class="photo-prev" id="photo-prev" ${bg}>${url?'':'👤'}</div><label class="upl">Choose photo<input type="file" accept="image/*" onchange="onPhotoPick(this)"></label><span class="photo-status" id="photo-status"></span></div>`;}
 function onPhotoPick(inp){const f=inp.files&&inp.files[0];if(!f)return;pendingPhoto=f;const url=URL.createObjectURL(f);document.getElementById('photo-prev').style.backgroundImage=`url('${url}')`;document.getElementById('photo-prev').textContent='';document.getElementById('photo-status').textContent=f.name;}
 function openModal(type,id,extra){
@@ -1829,7 +1831,7 @@ function openModal(type,id,extra){
   else if(type==='metric'){t.textContent='Log a number';b.innerHTML=metricModalHTML();}
   else if(type==='memedit'){t.textContent='My account';b.innerHTML=memEditHTML();}
   else if(type==='record'){const parts=String(id||'').split('|');const rk=parts[0],sex=parts[1]||'m';const it=recItem(rk)||{};const best=recBest(rk,sex);t.textContent='Add entry';
-    const sexFld=it.single?'':`<div class="fld"><label>Category</label><input value="${sex==='f'?'Women':'Men'}" readonly></div>`;
+    const sexFld=it.single?'':`<div class="note" style="margin-bottom:10px;">Adding to <strong>${sex==='f'?'Women’s':'Men’s'}</strong> records</div>`;
     const ph=it.input==='time'?'e.g. 1:08:40 or 7:45':(it.input==='kg'?'e.g. 180':'e.g. 30');
     const curLine=best?`<div class="note" style="margin-bottom:10px;">${esc(it.l||'')} · current best <strong>${esc(best.display||recFmt(it,best.value))}</strong> (${esc(titleCase(best.holder||''))})</div>`:`<div class="note" style="margin-bottom:10px;">${esc(it.l||'')} · no entries yet</div>`;
     b.innerHTML=`${curLine}<input type="hidden" id="f-rec-key" value="${esc(rk)}"><input type="hidden" id="f-rec-sex" value="${esc(sex)}">${sexFld}<div class="fld"><label>Name</label><input id="f-rec-holder" placeholder="e.g. Jordan K."></div><div class="fld"><label>${esc(it.l||'Value')}${it.u?(' ('+esc(it.u)+')'):''}</label><input id="f-rec-val" placeholder="${ph}"></div><button class="btn-full" onclick="saveRecord()">Add to board</button><div class="note">Adds a verified entry directly. Members’ own entries come in via the Submit tab and your approval.</div>`;}
@@ -2002,7 +2004,7 @@ function proofField(required){
 }
 function renderSubmitFields(){
   const el=document.getElementById('s-fields');if(!el)return;
-  const g='<div class="fld"><label>Category</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
+  const g='<div class="fld"><label>Gender</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
   if(subCat==='record'){
     if(!subRecKey||!recItem(subRecKey)||(recItem(subRecKey).gkey&&recGroupByKey(recItem(subRecKey).gkey).adminOnly))subRecKey='squat';
     const opts=REC_GROUPS.filter(function(g){return g.feats&&g.feats.length&&!g.adminOnly;}).map(function(g){return '<optgroup label="'+esc(g.group)+'">'+g.feats.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
@@ -2027,7 +2029,7 @@ function renderSubmitFields(){
 }
 function onRecPick(v){subRecKey=v;renderRecFields();}
 function renderRecFields(){const el=document.getElementById('s-rec-fields');if(!el)return;const it=recItem(subRecKey);if(!it){el.innerHTML='';return;}
-  const g=it.single?'<input type="hidden" id="s-gender" value="x">':'<div class="fld"><label>Category</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
+  const g=it.single?'<input type="hidden" id="s-gender" value="x">':'<div class="fld"><label>Gender</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
   if(subRecKey==='pl_total'){
     el.innerHTML=g
       +'<div class="set-sub" style="margin:-4px 0 8px;">Enter all three lifts — we’ll post your Total plus each individual lift to the board.</div>'
