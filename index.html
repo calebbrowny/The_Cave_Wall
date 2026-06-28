@@ -313,71 +313,64 @@ body.no-tab-emoji .te{display:none;}
 .lb-split .lb-score{font-size:clamp(18px,1.9vw,36px);}
 .lb-split .lb-detail,.lb-split .lb-unit{font-size:clamp(11px,.95vw,17px);}
 
-/* ---------- THE WALL — records (flat, brand-blue) ---------- */
+/* ---------- THE WALL — records (clean list, brand-blue accents) ---------- */
 .display.master-mode{display:none;min-height:100vh;}
 .display.master-mode.active{display:block;}
 .display.master-mode .disp-head{display:none;}
-#master{max-width:760px;margin:0 auto;padding:0 14px 52px;}
-.mw-head{text-align:center;padding:clamp(18px,4vw,28px) 6px 6px;}
+#master{max-width:640px;margin:0 auto;padding:0 18px 56px;}
+.mw-head{text-align:center;padding:clamp(18px,4vw,28px) 6px 4px;}
 .mw-eyebrow{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
-.mw-title{font-size:clamp(28px,8vw,42px);font-weight:800;letter-spacing:-1.2px;line-height:1;color:var(--text);}
-.mw-note{font-size:12px;color:var(--muted);text-align:center;margin:0 4px 12px;}
-.mw-tabs{display:flex;gap:7px;overflow-x:auto;padding:10px 2px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:sticky;top:0;background:var(--bg);z-index:3;}
-.mw-tabs::-webkit-scrollbar{display:none;}
-.mw-tab{flex:0 0 auto;border:1px solid var(--border);background:var(--bg-card);color:var(--muted);font-weight:700;font-size:13px;padding:8px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;}
-.mw-tab.on{background:var(--blue);border-color:var(--blue);color:#10131a;}
-/* group accordions */
-.rec-grp{margin-bottom:16px;}
-.rec-grp-h{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:4px 2px 9px;margin-bottom:10px;cursor:pointer;color:inherit;font:inherit;}
-.rec-grp-name{font-size:13px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);}
-.rec-grp-chev{color:var(--muted);font-size:12px;transition:transform .18s;}
+.mw-title{font-size:clamp(28px,8vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.05;color:var(--text);}
+.mw-note{font-size:12.5px;color:var(--muted);text-align:center;margin:2px auto 14px;max-width:40ch;}
+.mw-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:12px 2px 18px;position:sticky;top:0;background:var(--bg);z-index:3;}
+.mw-tab{border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:700;font-size:13px;padding:8px 17px;border-radius:999px;cursor:pointer;white-space:nowrap;}
+.mw-tab.on{background:var(--blue);border-color:var(--blue);color:#0e1116;}
+/* group = blue pill header, then a plain divided list */
+.rec-grp{margin-bottom:22px;}
+.rec-grp-h{display:flex;align-items:center;justify-content:space-between;width:100%;background:var(--blue);color:#0e1116;border:none;border-radius:10px;padding:11px 15px;margin-bottom:4px;cursor:pointer;font:inherit;}
+.rec-grp-name{font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0e1116;}
+.rec-grp-chev{color:#0e1116;font-size:12px;transition:transform .18s;opacity:.75;}
 .rec-grp:not(.open) .rec-grp-chev{transform:rotate(-90deg);}
 .rec-grp:not(.open) .rec-grp-body{display:none;}
-.rec-grp-body{display:flex;flex-direction:column;gap:9px;}
-/* compact feat rows */
-.rec-list{display:flex;flex-direction:column;gap:9px;}
-.rec-row{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:11px;overflow:hidden;}
-.rec-row.empty{border-left-color:var(--border);opacity:.65;}
-.rec-row.open{border-color:var(--blue);}
-.rr-main{display:block;width:100%;text-align:left;background:none;border:none;padding:10px 12px;cursor:pointer;color:inherit;font:inherit;}
-.rec-row.empty .rr-main,.rec-row.tv{padding:10px 12px;}
-.rr-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.rr-feat{font-size:13.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--blue);flex:1;min-width:0;}
+.rec-grp-body{display:block;}
+/* clean feat rows — dividers, type hierarchy, no cards */
+.rec-list{display:block;}
+.rec-row{border-bottom:1px solid var(--border);}
+.rec-row.empty{opacity:.5;}
+.rr-main{display:block;width:100%;text-align:left;background:none;border:none;padding:13px 2px;cursor:pointer;color:inherit;font:inherit;}
+.rec-row.empty .rr-main{cursor:default;}
+.rec-row.tv{padding:13px 2px;}
+.rr-top{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.rr-feat{font-size:16px;font-weight:800;letter-spacing:-.2px;color:var(--text);flex:1;min-width:0;}
 .rr-chev{color:var(--muted);font-size:12px;transition:transform .18s;flex:0 0 auto;}
 .rr-chev.open{transform:rotate(180deg);color:var(--blue);}
-.rr-recs{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.rr-recs.single{grid-template-columns:1fr;}
-.rr-cell{display:flex;align-items:center;gap:7px;background:var(--bg-light);border-radius:8px;padding:7px 10px;min-width:0;}
-.rr-tag{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);flex:0 0 auto;}
-.rr-name{font-size:13px;font-weight:700;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.rr-val{font-size:15px;font-weight:800;color:var(--blue);letter-spacing:-.3px;flex:0 0 auto;}
-.rr-up{font-size:13px;color:var(--muted);flex:1;}
-/* drill-down full leaderboard */
-.rec-lb-wrap{border-top:1px solid var(--border);background:var(--bg);padding:10px 12px 12px;}
-.reclb{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.rr-recs{display:flex;flex-direction:column;gap:4px;}
+.rr-cell{display:flex;align-items:baseline;gap:10px;min-width:0;}
+.rr-tag{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);flex:0 0 52px;}
+.rr-name{font-size:14px;font-weight:600;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rr-val{font-size:16px;font-weight:800;color:var(--blue);flex:0 0 auto;letter-spacing:-.3px;}
+.rr-up{font-size:14px;color:var(--muted);flex:1;}
+/* drill-down full leaderboard (clean ranked rows) */
+.rec-lb-wrap{padding:2px 2px 14px;}
+.reclb{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;}
 .reclb.single{grid-template-columns:1fr;}
-.reclb-h{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.reclb-row{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;font-size:13px;}
-.reclb-row:nth-child(even){background:rgba(255,255,255,.03);}
-.reclb-rank{flex:0 0 18px;text-align:center;font-weight:800;font-size:12px;color:var(--muted);}
+.reclb-h{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin:6px 0 2px;}
+.reclb-row{display:flex;align-items:baseline;gap:9px;padding:6px 0;border-top:1px solid var(--border);font-size:13px;}
+.reclb-rank{flex:0 0 16px;font-weight:800;font-size:12px;color:var(--muted);}
 .reclb-row.top1 .reclb-rank{color:var(--blue);}
-.reclb-name{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.reclb-name{flex:1;min-width:0;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .reclb-val{font-weight:800;color:var(--text);flex:0 0 auto;}
-.reclb-empty{font-size:12px;color:var(--muted);padding:4px 6px;}
+.reclb-empty{font-size:12px;color:var(--muted);padding:6px 0;}
 .rec-none{text-align:center;color:var(--muted);font-size:14px;padding:36px 20px;}
-/* community: achievements + champions */
-.rec-ach{display:flex;flex-direction:column;gap:9px;}
-.rec-ach-row{display:flex;align-items:center;gap:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
-.rec-ach-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex:0 0 auto;}
-.rec-ach-row .lb-av{width:36px;height:36px;flex:0 0 auto;}
-.rec-ach-name{font-size:14px;font-weight:700;}
-.rec-ach-detail{font-size:12px;color:var(--muted);margin-top:1px;}
-.champ-list{display:flex;flex-direction:column;gap:9px;}
-.champ-row{display:flex;align-items:center;gap:11px;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:10px;padding:10px 12px;}
+/* community: achievements + champions (clean rows) */
+.rec-ach,.champ-list{display:block;}
+.rec-ach-row,.champ-row{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--border);}
+.rec-ach-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex:0 0 auto;}
+.rec-ach-row .lb-av{width:34px;height:34px;flex:0 0 auto;}
+.rec-ach-name,.champ-name{font-size:15px;font-weight:700;}
+.rec-ach-detail,.champ-sub{font-size:13px;color:var(--muted);margin-top:1px;}
 .champ-medal{font-size:18px;flex:0 0 auto;}
-.champ-name{font-size:15px;font-weight:700;}
-.champ-sub{font-size:12px;color:var(--muted);margin-top:1px;}
-.mw-cta{margin-top:24px;text-align:center;}
+.mw-cta{margin-top:28px;text-align:center;}
 .mw-cta .btn-full{max-width:290px;margin:0 auto;}
 .mw-cta-sub{font-size:12px;color:var(--muted);margin-top:8px;}
 /* What's On — calendar popup (flat blue) */
@@ -393,14 +386,14 @@ body.no-tab-emoji .te{display:none;}
 .wo-sub{font-size:12px;color:var(--muted);margin-top:3px;}
 .wo-prize{font-size:12px;color:var(--text);font-weight:700;margin-top:5px;}
 .wo-desc{font-size:13px;color:var(--text);margin-top:6px;line-height:1.4;}
-/* records on the TV rotator */
+/* records on the TV rotator — cards for across-the-room legibility */
 .rec-disp{max-width:min(1400px,94vw);margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.2vw,18px);}
-.rec-disp .rec-row{border-left-width:4px;}
+.rec-disp .rec-row{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;}
 .rec-disp .rec-row.tv{padding:clamp(12px,1.2vw,20px) clamp(14px,1.4vw,22px);}
 .rec-disp .rr-feat{font-size:clamp(14px,1.3vw,24px);}
 .rec-disp .rr-name{font-size:clamp(13px,1.1vw,20px);}
 .rec-disp .rr-val{font-size:clamp(15px,1.4vw,26px);}
-.rec-disp .rr-tag{font-size:clamp(9px,.7vw,13px);}
+.rec-disp .rr-tag{font-size:clamp(9px,.7vw,13px);flex-basis:auto;}
 @media(max-width:760px){.rec-disp{grid-template-columns:1fr;}}
 
 /* ---------- CHALLENGE TAB ---------- */
@@ -2011,8 +2004,8 @@ function renderSubmitFields(){
   const el=document.getElementById('s-fields');if(!el)return;
   const g='<div class="fld"><label>Category</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
   if(subCat==='record'){
-    if(!subRecKey||!recItem(subRecKey))subRecKey='squat';
-    const opts=REC_GROUPS.filter(function(g){return g.feats&&g.feats.length;}).map(function(g){return '<optgroup label="'+esc(g.group)+'">'+g.feats.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
+    if(!subRecKey||!recItem(subRecKey)||(recItem(subRecKey).gkey&&recGroupByKey(recItem(subRecKey).gkey).adminOnly))subRecKey='squat';
+    const opts=REC_GROUPS.filter(function(g){return g.feats&&g.feats.length&&!g.adminOnly;}).map(function(g){return '<optgroup label="'+esc(g.group)+'">'+g.feats.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
     el.innerHTML='<div class="note" style="margin-bottom:12px;">Every verified result joins the leaderboard — the best one tops the wall. Pick what you did:</div><div class="fld"><label>What did you hit?</label><select id="s-rec" onchange="onRecPick(this.value)">'+opts+'</select></div><div id="s-rec-fields"></div>';
     renderRecFields();
   }else if(subCat==='challenge'){
@@ -2043,9 +2036,12 @@ function renderRecFields(){const el=document.getElementById('s-rec-fields');if(!
       +strengthProofField();
     return;
   }
-  let valFld;
-  if(it.input==='time')valFld='<div class="fld"><label>Time</label><input id="s-score" placeholder="e.g. 1:08:40 or 7:45"></div>';
-  else valFld='<div class="fld"><label>'+esc(it.l)+(it.u?(' ('+esc(it.u)+')'):'')+'</label><input id="s-score" type="number" inputmode="decimal" placeholder="e.g. '+(it.input==='kg'?'180':'30')+'"></div>';
+  var lbl,ph,help,numeric=true;
+  if(it.input==='time'){lbl='Time';ph='e.g. 1:08:40 or 7:45';help='Enter as mm:ss (or h:mm:ss for longer efforts).';numeric=false;}
+  else if(it.input==='cals'){lbl='Calories';ph='e.g. 45';help='Total calories for the effort (e.g. a 60-second max on the bike).';}
+  else if(it.input==='reps'){lbl='Reps';ph='e.g. 30';help='Your best set — unbroken unless your gym says otherwise.';}
+  else {lbl='Weight (kg)';ph='e.g. 180';help='Your best lift, in kilograms.';}
+  var valFld='<div class="fld"><label>'+esc(it.l)+' · '+lbl+'</label><input id="s-score" '+(numeric?'type="number" inputmode="decimal" ':'')+'placeholder="'+ph+'"></div><div class="set-sub" style="margin:-4px 0 10px;">'+help+'</div>';
   el.innerHTML=g+valFld+'<input type="hidden" id="s-unit" value="'+esc(it.u||'')+'">'+proofField(true);
 }
 function onPlInput(){var n=function(id){var v=parseFloat(val(id));return isNaN(v)?0:v;};var t=Math.round((n('s-pl-sq')+n('s-pl-bn')+n('s-pl-dl'))*100)/100;var el=document.getElementById('s-pl-total');if(el)el.value=(t||0)+' kg';}
@@ -2572,16 +2568,16 @@ const REC_GROUPS=[
   {gkey:'ergs',cat:'fitness',group:'Ergs & sprints',dir:'low',u:'',input:'time',items:[['row_500','500m Row'],['row_1000','1km Row'],['row_2000','2km Row'],['ski_500','500m Ski'],['ski_1000','1km Ski'],['run_1k','1km Run'],['bike_60','60s Bike',{dir:'high',u:'cals',input:'cals'}]]},
   {gkey:'endurance',cat:'fitness',group:'Endurance',dir:'low',u:'',input:'time',items:[['run_5k','5km Run'],['run_10k','10km Run'],['run_21k','Half Marathon'],['run_42k','Marathon']]},
   {gkey:'achievements',cat:'community',group:'Personal achievements',special:'ach'},
-  {gkey:'attendance',cat:'community',group:'Attendance & consistency',dir:'high',u:'',input:'reps',single:true,items:[['most_classes','Most Classes · Month'],['most_wods','Most WODs Logged'],['longest_streak','Longest Streak',{u:'days'}]]},
+  {gkey:'attendance',cat:'community',group:'Attendance & consistency',adminOnly:true,dir:'high',u:'',input:'reps',single:true,items:[['most_classes','Most Classes · Month'],['most_wods','Most WODs Logged'],['longest_streak','Longest Streak',{u:'days'}]]},
   {gkey:'champions',cat:'community',group:'Challenge champions',special:'champions'}
 ];
 const REC_MAP={};
 REC_GROUPS.forEach(function(g){g.feats=[];if(!g.items)return;g.items.forEach(function(t){var it=Object.assign({dir:g.dir,u:g.u,input:g.input},(g.single?{single:true}:{}),{k:t[0],l:t[1],cat:g.cat,group:g.group,gkey:g.gkey},(t[2]||{}));g.feats.push(it);REC_MAP[it.k]=it;});});
 const REC_CATS=Object.keys(REC_MAP).map(function(k){return REC_MAP[k];});
-const REC_TABS=[{key:'alltime',label:'All-Time'},{key:'strength',label:'Strength'},{key:'fitness',label:'Fitness'},{key:'community',label:'Community'}];
+const REC_TABS=[{key:'alltime',label:'All-Time',title:'All-Time Records'},{key:'strength',label:'Strength',title:'Strength Leaderboard'},{key:'fitness',label:'Fitness',title:'Fitness Leaderboard'},{key:'community',label:'Community',title:'Community'}];
 const REC_CAT_LABEL={};REC_TABS.forEach(function(t){REC_CAT_LABEL[t.key]=t.label;});
 // curated marquee feats for the All-Time summary
-const REC_SUMMARY=['pl_total','squat','deadlift','bench','snatch','clean_jerk','hyrox_open','hyrox_pro','row_2000','run_5k','max_pullup','longest_streak'];
+const REC_SUMMARY=['squat','deadlift','bench','snatch','clean_jerk','hyrox_open','hyrox_pro','row_2000','run_5k','max_pullup','longest_streak'];
 function recItem(rkey){return REC_MAP[rkey]||null;}
 function recGroupsForCat(cat){return REC_GROUPS.filter(function(g){return g.cat===cat;});}
 function recGroupByKey(gk){return REC_GROUPS.find(function(g){return g.gkey===gk;})||null;}
@@ -2710,7 +2706,7 @@ function renderMaster(){
   const cta=community?'Share an achievement':'Set a record';
   const ctaSub=community?'Proud of something? Send it in with a photo or video.':'Submit with a video or photo and the team will verify it.';
   el.innerHTML='<div class="mw">'
-    +'<div class="mw-head"><div class="mw-eyebrow">The Cave</div><div class="mw-title">'+esc(recTabKey==='alltime'?'All-Time Records':tab.label)+'</div></div>'
+    +'<div class="mw-head"><div class="mw-eyebrow">The Cave</div><div class="mw-title">'+esc(tab.title||tab.label)+'</div></div>'
     +'<div class="mw-tabs">'+REC_TABS.map(function(t){return '<button class="mw-tab'+(t.key===recTabKey?' on':'')+'" onclick="recTab(\''+t.key+'\')">'+esc(t.label)+'</button>';}).join('')+'</div>'
     +'<div class="mw-body">'+body+'</div>'
     +'<div class="mw-cta"><button class="btn-full" onclick="recCTA(\''+(community?'ach':'rec')+'\')">'+cta+'</button><div class="mw-cta-sub">'+ctaSub+'</div></div>'
