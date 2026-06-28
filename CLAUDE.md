@@ -287,36 +287,42 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
 ## All-time records + leaderboards (The Wall — one connected system)
 The single performance system: members submit a result (with proof) → admin approves → it lands in `records`
 as an entry → the wall shows the best **Male + Female** (or one overall) per feat, and tapping a feat drills
-into the **full ranked leaderboard**. There is **no separate "old leaderboard" + "records" split** — they were
-unified (the standalone Strength/HYROX submit categories were folded into this). Mobile-first as the default
-view of The Wall, with a per-TV rotator for gym screens. ClubFit auto-population is a future tie-in (not built).
-- **Catalog = `REC_CATS`** (single source of truth): six categories — **powerlifting** (Squat/Bench/Deadlift/
-  `pl_total` "Total", kg high), **strength** (Olympic & accessory 1RMs — front squat, OHS, presses, cleans,
-  snatch; no overlap with PL's big-3), **fitness** (row/ski/run times = low + 60s bike cals = high), **hyrox**
-  (Open/Pro/`hyrox_doubles` (single, non-gendered)/100 wall balls, time/low), **gymnastics** (max-rep feats,
-  high), **community** (`single:true` — most classes / most WODs / longest streak). Each item `{k,l,dir,u,
-  input}`, `input` ∈ kg/time/reps/cals. `REC_MAP` flattens to `rkey → {…,cat}`; `REC_CAT_LABEL` maps cat→label.
+into the **full ranked leaderboard**. No separate "old leaderboard" + "records" split (the standalone
+Strength/HYROX submit categories were folded in). Mobile-first default view of The Wall + a per-TV rotator.
+**Design = strict brand-blue + FLAT** (owner's call): `var(--blue)` accents only, no gradients, no
+per-category colours, M/F distinguished by label not colour. ClubFit auto-population is a future tie-in.
+- **Catalog = `REC_GROUPS` → `REC_MAP`.** Feats live in **groups**, groups live in top-level **tabs**
+  (`REC_TABS` = **All-Time / Strength / Fitness / Community**). Groups: Strength = Powerlifting (squat/bench/
+  deadlift/`pl_total`), Olympic lifting (snatch/clean&jerk/power clean/front squat/OHS/push & strict press),
+  Gymnastics & bodyweight (max pull-ups/strict/muscle-ups/T2B/HSPU/double-unders); Fitness = HYROX (open/pro/
+  `hyrox_doubles` single/100 wall balls), Ergs & sprints (row 500/1k/2k, ski 500/1k, 1km run, 60s bike cals),
+  Endurance (5/10/21.1/42.2 km run); Community = Personal achievements (`special:'ach'` → achievements board),
+  Attendance & consistency (most classes/WODs/longest streak, `single`), Challenge champions (`special:'champions'`
+  → past/current monthly-challenge winners). `REC_GROUPS.forEach` builds `g.feats` + `REC_MAP[k]={…,cat,group,gkey}`;
+  `REC_CATS` = flat list; `REC_SUMMARY` = curated marquee feats for All-Time. `input` ∈ kg/time/reps/cals.
 - **Entry model + helpers.** `records` holds every approved entry. `recEntries(rkey,sex)` = all rows for a
-  feat+sex, **deduped to each person's best** (by lowercased holder), ranked dir-aware; `recBest` = the #1;
-  `recFor` aliases `recBest`. `recItem`/`recCatOf`/`recCat`/`recSex` ('m'/'f' or 'x'), `recSecToClock`/
-  `recClockToSec` (h:mm:ss ↔ secs), `recParseInput(it,raw)`→`{value,display}`, `recFmt`, `recBeats`,
-  `recPL(detail)` (parses the Powerlifting payload `pl_total:sq/bn/dl`). `recRowHTML(it,tv)`/`recBoardHTML(catKey,tv)`
-  render the per-feat card (M/F podium + count + chevron; `tv`=static for the rotator); `recToggle(k)` expands
-  one feat (`recOpenKey`) into `recLeaderboardHTML` (two ranked columns, medals on top-3).
-- **Mobile master page = the default Wall view.** `renderDisplay()` branches on `dispIsMaster()` (= no
-  `activeScreenSlug`): master mode renders `#master` (`renderMaster`) — title + sticky **category tab strip**
-  (`mw-tab` → `recTab(key)`: the 6 cats + **Achievements** (`masterAchHTML`) + **What's On** (`masterComingHTML`
-  = active challenge + upcoming events, rich `.wo-card` date badges + countdown)), a coloured category header
-  (`.mw-cat`, per-cat accent via `.cat-<key>` → `--cat`), the board, and a "Set a record" CTA → Submit. Hides
-  the rotator. `startDisplay()` early-returns in master mode (no rotation, no wake-lock). Each card "pops":
-  category-coloured left accent + gradient + the value in the cat colour; M/F sub-cells blue/pink.
-- **Gym screen (kiosk) rotator.** When `activeScreenSlug` is set, `renderDisplay` keeps the dots rotator.
-  Record slides (`s.recordsCat`, `.rec-disp` grid, `recBoardHTML(cat,true)`) are added in `buildSlides` (one per
-  category with any entry) when `vis('records')` — gated globally by `settings.show_records` (default true; ⚙️
-  Display settings) and per-screen by the `records` key in `SCREEN_KEYS`. The legacy built-in Strength/HYROX
-  leaderboard slides only render if their `leaderboard` board actually has rows (otherwise skipped).
+  feat+sex **deduped to each person's best** (normalised holder; empty→id), ranked dir-aware; `recBest`=#1;
+  `recFor` aliases it. `recItem`/`recGroupsForCat`/`recGroupByKey`/`recFeatGroups`/`recSex` ('m'/'f' or 'x'),
+  `recSecToClock`/`recClockToSec`, `recParseInput(it,raw)`→`{value,display}`, `recFmt`, `recBeats`,
+  `recPL(detail)` (parses `pl_total:sq/bn/dl`), `recCount`.
+- **Master page render.** `renderMaster` (in master mode, `dispIsMaster()` = no `activeScreenSlug`) → `#master`:
+  title + sticky `mw-tab` strip (`recTab`). **All-Time** = `recSummaryHTML` (REC_SUMMARY marquee feats, glanceable).
+  **Strength/Fitness/Community** = `recCatHTML` → one collapsible **accordion per group** (`rec-grp`,
+  `recGrpToggle`/`recGroupClosed`, open by default); special groups render `masterAchHTML` / `recChampionsHTML`.
+  Each feat = `recRowHTML(it,tv)` **compact row** (`rr-*`: feat + Men/Women best, blue value); tapping it →
+  `recToggle`→`recLeaderboardHTML` (`reclb`, ranked top-10 per sex). Contextual CTA via `recCTA('rec'|'ach')`
+  ("Set a record" / community → "Share an achievement"). `startDisplay()` early-returns in master mode.
+- **What's On = a top-nav calendar icon** (`#cal-btn` in `.nav-top-acts`) → `openModal('whatson')` → `whatsonHTML`
+  (upcoming events + active challenge + next benchmark window + `settings.whatson_note`). The admin edits the note
+  in the Events panel (`#whatson-note-wrap` populated by `renderEvents`, `setWhatsonNote`). No "What's On" tab on
+  the Wall any more.
+- **Gym screen (kiosk) rotator.** When `activeScreenSlug` is set, `renderDisplay` keeps the dots rotator. Record
+  slides (`s.recordsGroup`, `.rec-disp` grid, `recGroupBoardHTML(recGroupByKey(g),true)`) are added in
+  `buildSlides` **per feat-group with any entry** when `vis('records')` — gated globally by `settings.show_records`
+  (default true) and per-screen by the `records` key in `SCREEN_KEYS`. Legacy Strength/HYROX leaderboard slides
+  only render if their `leaderboard` board actually has rows.
 - **Submit = one unified flow.** Categories: **🏆 Record / PB** + Challenge (if active) + Achievement + custom
-  leaderboards. Record: pick the feat from an `<optgroup>`-per-category dropdown → value input typed by
+  leaderboards. Record: pick the feat from an `<optgroup>`-per-group dropdown → value input typed by
   `it.input` → **required** proof; for **Powerlifting → Total**, the 3-lift form (squat/bench/deadlift + 3
   videos, live total). `doSubmitRecord` stores `{category:'record', detail:rkey | 'pl_total:sq/bn/dl',
   score, unit, gender, proof_url(/2/3)}` into `submissions`. Members never write `records` directly. (The old

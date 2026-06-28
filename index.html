@@ -72,6 +72,8 @@ body.nav-expand .mode-toggle{flex-wrap:wrap;overflow:visible;}
 /* top-bar actions (chip + cog) and the fixed bottom tab bar */
 .nav-top-acts{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .nav-top-acts #member-chip{margin-left:0;order:0;}
+.cal-btn{display:inline-flex;align-items:center;justify-content:center;color:var(--blue);}
+.cal-btn svg{display:block;}
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:stretch;background:rgba(32,33,36,.97);border-top:1px solid var(--border);padding:6px 2px calc(6px + env(safe-area-inset-bottom)) 2px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
 .tabbar .tb{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;background:none;border:none;color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;padding:4px 2px;min-width:0;letter-spacing:.2px;transition:color .15s;}
 .tabbar .tb svg{width:23px;height:23px;display:block;}
@@ -311,91 +313,94 @@ body.no-tab-emoji .te{display:none;}
 .lb-split .lb-score{font-size:clamp(18px,1.9vw,36px);}
 .lb-split .lb-detail,.lb-split .lb-unit{font-size:clamp(11px,.95vw,17px);}
 
-/* ---------- ALL-TIME RECORDS (master wall + TV slides) ---------- */
+/* ---------- THE WALL — records (flat, brand-blue) ---------- */
 .display.master-mode{display:none;min-height:100vh;}
 .display.master-mode.active{display:block;}
 .display.master-mode .disp-head{display:none;}
-#master{max-width:780px;margin:0 auto;padding:0 14px 52px;}
-.mw-head{text-align:center;padding:clamp(18px,4vw,30px) 6px 10px;}
+#master{max-width:760px;margin:0 auto;padding:0 14px 52px;}
+.mw-head{text-align:center;padding:clamp(18px,4vw,28px) 6px 6px;}
 .mw-eyebrow{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
-.mw-title{font-size:clamp(30px,9vw,46px);font-weight:800;letter-spacing:-1.5px;line-height:1;}
-.mw-sub{font-size:13px;color:var(--muted);margin-top:8px;max-width:32ch;margin-inline:auto;}
-.mw-tabs{display:flex;gap:7px;overflow-x:auto;padding:8px 2px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 78%,transparent);z-index:3;}
+.mw-title{font-size:clamp(28px,8vw,42px);font-weight:800;letter-spacing:-1.2px;line-height:1;color:var(--text);}
+.mw-note{font-size:12px;color:var(--muted);text-align:center;margin:0 4px 12px;}
+.mw-tabs{display:flex;gap:7px;overflow-x:auto;padding:10px 2px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:sticky;top:0;background:var(--bg);z-index:3;}
 .mw-tabs::-webkit-scrollbar{display:none;}
-.mw-tab{flex:0 0 auto;border:1px solid var(--border);background:var(--bg-card);color:var(--muted);font-weight:700;font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .15s;}
-.mw-tab.on{background:var(--blue);border-color:var(--blue);color:#10131a;box-shadow:0 4px 14px color-mix(in srgb,var(--blue) 38%,transparent);}
-/* per-category accent colour */
-.cat-powerlifting{--cat:var(--red);}.cat-strength{--cat:var(--blue);}.cat-fitness{--cat:var(--green);}.cat-hyrox{--cat:var(--amber);}.cat-gym{--cat:var(--purple);}.cat-community{--cat:var(--pink);}
-.mw-cat{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 2px 12px;padding-left:12px;border-left:4px solid var(--cat,var(--blue));}
-.mw-cat-name{font-size:18px;font-weight:800;color:var(--cat,var(--text));letter-spacing:-.3px;}
-.mw-cat-blurb{font-size:12px;color:var(--muted);}
-.rec-list{display:flex;flex-direction:column;gap:11px;}
-.rec-item{position:relative;background:linear-gradient(180deg,color-mix(in srgb,var(--cat,var(--blue)) 9%,var(--bg-card)),var(--bg-card));border:1px solid color-mix(in srgb,var(--cat,var(--blue)) 22%,var(--border));border-left:4px solid var(--cat,var(--blue));border-radius:14px;padding:12px 14px;box-shadow:0 2px 10px rgba(0,0,0,.18);}
-.rec-feat-row{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
-.rec-feat-row.rec-clickable{cursor:pointer;}
-.rec-feat{font-size:14px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--cat,var(--text));flex:1;min-width:0;}
-.rec-count{font-size:11px;font-weight:800;color:var(--muted);background:var(--bg-light);border-radius:999px;padding:2px 9px;min-width:22px;text-align:center;}
-.rec-count.empty{background:transparent;color:color-mix(in srgb,var(--muted) 50%,transparent);}
-.rec-chev{color:var(--muted);font-size:13px;transition:transform .18s;}
-.rec-chev.open{transform:rotate(180deg);color:var(--cat,var(--blue));}
-.rec-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.rec-side,.rec-one{position:relative;border-radius:11px;padding:11px 13px 12px 16px;background:var(--bg-light);overflow:hidden;}
-.rec-side::before,.rec-one::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
-.rec-side.male::before{background:var(--blue);}
-.rec-side.female::before{background:var(--pink);}
-.rec-one::before{background:var(--cat,var(--amber));}
-.rec-side-h{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
-.rec-side.male .rec-side-h{color:var(--blue);}
-.rec-side.female .rec-side-h{color:var(--pink);}
-.rec-holder{font-size:15px;font-weight:700;line-height:1.15;color:var(--text);}
-.rec-val{font-size:22px;font-weight:800;color:var(--cat,var(--blue));letter-spacing:-.6px;margin-top:3px;line-height:1;}
-.rec-up{font-size:13px;color:var(--muted);font-style:italic;padding:3px 0;}
+.mw-tab{flex:0 0 auto;border:1px solid var(--border);background:var(--bg-card);color:var(--muted);font-weight:700;font-size:13px;padding:8px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;}
+.mw-tab.on{background:var(--blue);border-color:var(--blue);color:#10131a;}
+/* group accordions */
+.rec-grp{margin-bottom:16px;}
+.rec-grp-h{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:4px 2px 9px;margin-bottom:10px;cursor:pointer;color:inherit;font:inherit;}
+.rec-grp-name{font-size:13px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);}
+.rec-grp-chev{color:var(--muted);font-size:12px;transition:transform .18s;}
+.rec-grp:not(.open) .rec-grp-chev{transform:rotate(-90deg);}
+.rec-grp:not(.open) .rec-grp-body{display:none;}
+.rec-grp-body{display:flex;flex-direction:column;gap:9px;}
+/* compact feat rows */
+.rec-list{display:flex;flex-direction:column;gap:9px;}
+.rec-row{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:11px;overflow:hidden;}
+.rec-row.empty{border-left-color:var(--border);opacity:.65;}
+.rec-row.open{border-color:var(--blue);}
+.rr-main{display:block;width:100%;text-align:left;background:none;border:none;padding:10px 12px;cursor:pointer;color:inherit;font:inherit;}
+.rec-row.empty .rr-main,.rec-row.tv{padding:10px 12px;}
+.rr-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.rr-feat{font-size:13.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--blue);flex:1;min-width:0;}
+.rr-chev{color:var(--muted);font-size:12px;transition:transform .18s;flex:0 0 auto;}
+.rr-chev.open{transform:rotate(180deg);color:var(--blue);}
+.rr-recs{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.rr-recs.single{grid-template-columns:1fr;}
+.rr-cell{display:flex;align-items:center;gap:7px;background:var(--bg-light);border-radius:8px;padding:7px 10px;min-width:0;}
+.rr-tag{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);flex:0 0 auto;}
+.rr-name{font-size:13px;font-weight:700;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rr-val{font-size:15px;font-weight:800;color:var(--blue);letter-spacing:-.3px;flex:0 0 auto;}
+.rr-up{font-size:13px;color:var(--muted);flex:1;}
 /* drill-down full leaderboard */
-.rec-lb-wrap{margin-top:12px;padding-top:12px;border-top:1px dashed color-mix(in srgb,var(--cat,var(--blue)) 30%,var(--border));}
+.rec-lb-wrap{border-top:1px solid var(--border);background:var(--bg);padding:10px 12px 12px;}
 .reclb{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .reclb.single{grid-template-columns:1fr;}
-.reclb-h{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.reclb-h.male{color:var(--blue);}.reclb-h.female{color:var(--pink);}.reclb-h.solo{color:var(--cat,var(--amber));}
-.reclb-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;font-size:13px;}
+.reclb-h{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.reclb-row{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;font-size:13px;}
 .reclb-row:nth-child(even){background:rgba(255,255,255,.03);}
-.reclb-rank{flex:0 0 20px;text-align:center;font-weight:800;font-size:12px;color:var(--muted);}
-.reclb-row.top1 .reclb-rank{color:#fdd663;}.reclb-row.top2 .reclb-rank{color:#c0c4cc;}.reclb-row.top3 .reclb-rank{color:#cd7f32;}
+.reclb-rank{flex:0 0 18px;text-align:center;font-weight:800;font-size:12px;color:var(--muted);}
+.reclb-row.top1 .reclb-rank{color:var(--blue);}
 .reclb-name{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.reclb-val{font-weight:800;color:var(--text);}
-.reclb-empty{font-size:12px;color:var(--muted);font-style:italic;padding:4px 8px;}
-.rec-none{text-align:center;color:var(--muted);font-size:14px;padding:40px 20px;}
+.reclb-val{font-weight:800;color:var(--text);flex:0 0 auto;}
+.reclb-empty{font-size:12px;color:var(--muted);padding:4px 6px;}
+.rec-none{text-align:center;color:var(--muted);font-size:14px;padding:36px 20px;}
+/* community: achievements + champions */
 .rec-ach{display:flex;flex-direction:column;gap:9px;}
-.rec-ach-row{display:flex;align-items:center;gap:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;}
-.rec-ach-dot{width:9px;height:9px;border-radius:50%;background:var(--amber);flex:0 0 auto;box-shadow:0 0 0 4px color-mix(in srgb,var(--amber) 18%,transparent);}
-.rec-ach-row .lb-av{width:38px;height:38px;flex:0 0 auto;}
-.rec-ach-name{font-size:15px;font-weight:700;}
-.rec-ach-detail{font-size:13px;color:var(--muted);margin-top:1px;}
+.rec-ach-row{display:flex;align-items:center;gap:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.rec-ach-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex:0 0 auto;}
+.rec-ach-row .lb-av{width:36px;height:36px;flex:0 0 auto;}
+.rec-ach-name{font-size:14px;font-weight:700;}
+.rec-ach-detail{font-size:12px;color:var(--muted);margin-top:1px;}
+.champ-list{display:flex;flex-direction:column;gap:9px;}
+.champ-row{display:flex;align-items:center;gap:11px;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:10px;padding:10px 12px;}
+.champ-medal{font-size:18px;flex:0 0 auto;}
+.champ-name{font-size:15px;font-weight:700;}
+.champ-sub{font-size:12px;color:var(--muted);margin-top:1px;}
 .mw-cta{margin-top:24px;text-align:center;}
 .mw-cta .btn-full{max-width:290px;margin:0 auto;}
 .mw-cta-sub{font-size:12px;color:var(--muted);margin-top:8px;}
-/* What's On (events + challenge) */
-.wo-list{display:flex;flex-direction:column;gap:12px;}
-.wo-card{position:relative;background:linear-gradient(180deg,color-mix(in srgb,var(--cat,var(--blue)) 10%,var(--bg-card)),var(--bg-card));border:1px solid color-mix(in srgb,var(--cat,var(--blue)) 24%,var(--border));border-radius:16px;padding:15px 16px;box-shadow:0 2px 12px rgba(0,0,0,.2);}
-.wo-card.challenge{--cat:var(--green);}
-.wo-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.wo-date{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--cat,var(--blue));color:#10131a;border-radius:10px;padding:6px 10px;min-width:52px;line-height:1;}
-.wo-date .d{font-size:20px;font-weight:800;}
-.wo-date .m{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
-.wo-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--cat,var(--blue));}
-.wo-count{margin-left:auto;font-size:11px;font-weight:800;color:var(--cat,var(--blue));background:color-mix(in srgb,var(--cat,var(--blue)) 16%,var(--bg-card));border-radius:999px;padding:4px 10px;}
-.wo-title{font-size:18px;font-weight:800;line-height:1.15;letter-spacing:-.3px;}
-.wo-sub{font-size:13px;color:var(--muted);margin-top:4px;}
-.wo-prize{font-size:13px;color:var(--amber);font-weight:700;margin-top:6px;}
-.wo-desc{font-size:13px;color:var(--text);margin-top:7px;line-height:1.45;}
+/* What's On — calendar popup (flat blue) */
+.wo-list{display:flex;flex-direction:column;gap:11px;}
+.wo-card{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:12px;padding:12px 14px;}
+.wo-top{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.wo-date{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--blue);color:#10131a;border-radius:8px;padding:5px 9px;min-width:46px;line-height:1;flex:0 0 auto;}
+.wo-date .d{font-size:18px;font-weight:800;}
+.wo-date .m{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.wo-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);}
+.wo-count{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);}
+.wo-title{font-size:16px;font-weight:800;line-height:1.15;}
+.wo-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.wo-prize{font-size:12px;color:var(--text);font-weight:700;margin-top:5px;}
+.wo-desc{font-size:13px;color:var(--text);margin-top:6px;line-height:1.4;}
 /* records on the TV rotator */
-.rec-disp{max-width:min(1400px,94vw);margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.4vw,22px);}
-.rec-disp .rec-item{padding:clamp(12px,1.4vw,22px) clamp(14px,1.6vw,26px);border-radius:16px;}
-.rec-disp .rec-feat{font-size:clamp(15px,1.5vw,28px);}
-.rec-disp .rec-feat-row{margin-bottom:clamp(8px,1vw,14px);}
-.rec-disp .rec-holder{font-size:clamp(15px,1.5vw,28px);}
-.rec-disp .rec-val{font-size:clamp(20px,2.2vw,42px);}
-.rec-disp .rec-side-h{font-size:clamp(10px,.9vw,16px);}
-.rec-disp .rec-up{font-size:clamp(13px,1.1vw,20px);}
+.rec-disp{max-width:min(1400px,94vw);margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.2vw,18px);}
+.rec-disp .rec-row{border-left-width:4px;}
+.rec-disp .rec-row.tv{padding:clamp(12px,1.2vw,20px) clamp(14px,1.4vw,22px);}
+.rec-disp .rr-feat{font-size:clamp(14px,1.3vw,24px);}
+.rec-disp .rr-name{font-size:clamp(13px,1.1vw,20px);}
+.rec-disp .rr-val{font-size:clamp(15px,1.4vw,26px);}
+.rec-disp .rr-tag{font-size:clamp(9px,.7vw,13px);}
 @media(max-width:760px){.rec-disp{grid-template-columns:1fr;}}
 
 /* ---------- CHALLENGE TAB ---------- */
@@ -1177,6 +1182,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="nav-brand"><div class="logo" onclick="navLogoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><span class="nav-clock" id="nav-clock" onclick="setMode('wod')" title="Go to WOD"></span></div>
   <div class="nav-top-acts">
     <span id="member-chip"></span>
+    <button class="icon-btn cal-btn" id="cal-btn" onclick="openModal('whatson')" title="What's On" aria-label="What's On"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg></button>
     <button class="icon-btn cog-btn" id="m-plan" onclick="setMode('plan')" title="Admin & settings">⚙️</button>
     <button class="icon-btn" id="lock-btn" onclick="signOut()" title="Sign out" style="display:none;">🚪</button>
   </div>
@@ -1295,7 +1301,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   </div>
 
   <div class="planner-sec" data-sec="events" data-size="full" draggable="true">
-    <div class="panel"><div class="panel-h"><div class="panel-t"><span class="drag-handle">⋮⋮</span>🎉 Upcoming Events</div><button class="btn-sm" onclick="openModal('event')">+ Add</button></div><div id="events-list"></div></div>
+    <div class="panel"><div class="panel-h"><div class="panel-t"><span class="drag-handle">⋮⋮</span>🎉 Upcoming Events</div><button class="btn-sm" onclick="openModal('event')">+ Add</button></div><div id="events-list"></div><div id="whatson-note-wrap" style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;"></div></div>
   </div>
 
   <div class="planner-sec" data-sec="eventpage" data-size="full" draggable="true">
@@ -1448,7 +1454,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],records:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_records:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'header',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_records:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'header',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true,whatson_note:''};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -1719,6 +1725,7 @@ function renderEvents(){
   const future=cache.events.slice().sort((a,b)=>new Date(a.date)-new Date(b.date)).filter(e=>new Date(e.date)>=now);
   const list=document.getElementById('events-list');
   list.innerHTML=future.length?future.slice(0,6).map(e=>{const d=new Date(e.date);const days=Math.ceil((d-now)/864e5);return `<div class="ev"><div class="ev-date"><div class="ev-day">${d.getDate()}</div><div class="ev-mon">${d.toLocaleDateString('en-AU',{month:'short'})}</div></div><div class="ev-info"><div class="ev-t">${esc(e.title)}</div><div class="ev-n">${esc(e.note||'')}</div></div><div class="ev-cd">${days===0?'Today':days+'d'}</div><button class="ev-del" style="color:var(--blue);" onclick="openModal('event','${e.id}')">✎</button><button class="ev-del" onclick="delEvent('${e.id}')">×</button></div>`;}).join(''):'<div style="font-size:13px;color:var(--muted);">No upcoming events. Add one.</div>';
+  const nw=document.getElementById('whatson-note-wrap');if(nw)nw.innerHTML='<div class="ot-lbl" style="display:block;margin-bottom:4px;">What’s On note <span style="font-weight:600;color:var(--muted);">(shown in the 📅 calendar popup)</span></div><div class="ot-sub" style="margin-bottom:6px;">Free text — upcoming benchmarks, test ideas, anything coming up. Members tap the calendar icon to see it.</div><textarea class="meso-focus" rows="3" onchange="setWhatsonNote(this.value)" placeholder="e.g. Benchmark week starts Mon · 1RM testing block in July · Hyrox sim coming soon">'+esc(settings().whatson_note||'')+'</textarea>';
 }
 async function delEvent(id){await rowDelete('events',id);renderEvents();renderDisplay();}
 
@@ -1833,6 +1840,7 @@ function openModal(type,id,extra){
     const ph=it.input==='time'?'e.g. 1:08:40 or 7:45':(it.input==='kg'?'e.g. 180':'e.g. 30');
     const curLine=best?`<div class="note" style="margin-bottom:10px;">${esc(it.l||'')} · current best <strong>${esc(best.display||recFmt(it,best.value))}</strong> (${esc(titleCase(best.holder||''))})</div>`:`<div class="note" style="margin-bottom:10px;">${esc(it.l||'')} · no entries yet</div>`;
     b.innerHTML=`${curLine}<input type="hidden" id="f-rec-key" value="${esc(rk)}"><input type="hidden" id="f-rec-sex" value="${esc(sex)}">${sexFld}<div class="fld"><label>Name</label><input id="f-rec-holder" placeholder="e.g. Jordan K."></div><div class="fld"><label>${esc(it.l||'Value')}${it.u?(' ('+esc(it.u)+')'):''}</label><input id="f-rec-val" placeholder="${ph}"></div><button class="btn-full" onclick="saveRecord()">Add to board</button><div class="note">Adds a verified entry directly. Members’ own entries come in via the Submit tab and your approval.</div>`;}
+  else if(type==='whatson'){t.textContent="What’s On";b.innerHTML='<div class="wo-modal">'+whatsonHTML()+'</div>';}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -1940,7 +1948,7 @@ function renderSubmissions(){
 async function approveSubmission(id){
   const s=cache.submissions.find(x=>x.id===id);if(!s)return;
   if(isDemo(s.id)){
-    if(s.category==='record'){const sex=s.gender==='f'?'f':(s.gender==='x'?'x':'m');const pl=recPL(s.detail);const push=function(rk,v){const it=recItem(rk);if(!it)return;cache.records.push({id:'demo_appr_'+rk+'_'+Date.now(),cat:it.cat,rkey:rk,label:it.l,sex:sex,holder:titleCase(s.name||''),display:recParseInput(it,String(v)).display,value:v,dir:it.dir,date:todayKey()});};if(pl){push('squat',pl.sq);push('bench',pl.bn);push('deadlift',pl.dl);push('pl_total',pl.total);}else{const it=recItem(s.detail);if(it){const p=recParseInput(it,s.score);if(p)cache.records.push({id:'demo_appr_'+Date.now(),cat:it.cat,rkey:s.detail,label:it.l,sex:recSex(it,s.gender),holder:titleCase(s.name||''),display:p.display,value:p.value,dir:it.dir,date:todayKey()});}}}
+    if(s.category==='record'){const sex=s.gender==='f'?'f':(s.gender==='x'?'x':'m');const pl=recPL(s.detail);const push=function(rk,v){const it=recItem(rk);if(!it)return;const p=recParseInput(it,String(v));if(!p)return;cache.records.push({id:'demo_appr_'+rk+'_'+Date.now(),cat:it.cat,rkey:rk,label:it.l,sex:sex,holder:titleCase(s.name||''),display:p.display,value:p.value,dir:it.dir,date:todayKey()});};if(pl){push('squat',pl.sq);push('bench',pl.bn);push('deadlift',pl.dl);push('pl_total',pl.total);}else{const it=recItem(s.detail);if(it){const p=recParseInput(it,s.score);if(p)cache.records.push({id:'demo_appr_'+Date.now(),cat:it.cat,rkey:s.detail,label:it.l,sex:recSex(it,s.gender),holder:titleCase(s.name||''),display:p.display,value:p.value,dir:it.dir,date:todayKey()});}}}
     else if(s.category==='strength'||s.category==='hyrox'){cache.leaderboard.push({id:'demo_appr_'+Date.now(),board:s.category,name:s.name,gender:s.gender||'m',detail:s.detail||'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}
     else if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);if(bd)cache.leaderboard.push({id:'demo_appr_'+Date.now(),board:bd.id,name:s.name,gender:s.gender||'m',detail:'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}
     cache.submissions=cache.submissions.filter(x=>x.id!==id);
@@ -1955,8 +1963,9 @@ async function approveSubmission(id){
     const sex=s.gender==='f'?'f':(s.gender==='x'?'x':'m');
     const pl=recPL(s.detail);
     if(pl){
-      const mk=function(rk,v){const it=recItem(rk);return {cat:'powerlifting',rkey:rk,label:it.l,sex:sex,holder:titleCase(s.name||''),display:recParseInput(it,String(v)).display,value:v,dir:'high',date:todayKey()};};
-      await rowInsert('records',mk('squat',pl.sq));await rowInsert('records',mk('bench',pl.bn));await rowInsert('records',mk('deadlift',pl.dl));await rowInsert('records',mk('pl_total',pl.total));
+      const mk=function(rk,v){const it=recItem(rk);if(!it)return null;const p=recParseInput(it,String(v));if(!p)return null;return {cat:it.cat,rkey:rk,label:it.l,sex:sex,holder:titleCase(s.name||''),display:p.display,value:p.value,dir:it.dir,date:todayKey()};};
+      const plRows=[mk('squat',pl.sq),mk('bench',pl.bn),mk('deadlift',pl.dl),mk('pl_total',pl.total)].filter(Boolean);
+      for(const row of plRows)await rowInsert('records',row);
       logActivity('record_set','Powerlifting total → '+(s.name||''));
     }else{
       const it=recItem(s.detail);const parsed=it?recParseInput(it,s.score):null;
@@ -2002,8 +2011,8 @@ function renderSubmitFields(){
   const el=document.getElementById('s-fields');if(!el)return;
   const g='<div class="fld"><label>Category</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
   if(subCat==='record'){
-    if(!subRecKey||!recItem(subRecKey))subRecKey=REC_CATS[0].items[0].k;
-    const opts=REC_CATS.map(function(c){return '<optgroup label="'+esc(c.label)+'">'+c.items.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
+    if(!subRecKey||!recItem(subRecKey))subRecKey='squat';
+    const opts=REC_GROUPS.filter(function(g){return g.feats&&g.feats.length;}).map(function(g){return '<optgroup label="'+esc(g.group)+'">'+g.feats.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
     el.innerHTML='<div class="note" style="margin-bottom:12px;">Every verified result joins the leaderboard — the best one tops the wall. Pick what you did:</div><div class="fld"><label>What did you hit?</label><select id="s-rec" onchange="onRecPick(this.value)">'+opts+'</select></div><div id="s-rec-fields"></div>';
     renderRecFields();
   }else if(subCat==='challenge'){
@@ -2553,37 +2562,30 @@ function pickPublicSlot(slot){publicWodSlot=slot;renderWOD();}
 // The hall of fame: one best Male + best Female (or one overall) per feat, grouped by category.
 // Records come from the `records` table — members submit with proof, an admin approves and the
 // best automatically takes the top spot; an admin can also set/clear any record directly.
-const REC_CATS=[
-  {key:'powerlifting',label:'Powerlifting',blurb:'The big three + total',items:[
-    {k:'squat',l:'Squat'},{k:'bench',l:'Bench Press'},{k:'deadlift',l:'Deadlift'},{k:'pl_total',l:'Total'}
-  ].map(function(x){return Object.assign({dir:'high',u:'kg',input:'kg'},x);})},
-  {key:'strength',label:'Strength',blurb:'Olympic & accessory 1RMs',items:[
-    {k:'front_squat',l:'Front Squat'},{k:'overhead_squat',l:'Overhead Squat'},{k:'strict_press',l:'Strict Press'},
-    {k:'push_press',l:'Push Press'},{k:'power_clean',l:'Power Clean'},{k:'clean_jerk',l:'Clean & Jerk'},{k:'snatch',l:'Snatch'}
-  ].map(function(x){return Object.assign({dir:'high',u:'kg',input:'kg'},x);})},
-  {key:'fitness',label:'Fitness',blurb:'Row · Ski · Run · Bike',items:[
-    {k:'row_500',l:'500m Row',dir:'low',input:'time'},{k:'row_1000',l:'1000m Row',dir:'low',input:'time'},
-    {k:'row_2000',l:'2000m Row',dir:'low',input:'time'},{k:'ski_500',l:'500m Ski',dir:'low',input:'time'},
-    {k:'ski_1000',l:'1000m Ski',dir:'low',input:'time'},{k:'run_5k',l:'5km Run',dir:'low',input:'time'},
-    {k:'bike_60',l:'Bike · 60s Cals',dir:'high',u:'cals',input:'cals'}
-  ].map(function(x){return Object.assign({u:''},x);})},
-  {key:'hyrox',label:'HYROX',blurb:'Race times & stations',items:[
-    {k:'hyrox_open',l:'HYROX Open',dir:'low',input:'time'},{k:'hyrox_pro',l:'HYROX Pro',dir:'low',input:'time'},
-    {k:'hyrox_doubles',l:'HYROX Doubles',dir:'low',input:'time',single:true},{k:'wallball_100',l:'100 Wall Balls',dir:'low',input:'time'}
-  ].map(function(x){return Object.assign({u:''},x);})},
-  {key:'gym',label:'Gymnastics',blurb:'Max-rep feats',items:[
-    {k:'max_pullup',l:'Max Pull-ups'},{k:'max_strict_pullup',l:'Max Strict Pull-ups'},{k:'max_ttb',l:'Max Toes-to-Bar'},
-    {k:'max_hspu',l:'Max HSPU'},{k:'max_wallwalk',l:'Max Wall Walks'},{k:'max_du',l:'Max Double-Unders'}
-  ].map(function(x){return Object.assign({dir:'high',u:'reps',input:'reps'},x);})},
-  {key:'community',label:'Community',blurb:'Consistency & heart',single:true,items:[
-    {k:'most_classes',l:'Most Classes · Month',u:''},{k:'most_wods',l:'Most WODs Logged',u:''},{k:'longest_streak',l:'Longest Streak',u:'days'}
-  ].map(function(x){return Object.assign({dir:'high',input:'reps',single:true},x);})}
+// The Wall = one connected records system. Feats live in GROUPS; groups live in
+// top-level TABS (Strength / Fitness / Community). "All-Time" is a glanceable summary.
+const REC_GROUPS=[
+  {gkey:'powerlifting',cat:'strength',group:'Powerlifting',dir:'high',u:'kg',input:'kg',items:[['squat','Squat'],['bench','Bench Press'],['deadlift','Deadlift'],['pl_total','Powerlifting Total']]},
+  {gkey:'olympic',cat:'strength',group:'Olympic lifting',dir:'high',u:'kg',input:'kg',items:[['snatch','Snatch'],['clean_jerk','Clean & Jerk'],['power_clean','Power Clean'],['front_squat','Front Squat'],['overhead_squat','Overhead Squat'],['push_press','Push Press'],['strict_press','Strict Press']]},
+  {gkey:'gymnastics',cat:'strength',group:'Gymnastics & bodyweight',dir:'high',u:'reps',input:'reps',items:[['max_pullup','Max Pull-ups'],['max_strict_pullup','Max Strict Pull-ups'],['max_muscleup','Max Muscle-ups'],['max_ttb','Max Toes-to-Bar'],['max_hspu','Max HSPU'],['max_du','Max Double-Unders']]},
+  {gkey:'hyrox',cat:'fitness',group:'HYROX',dir:'low',u:'',input:'time',items:[['hyrox_open','HYROX Open'],['hyrox_pro','HYROX Pro'],['hyrox_doubles','HYROX Doubles',{single:true}],['wallball_100','100 Wall Balls']]},
+  {gkey:'ergs',cat:'fitness',group:'Ergs & sprints',dir:'low',u:'',input:'time',items:[['row_500','500m Row'],['row_1000','1km Row'],['row_2000','2km Row'],['ski_500','500m Ski'],['ski_1000','1km Ski'],['run_1k','1km Run'],['bike_60','60s Bike',{dir:'high',u:'cals',input:'cals'}]]},
+  {gkey:'endurance',cat:'fitness',group:'Endurance',dir:'low',u:'',input:'time',items:[['run_5k','5km Run'],['run_10k','10km Run'],['run_21k','Half Marathon'],['run_42k','Marathon']]},
+  {gkey:'achievements',cat:'community',group:'Personal achievements',special:'ach'},
+  {gkey:'attendance',cat:'community',group:'Attendance & consistency',dir:'high',u:'',input:'reps',single:true,items:[['most_classes','Most Classes · Month'],['most_wods','Most WODs Logged'],['longest_streak','Longest Streak',{u:'days'}]]},
+  {gkey:'champions',cat:'community',group:'Challenge champions',special:'champions'}
 ];
-const REC_MAP={};REC_CATS.forEach(function(c){c.items.forEach(function(it){REC_MAP[it.k]=Object.assign({cat:c.key},it);});});
-const REC_CAT_LABEL={};REC_CATS.forEach(function(c){REC_CAT_LABEL[c.key]=c.label;});
+const REC_MAP={};
+REC_GROUPS.forEach(function(g){g.feats=[];if(!g.items)return;g.items.forEach(function(t){var it=Object.assign({dir:g.dir,u:g.u,input:g.input},(g.single?{single:true}:{}),{k:t[0],l:t[1],cat:g.cat,group:g.group,gkey:g.gkey},(t[2]||{}));g.feats.push(it);REC_MAP[it.k]=it;});});
+const REC_CATS=Object.keys(REC_MAP).map(function(k){return REC_MAP[k];});
+const REC_TABS=[{key:'alltime',label:'All-Time'},{key:'strength',label:'Strength'},{key:'fitness',label:'Fitness'},{key:'community',label:'Community'}];
+const REC_CAT_LABEL={};REC_TABS.forEach(function(t){REC_CAT_LABEL[t.key]=t.label;});
+// curated marquee feats for the All-Time summary
+const REC_SUMMARY=['pl_total','squat','deadlift','bench','snatch','clean_jerk','hyrox_open','hyrox_pro','row_2000','run_5k','max_pullup','longest_streak'];
 function recItem(rkey){return REC_MAP[rkey]||null;}
-function recCatOf(rkey){const it=recItem(rkey);return it?it.cat:'';}
-function recCat(catKey){return REC_CATS.find(function(x){return x.key===catKey;})||null;}
+function recGroupsForCat(cat){return REC_GROUPS.filter(function(g){return g.cat===cat;});}
+function recGroupByKey(gk){return REC_GROUPS.find(function(g){return g.gkey===gk;})||null;}
+function recFeatGroups(){return REC_GROUPS.filter(function(g){return g.feats&&g.feats.length;});}
 function recSex(it,sex){return (it&&it.single)?'x':(sex==='f'?'f':'m');}
 function recPad(n){return String(n).padStart(2,'0');}
 function recSecToClock(s){s=Math.max(0,Math.round(+s||0));const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h?(h+':'+recPad(m)+':'+recPad(sec)):(m+':'+recPad(sec));}
@@ -2591,12 +2593,12 @@ function recClockToSec(str){str=String(str==null?'':str).trim();if(!str)return n
 function recParseInput(it,raw){raw=String(raw==null?'':raw).trim();if(!it||!raw)return null;
   if(it.input==='time'){const s=recClockToSec(raw);if(s==null||!(s>0))return null;return {value:s,display:recSecToClock(s)};}
   const n=parseFloat(raw);if(isNaN(n)||n<0)return null;const v=Math.round(n*100)/100;
-  const num=Number.isInteger(v)?String(v):String(v);const unit=(it.u&&it.u!=='reps')?(' '+it.u):'';
-  return {value:v,display:num+unit};}
-function recFmt(it,value,display){if(display)return display;if(!it)return String(value);if(it.input==='time')return recSecToClock(value);const unit=(it.u&&it.u!=='reps')?(' '+it.u):'';return (Number.isInteger(value)?value:value)+unit;}
+  const unit=(it.u&&it.u!=='reps')?(' '+it.u):'';
+  return {value:v,display:String(v)+unit};}
+function recFmt(it,value,display){if(display)return display;if(!it)return String(value);if(it.input==='time')return recSecToClock(value);const unit=(it.u&&it.u!=='reps')?(' '+it.u):'';return String(value)+unit;}
 function recBeats(it,nv,ov){if(ov==null)return true;return (it&&it.dir==='low')?(nv<ov):(nv>ov);}
-// records now hold EVERY approved entry; the board computes the best. recEntries =
-// all entries for a feat+sex, deduped to each person's best, ranked best→worst.
+// records hold EVERY approved entry; recEntries = all rows for a feat+sex, deduped to
+// each person's best (by normalised name; empty name keyed by id), ranked best→worst.
 function recEntries(rkey,sex){const it=recItem(rkey);if(!it)return [];const sx=recSex(it,sex);
   const rows=(cache.records||[]).filter(function(r){return r.rkey===rkey&&(r.sex||'m')===sx;});
   const byName={};rows.forEach(function(r){const k=String(r.holder||'').trim().toLowerCase()||('#'+(r.id||''));const cur=byName[k];if(!cur||recBeats(it,r.value,cur.value))byName[k]=r;});
@@ -2607,22 +2609,33 @@ function recFor(rkey,sex){return recBest(rkey,sex);} // back-compat: the current
 // Powerlifting Total submissions encode the three lifts in `detail` as "pl_total:sq/bn/dl".
 function recPL(detail){if(typeof detail!=='string'||detail.indexOf('pl_total:')!==0)return null;const p=detail.slice(9).split('/').map(parseFloat);if(p.length!==3||p.some(isNaN))return null;return {sq:p[0],bn:p[1],dl:p[2],total:Math.round((p[0]+p[1]+p[2])*100)/100};}
 function recCount(it){return it.single?recEntries(it.k,'x').length:(recEntries(it.k,'m').length+recEntries(it.k,'f').length);}
-let recOpenKey=null;
-function recCellHTML(it,sex){const r=recBest(it.k,sex);if(r&&r.holder)return '<div class="rec-holder">'+esc(titleCase(r.holder))+'</div><div class="rec-val">'+esc(r.display||recFmt(it,r.value))+'</div>';return '<div class="rec-up">Up for grabs</div>';}
-function recLbCol(it,sex,label){const list=recEntries(it.k,sex).slice(0,10);const cls=sex==='f'?'female':(sex==='m'?'male':'solo');const head='<div class="reclb-h '+cls+'">'+label+'</div>';
+let recOpenKey=null,recGroupClosed={};
+function recCellTxt(it,sex){var r=recBest(it.k,sex);return (r&&r.holder)?('<span class="rr-name">'+esc(titleCase(r.holder))+'</span><span class="rr-val">'+esc(r.display||recFmt(it,r.value))+'</span>'):'<span class="rr-up">—</span>';}
+function recRowHTML(it,tv){
+  var has=recCount(it);var open=!tv&&recOpenKey===it.k&&has>0;
+  var cells=it.single
+    ?('<div class="rr-cell solo"><span class="rr-tag">Best</span>'+recCellTxt(it,'x')+'</div>')
+    :('<div class="rr-cell"><span class="rr-tag">Men</span>'+recCellTxt(it,'m')+'</div><div class="rr-cell"><span class="rr-tag">Women</span>'+recCellTxt(it,'f')+'</div>');
+  var inner='<div class="rr-top"><span class="rr-feat">'+esc(it.l)+'</span>'+(has>0&&!tv?('<span class="rr-chev'+(open?' open':'')+'">▾</span>'):'')+'</div><div class="rr-recs'+(it.single?' single':'')+'">'+cells+'</div>';
+  if(tv)return '<div class="rec-row tv">'+inner+'</div>';
+  if(!has)return '<div class="rec-row empty"><div class="rr-main">'+inner+'</div></div>';
+  return '<div class="rec-row'+(open?' open':'')+'"><button class="rr-main" onclick="recToggle(\''+it.k+'\')">'+inner+'</button>'+(open?('<div class="rec-lb-wrap">'+recLeaderboardHTML(it)+'</div>'):'')+'</div>';}
+function recLbCol(it,sex,label){const list=recEntries(it.k,sex).slice(0,10);const head='<div class="reclb-h">'+label+'</div>';
   if(!list.length)return '<div class="reclb-col">'+head+'<div class="reclb-empty">No entries yet</div></div>';
   return '<div class="reclb-col">'+head+list.map(function(r,i){return '<div class="reclb-row'+(i<3?' top'+(i+1):'')+'"><span class="reclb-rank">'+(i+1)+'</span><span class="reclb-name">'+esc(titleCase(r.holder))+'</span><span class="reclb-val">'+esc(r.display||recFmt(it,r.value))+'</span></div>';}).join('')+'</div>';}
 function recLeaderboardHTML(it){if(it.single)return '<div class="reclb single">'+recLbCol(it,'x','All-time')+'</div>';return '<div class="reclb">'+recLbCol(it,'m','Men')+recLbCol(it,'f','Women')+'</div>';}
-function recRowHTML(it,tv){
-  const cat=recCatOf(it.k);const has=recCount(it);const open=!tv&&recOpenKey===it.k&&has>0;
-  const podium=it.single?('<div class="rec-one">'+recCellHTML(it,'x')+'</div>'):('<div class="rec-pair"><div class="rec-side male"><div class="rec-side-h">Men</div>'+recCellHTML(it,'m')+'</div><div class="rec-side female"><div class="rec-side-h">Women</div>'+recCellHTML(it,'f')+'</div></div>');
-  if(tv)return '<div class="rec-item cat-'+cat+(it.single?' single':'')+'"><div class="rec-feat-row"><span class="rec-feat">'+esc(it.l)+'</span></div>'+podium+'</div>';
-  var cls='rec-feat-row',onc='';if(has>0){cls+=' rec-clickable';onc=' onclick="recToggle(\''+it.k+'\')"';}
-  const head='<div class="'+cls+'"'+onc+'><span class="rec-feat">'+esc(it.l)+'</span>'+(has>0?('<span class="rec-count">'+has+'</span><span class="rec-chev'+(open?' open':'')+'">▾</span>'):'<span class="rec-count empty">—</span>')+'</div>';
-  const lb=open?('<div class="rec-lb-wrap">'+recLeaderboardHTML(it)+'</div>'):'';
-  return '<div class="rec-item cat-'+cat+(it.single?' single':'')+(open?' open':'')+'">'+head+podium+lb+'</div>';}
-function recBoardHTML(catKey,tv){const c=recCat(catKey);if(!c)return '';return '<div class="rec-list">'+c.items.map(function(it){return recRowHTML(it,tv);}).join('')+'</div>';}
-function recToggle(k){recOpenKey=(recOpenKey===k)?null:k;renderMaster();if(recOpenKey){const el=document.getElementById('master');if(el){const card=el.querySelector('.rec-item.open');if(card&&card.scrollIntoView){try{card.scrollIntoView({block:'nearest'});}catch(e){}}}}}
+function recGroupBoardHTML(g,tv){if(!g||!g.feats)return '';return '<div class="rec-list">'+g.feats.map(function(it){return recRowHTML(it,tv);}).join('')+'</div>';}
+function recSummaryHTML(){return '<div class="mw-note">The best of the best at The Cave — tap any line for the full leaderboard.</div><div class="rec-list">'+REC_SUMMARY.map(function(rk){var it=recItem(rk);return it?recRowHTML(it,false):'';}).join('')+'</div>';}
+function recChampionsHTML(){var list=[];var cur=activeChallenge();if(cur&&cur.winner)list.push({t:cur.title||'Monthly Challenge',w:cur.winner,when:'Current'});(archivedChallenges()||[]).forEach(function(c){if(c.winner)list.push({t:c.title||'Challenge',w:c.winner,when:(c.end_date?new Date(c.end_date+'T00:00:00').toLocaleDateString('en-AU',{month:'short',year:'numeric'}):'')});});
+  if(!list.length)return '<div class="rec-none">No champions crowned yet — win a monthly challenge to land here.</div>';
+  return '<div class="champ-list">'+list.map(function(x){return '<div class="champ-row"><div class="champ-medal">🏆</div><div class="champ-tx"><div class="champ-name">'+esc(titleCase(x.w))+'</div><div class="champ-sub">'+esc(x.t)+(x.when?(' · '+esc(x.when)):'')+'</div></div></div>';}).join('')+'</div>';}
+function recCatHTML(cat){return recGroupsForCat(cat).map(function(g){
+  var open=recGroupClosed[g.gkey]!==true;
+  var body=g.special==='ach'?masterAchHTML():(g.special==='champions'?recChampionsHTML():recGroupBoardHTML(g,false));
+  return '<div class="rec-grp'+(open?' open':'')+'"><button class="rec-grp-h" onclick="recGrpToggle(\''+g.gkey+'\')"><span class="rec-grp-name">'+esc(g.group)+'</span><span class="rec-grp-chev">▾</span></button><div class="rec-grp-body">'+body+'</div></div>';
+}).join('');}
+function recGrpToggle(gk){recGroupClosed[gk]=!recGroupClosed[gk];renderMaster();}
+function recToggle(k){recOpenKey=(recOpenKey===k)?null:k;renderMaster();if(recOpenKey){const el=document.getElementById('master');if(el){const card=el.querySelector('.rec-row.open');if(card&&card.scrollIntoView){try{card.scrollIntoView({block:'nearest'});}catch(e){}}}}}
 
 /* ---------- DISPLAY ---------- */
 let slideIdx=0,slideTimer=null,clockTimer=null,displaying=false;
@@ -2641,7 +2654,7 @@ function buildSlides(){
   if(vis('hyrox')){const _hb=getBoard('hyrox');if(_hb.length)slides.push({title:"🏃 HYROX Leaderboard",sub:"Fastest times at The Cave",single:sortTime(_hb)});}
   if(vis('challenge')&&challengeOn()){const ac=activeChallenge();if(ac){const range=chDateRange(ac);let days=null;if(ac.end_date){const now=new Date();now.setHours(0,0,0,0);const end=new Date(ac.end_date);days=Math.ceil((end-now)/864e5);}slides.push({title:"🏅 "+(ac.title||"Monthly Challenge"),sub:ac.prize?("🏆 "+ac.prize):"This month's community challenge",split:split(ac.entries||[]),chRange:range,chDays:days});}}
   if(vis('achievements'))slides.push({title:"⭐ Recent Achievements",sub:"Celebrating our members",ach:cache.achievements});
-  if(vis('records')&&(cache.records||[]).length)REC_CATS.forEach(function(rc){const has=rc.items.some(function(it){return recFor(it.k,'m')||recFor(it.k,'f')||recFor(it.k,'x');});if(has)slides.push({recordsCat:rc.key,title:"🏆 "+rc.label+" — All-Time",sub:"The best of the best at The Cave"});});
+  if(vis('records')&&(cache.records||[]).length)recFeatGroups().forEach(function(g){const has=g.feats.some(function(it){return recCount(it)>0;});if(has)slides.push({recordsGroup:g.gkey,title:"🏆 "+g.group,sub:"All-time best at The Cave"});});
   if(customBoardsOn())cache.boards.forEach(b=>{if(b.enabled===false)return;const inc=prof?(prof.boards||[]).includes(b.id):(b.show_in_display!==false);if(!inc)return;const items=getBoard(b.id);const sorted=b.sort_type==='time'?sortTime(items):(b.sort_type==='none'?items.slice():sortScore(items));const base={title:'🏆 '+b.title,sub:b.subtitle||''};if(b.gender_split!==false)slides.push(Object.assign(base,{split:split(sorted)}));else slides.push(Object.assign(base,{single:sorted}));});
   if(vis('event')){const ep=evp();if(ep.enabled)slides.push({evslide:ep});}
   const evs=cache.events.slice().sort((a,b)=>new Date(a.date)-new Date(b.date)).filter(e=>new Date(e.date)>=new Date().setHours(0,0,0,0));
@@ -2675,7 +2688,7 @@ function renderDisplay(){
     if(s.big){body=`<div class="cd-big">${s.sub}</div>`;return `<div class="slide ${i===0?'on':''}"><div class="slide-title" style="font-size:clamp(60px,12vw,200px);color:var(--blue);">${s.title}</div><div class="cd-sub">${esc(s.sub)}</div></div>`;}
     if(s.quote){return `<div class="slide ${i===0?'on':''}"><div class="quote-mark">“</div><div class="quote-text">${esc(s.quote)}</div></div>`;}
     if(s.teaser){return `<div class="slide ${i===0?'on':''}"><div class="slide-title">${s.title}</div><div class="slide-sub">${esc(s.sub)}</div><div class="wod-teaser disp"><div class="teaser-ic">⏳</div><div class="teaser-h">Coming soon</div><div class="teaser-b">Awesome coach-written WODs are landing here soon, available to all Cave members.</div></div></div>`;}
-    if(s.recordsCat){return `<div class="slide ${i===0?'on':''}"><div class="slide-title">${s.title}</div><div class="slide-sub">${esc(s.sub)}</div><div class="rec-disp">${recBoardHTML(s.recordsCat,true)}</div></div>`;}
+    if(s.recordsGroup){return `<div class="slide ${i===0?'on':''}"><div class="slide-title">${s.title}</div><div class="slide-sub">${esc(s.sub)}</div><div class="rec-disp">${recGroupBoardHTML(recGroupByKey(s.recordsGroup),true)}</div></div>`;}
     if(s.wod){body=wodBlocksHTML(s.wod);}
     else if(s.ev){body=`<div class="lb-table">`+s.ev.slice(0,5).map(e=>{const d=new Date(e.date);return `<div class="lb-row"><div class="lb-rank" style="font-size:clamp(16px,1.6vw,28px);color:var(--blue)">${d.getDate()}/${d.getMonth()+1}</div><div class="lb-name">${esc(e.title)}<div class="lb-detail">${esc(e.note||'')}</div></div></div>`;}).join('')+`</div>`;}
     else if(s.ach){body=`<div class="lb-table">`+(s.ach.length?s.ach.slice(0,6).map(a=>`<div class="lb-row">${settings().show_photos?avHtml(a):'<div class="lb-rank">⭐</div>'}<div class="lb-name">${esc(a.name)}<div class="lb-detail">${esc(a.detail)}</div></div></div>`).join(''):'<div class="disp-empty">No achievements yet</div>')+`</div>`;}
@@ -2687,36 +2700,43 @@ function renderDisplay(){
   document.getElementById('disp-dots').innerHTML=slides.map((s,i)=>`<div class="disp-dot ${i===0?'on':''}" onclick="goSlide(${i})"></div>`).join('');
   slideIdx=0;goSlide(0);
 }
-let recTabKey='powerlifting';
-function recTabsDef(){const tabs=REC_CATS.map(function(c){return {k:c.key,l:c.label};});tabs.push({k:'ach',l:'Achievements'});tabs.push({k:'coming',l:"What’s On"});return tabs;}
+let recTabKey='alltime';
 function renderMaster(){
   const el=document.getElementById('master');if(!el)return;
-  const tabs=recTabsDef();if(!tabs.some(function(t){return t.k===recTabKey;}))recTabKey='powerlifting';
-  let body;
-  if(recTabKey==='ach')body=masterAchHTML();
-  else if(recTabKey==='coming')body=masterComingHTML();
-  else {const c=recCat(recTabKey);body=(c?('<div class="mw-cat cat-'+c.key+'"><span class="mw-cat-name">'+esc(c.label)+'</span>'+(c.blurb?('<span class="mw-cat-blurb">'+esc(c.blurb)+'</span>'):'')+'</div>'):'')+recBoardHTML(recTabKey);}
+  if(!REC_TABS.some(function(t){return t.key===recTabKey;}))recTabKey='alltime';
+  const tab=REC_TABS.find(function(t){return t.key===recTabKey;});
+  const body=recTabKey==='alltime'?recSummaryHTML():recCatHTML(recTabKey);
+  const community=recTabKey==='community';
+  const cta=community?'Share an achievement':'Set a record';
+  const ctaSub=community?'Proud of something? Send it in with a photo or video.':'Submit with a video or photo and the team will verify it.';
   el.innerHTML='<div class="mw">'
-    +'<div class="mw-head"><div class="mw-eyebrow">The Cave</div><div class="mw-title">All-Time Records</div><div class="mw-sub">The best of the best — be the next name on the wall.</div></div>'
-    +'<div class="mw-tabs">'+tabs.map(function(t){return '<button class="mw-tab'+(t.k===recTabKey?' on':'')+'" onclick="recTab(\''+t.k+'\')">'+esc(t.l)+'</button>';}).join('')+'</div>'
+    +'<div class="mw-head"><div class="mw-eyebrow">The Cave</div><div class="mw-title">'+esc(recTabKey==='alltime'?'All-Time Records':tab.label)+'</div></div>'
+    +'<div class="mw-tabs">'+REC_TABS.map(function(t){return '<button class="mw-tab'+(t.key===recTabKey?' on':'')+'" onclick="recTab(\''+t.key+'\')">'+esc(t.label)+'</button>';}).join('')+'</div>'
     +'<div class="mw-body">'+body+'</div>'
-    +'<div class="mw-cta"><button class="btn-full" onclick="setMode(\'submit\')">Set a record</button><div class="mw-cta-sub">Submit with a video or photo and the team will verify it.</div></div>'
+    +'<div class="mw-cta"><button class="btn-full" onclick="recCTA(\''+(community?'ach':'rec')+'\')">'+cta+'</button><div class="mw-cta-sub">'+ctaSub+'</div></div>'
     +'</div>';
 }
 function recTab(k){recTabKey=k;renderMaster();const el=document.getElementById('master');if(el){const on=el.querySelector('.mw-tab.on');if(on&&on.scrollIntoView){try{on.scrollIntoView({inline:'center',block:'nearest'});}catch(e){}}}}
+function recCTA(kind){subCat=(kind==='ach')?'achievement':'record';setMode('submit');}
 function masterAchHTML(){const a=cache.achievements||[];if(!a.length)return '<div class="rec-none">No achievements posted yet — yours could be first.</div>';return '<div class="rec-ach">'+a.slice(0,30).map(function(x){return '<div class="rec-ach-row">'+((settings().show_photos&&x.photo_url)?('<div class="lb-av" style="'+bgUrl(x.photo_url)+'"></div>'):'<div class="rec-ach-dot"></div>')+'<div class="rec-ach-tx"><div class="rec-ach-name">'+esc(titleCase(x.name||''))+'</div><div class="rec-ach-detail">'+esc(x.detail||'')+'</div></div></div>';}).join('')+'</div>';}
-function masterComingHTML(){
+// What's On — upcoming events + active challenge + next benchmark (shown in the calendar popup)
+function whatsonHTML(){
   const today=new Date(todayKey()+'T00:00:00');
   const evs=(cache.events||[]).slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);}).filter(function(e){return new Date(e.date+'T00:00:00')>=today;});
   const daysTo=function(ds){return Math.round((new Date(ds+'T00:00:00')-today)/864e5);};
-  const dayChip=function(n){return n===0?'Today':(n===1?'Tomorrow':(n+' days'));};
+  const dayChip=function(n){return n<=0?'Today':(n===1?'Tomorrow':(n+' days'));};
   let h='<div class="wo-list">';
-  if(challengeOn()){const c=activeChallenge();if(c){let left=null;if(c.end_date){left=Math.ceil((new Date(c.end_date+'T00:00:00')-today)/864e5);}
-    h+='<div class="wo-card challenge"><div class="wo-top"><span class="wo-tag">This month’s challenge</span>'+(left!=null&&left>=0?'<span class="wo-count">'+(left===0?'Ends today':left+' day'+(left===1?'':'s')+' left')+'</span>':'')+'</div><div class="wo-title">'+esc(c.title||'Monthly Challenge')+'</div>'+(c.prize?'<div class="wo-prize">🏆 '+esc(c.prize)+'</div>':'')+(c.description?'<div class="wo-desc">'+esc(c.description)+'</div>':'')+'</div>';}}
-  if(evs.length)h+=evs.slice(0,10).map(function(e){const d=new Date(e.date+'T00:00:00');const n=daysTo(e.date);return '<div class="wo-card cat-hyrox"><div class="wo-top"><span class="wo-date"><span class="d">'+d.getDate()+'</span><span class="m">'+d.toLocaleDateString('en-AU',{month:'short'}).slice(0,3)+'</span></span><span class="wo-tag">'+d.toLocaleDateString('en-AU',{weekday:'long'})+'</span><span class="wo-count">'+dayChip(n)+'</span></div><div class="wo-title">'+esc(e.title)+'</div>'+(e.note?'<div class="wo-sub">'+esc(e.note)+'</div>':'')+'</div>';}).join('');
+  if(typeof challengeOn==='function'&&challengeOn()){const c=activeChallenge();if(c){let left=null;if(c.end_date){left=Math.ceil((new Date(c.end_date+'T00:00:00')-today)/864e5);}
+    h+='<div class="wo-card"><div class="wo-top"><span class="wo-tag">This month’s challenge</span>'+(left!=null&&left>=0?'<span class="wo-count">'+(left===0?'Ends today':left+' day'+(left===1?'':'s')+' left')+'</span>':'')+'</div><div class="wo-title">'+esc(c.title||'Monthly Challenge')+'</div>'+(c.prize?'<div class="wo-prize">🏆 '+esc(c.prize)+'</div>':'')+(c.description?'<div class="wo-desc">'+esc(c.description)+'</div>':'')+'</div>';}}
+  var bi=(typeof bmCycleInfo==='function')?bmCycleInfo():{valid:false};var bc=(typeof bmConfig==='function')?bmConfig():{on:false};
+  if(bc.on&&bi.valid){var bmDays=bi.before?bi.daysToNext:(bi.active?0:bi.daysToNext);if(bi.active||(bmDays!=null&&bmDays>0&&bmDays<=14)){
+    h+='<div class="wo-card"><div class="wo-top"><span class="wo-tag">Benchmark test</span><span class="wo-count">'+(bi.active?'Live now':dayChip(bmDays))+'</span></div><div class="wo-title">'+esc(bc.title||'The Cave Benchmark')+'</div><div class="wo-sub">'+(bi.active?'Test week is on — log your score on the WOD page.':'Next test window coming up.')+'</div></div>';}}
+  if(evs.length)h+=evs.slice(0,12).map(function(e){const d=new Date(e.date+'T00:00:00');const n=daysTo(e.date);return '<div class="wo-card"><div class="wo-top"><span class="wo-date"><span class="d">'+d.getDate()+'</span><span class="m">'+d.toLocaleDateString('en-AU',{month:'short'}).slice(0,3)+'</span></span><span class="wo-tag">'+d.toLocaleDateString('en-AU',{weekday:'long'})+'</span><span class="wo-count">'+dayChip(n)+'</span></div><div class="wo-title">'+esc(e.title)+'</div>'+(e.note?'<div class="wo-sub">'+esc(e.note)+'</div>':'')+'</div>';}).join('');
+  var note=(settings().whatson_note||'').trim();
+  if(note)h+='<div class="wo-card"><div class="wo-top"><span class="wo-tag">Coming up</span></div><div class="wo-desc" style="white-space:pre-wrap;">'+esc(note)+'</div></div>';
   h+='</div>';
-  if(!challengeOn()&&!evs.length)return '<div class="rec-none">Nothing on the calendar right now — check back soon.</div>';
-  return h;
+  var empty=!evs.length&&!(typeof challengeOn==='function'&&challengeOn())&&!note&&!(bc.on&&bi.valid&&bi.active);
+  return empty?'<div class="rec-none">Nothing on the calendar right now — check back soon.</div>':h;
 }
 function goSlide(i){const sl=document.querySelectorAll('.slide'),dt=document.querySelectorAll('.disp-dot');if(!sl.length)return;slideIdx=i%sl.length;const cur=sl[slideIdx];sl.forEach(s=>{s.classList.remove('on');const v=s.querySelector('video');if(v&&s!==cur){try{v.pause();}catch(e){}v.onended=null;}});dt.forEach(d=>d.classList.remove('on'));cur.classList.add('on');if(dt[slideIdx])dt[slideIdx].classList.add('on');const disp=document.getElementById('display');if(disp)disp.classList.toggle('ad-active',cur.classList.contains('ad-slide'));if(displaying)scheduleNext(cur);}
 function nextSlide(){goSlide(slideIdx+1);}
@@ -3695,6 +3715,7 @@ async function setNavMode(m){const s=settings();s.nav_mode=m;await stateUpdate({
 async function toggleNavWrap(){const s=settings();const cur=s.nav_wrap!==false;s.nav_wrap=!cur;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();toast(s.nav_wrap?'Tabs wrap onto multiple lines':'Tabs stay on one line (scroll)');}
 async function ownerSetAccent(val){const s=settings();s.appearance=Object.assign({},s.appearance,{accent:val});await stateUpdate({settings:s});applyAppearance();renderOwnerTools();renderDisplay();toast(val==='#20b0e0'?'Accent: Brand blue':(val==='#8ab4f8'?'Accent: Soft blue':'Accent set'));}
 async function setHowto(v){const s=settings();s.howto=v;await stateUpdate({settings:s});toast('How-to saved');var _m=document.getElementById('member');if(_m&&_m.classList.contains('active'))renderMemberDash();}
+async function setWhatsonNote(v){const s=settings();s.whatson_note=v;await stateUpdate({settings:s});toast('What’s On note saved');}
 
 /* ---------- RECURRING BENCHMARK TEST (bottom of the WOD page) ---------- */
 const BM_DEFAULT_BODY='For Time:\n\n1 km Run\n750 m Ski Erg\n40 Sandbag Lunges (20/10 kg)\n30 Burpees over the Sandbag\n1 km Run';
@@ -3873,7 +3894,7 @@ function recAdminToggle(key){recAdminOpen=(recAdminOpen===key)?null:key;renderRe
 async function recDelEntry(id){if(!confirm('Delete this entry from the board?'))return;await rowDelete('records',id,true);renderRecordsAdmin();renderDisplay();toast('Entry removed');}
 function renderRecordsAdmin(){var el=document.getElementById('records-admin');if(!el)return;if(!isUnlocked()){el.innerHTML='<div class="ot-sub">Admin only.</div>';return;}
   var h='<div class="ot-cap" style="margin-bottom:8px;">Every verified result lives here — the best tops the wall, the rest fill the leaderboard. Approve member submissions or add/remove entries directly.</div>';
-  REC_CATS.forEach(function(c){h+='<div class="set-section" style="margin:12px 0 4px;">'+esc(c.label)+'</div>';c.items.forEach(function(it){if(it.single){h+=recAdminRow(it,'x');}else{h+=recAdminRow(it,'m')+recAdminRow(it,'f');}});});
+  REC_GROUPS.filter(function(g){return g.feats&&g.feats.length;}).forEach(function(g){h+='<div class="set-section" style="margin:12px 0 4px;">'+esc(g.group)+'</div>';g.feats.forEach(function(it){if(it.single){h+=recAdminRow(it,'x');}else{h+=recAdminRow(it,'m')+recAdminRow(it,'f');}});});
   el.innerHTML=h;
 }
 async function saveRecord(){var rk=val('f-rec-key'),sex=val('f-rec-sex')||'m';var it=recItem(rk);if(!it)return;var holder=val('f-rec-holder');var raw=val('f-rec-val');if(!holder){alert('Enter the name.');return;}var parsed=recParseInput(it,raw);if(!parsed){alert(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}await rowInsert('records',{cat:it.cat,rkey:rk,label:it.l,sex:recSex(it,sex),holder:titleCase(holder),display:parsed.display,value:parsed.value,dir:it.dir,date:todayKey()});closeModal();renderRecordsAdmin();renderDisplay();toast('Entry added ✓');}
