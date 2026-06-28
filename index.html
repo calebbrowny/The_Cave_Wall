@@ -315,48 +315,83 @@ body.no-tab-emoji .te{display:none;}
 .display.master-mode{display:none;min-height:100vh;}
 .display.master-mode.active{display:block;}
 .display.master-mode .disp-head{display:none;}
-#master{max-width:760px;margin:0 auto;padding:0 16px 40px;}
-.mw-head{text-align:center;padding:clamp(18px,4vw,30px) 6px 14px;}
-.mw-eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
-.mw-title{font-size:clamp(28px,8vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.02;}
-.mw-sub{font-size:13px;color:var(--muted);margin-top:8px;max-width:30ch;margin-inline:auto;}
-.mw-tabs{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:sticky;top:0;background:var(--bg);z-index:3;}
+#master{max-width:780px;margin:0 auto;padding:0 14px 52px;}
+.mw-head{text-align:center;padding:clamp(18px,4vw,30px) 6px 10px;}
+.mw-eyebrow{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.mw-title{font-size:clamp(30px,9vw,46px);font-weight:800;letter-spacing:-1.5px;line-height:1;}
+.mw-sub{font-size:13px;color:var(--muted);margin-top:8px;max-width:32ch;margin-inline:auto;}
+.mw-tabs{display:flex;gap:7px;overflow-x:auto;padding:8px 2px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 78%,transparent);z-index:3;}
 .mw-tabs::-webkit-scrollbar{display:none;}
-.mw-tab{flex:0 0 auto;border:1px solid var(--border);background:var(--bg-card);color:var(--muted);font-weight:700;font-size:13px;padding:9px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .15s;}
-.mw-tab.on{background:var(--blue);border-color:var(--blue);color:#fff;}
-.rec-list{display:flex;flex-direction:column;gap:10px;}
-.rec-item{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:13px 15px;}
-.rec-feat{font-size:13px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--text);margin-bottom:10px;}
+.mw-tab{flex:0 0 auto;border:1px solid var(--border);background:var(--bg-card);color:var(--muted);font-weight:700;font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.mw-tab.on{background:var(--blue);border-color:var(--blue);color:#10131a;box-shadow:0 4px 14px color-mix(in srgb,var(--blue) 38%,transparent);}
+/* per-category accent colour */
+.cat-powerlifting{--cat:var(--red);}.cat-strength{--cat:var(--blue);}.cat-fitness{--cat:var(--green);}.cat-hyrox{--cat:var(--amber);}.cat-gym{--cat:var(--purple);}.cat-community{--cat:var(--pink);}
+.mw-cat{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 2px 12px;padding-left:12px;border-left:4px solid var(--cat,var(--blue));}
+.mw-cat-name{font-size:18px;font-weight:800;color:var(--cat,var(--text));letter-spacing:-.3px;}
+.mw-cat-blurb{font-size:12px;color:var(--muted);}
+.rec-list{display:flex;flex-direction:column;gap:11px;}
+.rec-item{position:relative;background:linear-gradient(180deg,color-mix(in srgb,var(--cat,var(--blue)) 9%,var(--bg-card)),var(--bg-card));border:1px solid color-mix(in srgb,var(--cat,var(--blue)) 22%,var(--border));border-left:4px solid var(--cat,var(--blue));border-radius:14px;padding:12px 14px;box-shadow:0 2px 10px rgba(0,0,0,.18);}
+.rec-feat-row{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
+.rec-feat-row.rec-clickable{cursor:pointer;}
+.rec-feat{font-size:14px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--cat,var(--text));flex:1;min-width:0;}
+.rec-count{font-size:11px;font-weight:800;color:var(--muted);background:var(--bg-light);border-radius:999px;padding:2px 9px;min-width:22px;text-align:center;}
+.rec-count.empty{background:transparent;color:color-mix(in srgb,var(--muted) 50%,transparent);}
+.rec-chev{color:var(--muted);font-size:13px;transition:transform .18s;}
+.rec-chev.open{transform:rotate(180deg);color:var(--cat,var(--blue));}
 .rec-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.rec-side{border-radius:10px;padding:10px 12px;background:var(--bg-light);border:1px solid var(--border);}
-.rec-side.male{border-left:3px solid var(--blue);}
-.rec-side.female{border-left:3px solid var(--pink);}
-.rec-side-h{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.rec-side,.rec-one{position:relative;border-radius:11px;padding:11px 13px 12px 16px;background:var(--bg-light);overflow:hidden;}
+.rec-side::before,.rec-one::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
+.rec-side.male::before{background:var(--blue);}
+.rec-side.female::before{background:var(--pink);}
+.rec-one::before{background:var(--cat,var(--amber));}
+.rec-side-h{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .rec-side.male .rec-side-h{color:var(--blue);}
 .rec-side.female .rec-side-h{color:var(--pink);}
-.rec-one{border-radius:10px;padding:10px 12px;background:var(--bg-light);border:1px solid var(--border);border-left:3px solid var(--amber,#f5a623);}
-.rec-holder{font-size:15px;font-weight:700;line-height:1.2;}
-.rec-val{font-size:20px;font-weight:800;color:var(--blue);letter-spacing:-.5px;margin-top:2px;}
-.rec-up{font-size:13px;color:var(--muted);font-style:italic;}
+.rec-holder{font-size:15px;font-weight:700;line-height:1.15;color:var(--text);}
+.rec-val{font-size:22px;font-weight:800;color:var(--cat,var(--blue));letter-spacing:-.6px;margin-top:3px;line-height:1;}
+.rec-up{font-size:13px;color:var(--muted);font-style:italic;padding:3px 0;}
+/* drill-down full leaderboard */
+.rec-lb-wrap{margin-top:12px;padding-top:12px;border-top:1px dashed color-mix(in srgb,var(--cat,var(--blue)) 30%,var(--border));}
+.reclb{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.reclb.single{grid-template-columns:1fr;}
+.reclb-h{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.reclb-h.male{color:var(--blue);}.reclb-h.female{color:var(--pink);}.reclb-h.solo{color:var(--cat,var(--amber));}
+.reclb-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;font-size:13px;}
+.reclb-row:nth-child(even){background:rgba(255,255,255,.03);}
+.reclb-rank{flex:0 0 20px;text-align:center;font-weight:800;font-size:12px;color:var(--muted);}
+.reclb-row.top1 .reclb-rank{color:#fdd663;}.reclb-row.top2 .reclb-rank{color:#c0c4cc;}.reclb-row.top3 .reclb-rank{color:#cd7f32;}
+.reclb-name{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.reclb-val{font-weight:800;color:var(--text);}
+.reclb-empty{font-size:12px;color:var(--muted);font-style:italic;padding:4px 8px;}
 .rec-none{text-align:center;color:var(--muted);font-size:14px;padding:40px 20px;}
 .rec-ach{display:flex;flex-direction:column;gap:9px;}
 .rec-ach-row{display:flex;align-items:center;gap:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;}
-.rec-ach-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex:0 0 auto;}
+.rec-ach-dot{width:9px;height:9px;border-radius:50%;background:var(--amber);flex:0 0 auto;box-shadow:0 0 0 4px color-mix(in srgb,var(--amber) 18%,transparent);}
 .rec-ach-row .lb-av{width:38px;height:38px;flex:0 0 auto;}
 .rec-ach-name{font-size:15px;font-weight:700;}
 .rec-ach-detail{font-size:13px;color:var(--muted);margin-top:1px;}
-.rec-coming{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:10px;}
-.rc-tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--blue);background:color-mix(in srgb,var(--blue) 14%,var(--bg-card));padding:3px 9px;border-radius:6px;margin-bottom:7px;}
-.rc-title{font-size:17px;font-weight:800;line-height:1.15;}
-.rc-sub{font-size:13px;color:var(--muted);margin-top:3px;}
-.rc-desc{font-size:13px;color:var(--text);margin-top:6px;line-height:1.4;}
-.mw-cta{margin-top:22px;text-align:center;}
-.mw-cta .btn-full{max-width:280px;margin:0 auto;}
+.mw-cta{margin-top:24px;text-align:center;}
+.mw-cta .btn-full{max-width:290px;margin:0 auto;}
 .mw-cta-sub{font-size:12px;color:var(--muted);margin-top:8px;}
+/* What's On (events + challenge) */
+.wo-list{display:flex;flex-direction:column;gap:12px;}
+.wo-card{position:relative;background:linear-gradient(180deg,color-mix(in srgb,var(--cat,var(--blue)) 10%,var(--bg-card)),var(--bg-card));border:1px solid color-mix(in srgb,var(--cat,var(--blue)) 24%,var(--border));border-radius:16px;padding:15px 16px;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.wo-card.challenge{--cat:var(--green);}
+.wo-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.wo-date{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--cat,var(--blue));color:#10131a;border-radius:10px;padding:6px 10px;min-width:52px;line-height:1;}
+.wo-date .d{font-size:20px;font-weight:800;}
+.wo-date .m{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.wo-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--cat,var(--blue));}
+.wo-count{margin-left:auto;font-size:11px;font-weight:800;color:var(--cat,var(--blue));background:color-mix(in srgb,var(--cat,var(--blue)) 16%,var(--bg-card));border-radius:999px;padding:4px 10px;}
+.wo-title{font-size:18px;font-weight:800;line-height:1.15;letter-spacing:-.3px;}
+.wo-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+.wo-prize{font-size:13px;color:var(--amber);font-weight:700;margin-top:6px;}
+.wo-desc{font-size:13px;color:var(--text);margin-top:7px;line-height:1.45;}
 /* records on the TV rotator */
 .rec-disp{max-width:min(1400px,94vw);margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.4vw,22px);}
 .rec-disp .rec-item{padding:clamp(12px,1.4vw,22px) clamp(14px,1.6vw,26px);border-radius:16px;}
-.rec-disp .rec-feat{font-size:clamp(15px,1.5vw,28px);margin-bottom:clamp(8px,1vw,14px);}
+.rec-disp .rec-feat{font-size:clamp(15px,1.5vw,28px);}
+.rec-disp .rec-feat-row{margin-bottom:clamp(8px,1vw,14px);}
 .rec-disp .rec-holder{font-size:clamp(15px,1.5vw,28px);}
 .rec-disp .rec-val{font-size:clamp(20px,2.2vw,42px);}
 .rec-disp .rec-side-h{font-size:clamp(10px,.9vw,16px);}
@@ -1601,21 +1636,34 @@ const DEMO_DATA={
   {id:'demo_cb2',board:'demo_board_row',name:'Demo \u00b7 Sarah T.',gender:'f',detail:'',score:'7:38',unit:'',photo_url:null}
  ],
  submissions:[
-  {id:'demo_sub1',name:'Demo \u00b7 New Member',category:'hyrox',gender:'m',detail:'Full Sim \u00b7 Solo',score:'74:30',unit:'',photo_url:null,proof_url:null,status:'pending'},
-  {id:'demo_sub2',name:'Demo \u00b7 Member Two',category:'strength',gender:'f',detail:'Squat 120 \u00b7 Bench 70 \u00b7 Dead 160',score:'350',unit:'kg',photo_url:null,proof_url:null,proof_url2:null,proof_url3:null,status:'pending'}
+  {id:'demo_sub1',name:'Demo \u00b7 New Member',category:'record',gender:'m',detail:'hyrox_open',score:'4470',unit:'',photo_url:null,proof_url:null,status:'pending'},
+  {id:'demo_sub2',name:'Demo \u00b7 Member Two',category:'record',gender:'f',detail:'pl_total:120/70/160',score:'350',unit:'kg',photo_url:null,proof_url:null,proof_url2:null,proof_url3:null,status:'pending'}
  ],
  events:[
   {id:'demo_ev1',title:'Demo \u00b7 HYROX Open',date:'2026-07-18',note:'Sample event'},
   {id:'demo_ev2',title:'Demo \u00b7 Strength Comp',date:'2026-08-15',note:'Sample event'}
  ]
 };
+// Built lazily (after REC_MAP/recParseInput are defined) so it can format values.
+function demoRecordsData(){var R=[],n=0;var mk=function(cat,rk,sex,holder,raw){var it=REC_MAP[rk];if(!it)return;var p=recParseInput(it,raw);if(!p)return;R.push({id:'demo_rec_'+(n++),cat:cat,rkey:rk,label:it.l,sex:sex,holder:'Demo \u00b7 '+holder,display:p.display,value:p.value,dir:it.dir,date:'2026-06-01'});};
+  mk('powerlifting','squat','m','Caleb B','230');mk('powerlifting','squat','m','Jake M','210');mk('powerlifting','squat','f','Sarah T','135');
+  mk('powerlifting','bench','m','Caleb B','150');mk('powerlifting','deadlift','m','Tim R','280');mk('powerlifting','deadlift','f','Lisa W','170');
+  mk('powerlifting','pl_total','m','Caleb B','620');mk('powerlifting','pl_total','m','Jake M','585');mk('powerlifting','pl_total','f','Sarah T','370');
+  mk('strength','snatch','m','Tim R','95');mk('strength','clean_jerk','m','Caleb B','130');mk('strength','strict_press','f','Em K','55');
+  mk('fitness','row_500','m','Jake M','1:28');mk('fitness','row_500','m','Caleb B','1:31');mk('fitness','row_500','f','Sarah T','1:44');
+  mk('fitness','row_2000','m','Tim R','6:42');mk('fitness','run_5k','f','Em K','22:10');mk('fitness','bike_60','m','Jake M','42');
+  mk('hyrox','hyrox_open','m','Caleb B','1:08:40');mk('hyrox','hyrox_open','f','Em K','1:19:02');mk('hyrox','hyrox_doubles','x','Tim & Caleb','58:20');mk('hyrox','wallball_100','m','Jake M','4:55');
+  mk('gym','max_pullup','m','Tim R','32');mk('gym','max_pullup','f','Sarah T','19');mk('gym','max_du','m','Caleb B','120');
+  mk('community','longest_streak','x','Em K','45');mk('community','most_wods','x','Caleb B','312');
+  return R;}
 function applyDemo(){
-  ['leaderboard','boards','submissions','events'].forEach(function(t){cache[t]=cache[t].filter(function(r){return !isDemo(r.id);});});
+  ['leaderboard','boards','submissions','events','records'].forEach(function(t){cache[t]=cache[t].filter(function(r){return !isDemo(r.id);});});
   if(demoOn()){
     cache.boards=cache.boards.concat(DEMO_DATA.boards.map(function(o){return Object.assign({},o);}));
     cache.leaderboard=cache.leaderboard.concat(DEMO_DATA.leaderboard.map(function(o){return Object.assign({},o);}));
     cache.submissions=cache.submissions.concat(DEMO_DATA.submissions.map(function(o){return Object.assign({},o);}));
     cache.events=cache.events.concat(DEMO_DATA.events.map(function(o){return Object.assign({},o);}));
+    cache.records=cache.records.concat(demoRecordsData());
   }
   updateDemoBanner();
 }
@@ -1780,11 +1828,11 @@ function openModal(type,id,extra){
   else if(type==='member'){t.textContent='Cave Hub account';b.innerHTML=memberAuthHTML();}
   else if(type==='metric'){t.textContent='Log a number';b.innerHTML=metricModalHTML();}
   else if(type==='memedit'){t.textContent='My account';b.innerHTML=memEditHTML();}
-  else if(type==='record'){const parts=String(id||'').split('|');const rk=parts[0],sex=parts[1]||'m';const it=recItem(rk)||{};const r=recFor(rk,sex);t.textContent=(r?'Edit':'Set')+' record';
+  else if(type==='record'){const parts=String(id||'').split('|');const rk=parts[0],sex=parts[1]||'m';const it=recItem(rk)||{};const best=recBest(rk,sex);t.textContent='Add entry';
     const sexFld=it.single?'':`<div class="fld"><label>Category</label><input value="${sex==='f'?'Women':'Men'}" readonly></div>`;
     const ph=it.input==='time'?'e.g. 1:08:40 or 7:45':(it.input==='kg'?'e.g. 180':'e.g. 30');
-    const cur=r?(it.input==='time'?recSecToClock(r.value):r.value):'';
-    b.innerHTML=`<div class="note" style="margin-bottom:10px;">${esc(it.l||'')}</div><input type="hidden" id="f-rec-key" value="${esc(rk)}"><input type="hidden" id="f-rec-sex" value="${esc(sex)}">${sexFld}<div class="fld"><label>Record holder</label><input id="f-rec-holder" value="${r?esc(r.holder):''}" placeholder="e.g. Jordan K."></div><div class="fld"><label>${esc(it.l||'Value')}${it.u?(' ('+esc(it.u)+')'):''}</label><input id="f-rec-val" value="${esc(String(cur))}" placeholder="${ph}"></div><button class="btn-full" onclick="saveRecord()">${r?'Save record':'Set record'}</button>${r?`<button class="btn-sm" style="width:100%;margin-top:8px;" onclick="recClear('${rk}|${sex}')">Clear this record</button>`:''}<div class="note">Set directly here, or approve a member submission to fill the wall automatically.</div>`;}
+    const curLine=best?`<div class="note" style="margin-bottom:10px;">${esc(it.l||'')} · current best <strong>${esc(best.display||recFmt(it,best.value))}</strong> (${esc(titleCase(best.holder||''))})</div>`:`<div class="note" style="margin-bottom:10px;">${esc(it.l||'')} · no entries yet</div>`;
+    b.innerHTML=`${curLine}<input type="hidden" id="f-rec-key" value="${esc(rk)}"><input type="hidden" id="f-rec-sex" value="${esc(sex)}">${sexFld}<div class="fld"><label>Name</label><input id="f-rec-holder" placeholder="e.g. Jordan K."></div><div class="fld"><label>${esc(it.l||'Value')}${it.u?(' ('+esc(it.u)+')'):''}</label><input id="f-rec-val" placeholder="${ph}"></div><button class="btn-full" onclick="saveRecord()">Add to board</button><div class="note">Adds a verified entry directly. Members’ own entries come in via the Submit tab and your approval.</div>`;}
 }
 function closeModal(){const m=document.getElementById('modal');m.classList.remove('open');m.classList.remove('meso');editId=null;pendingPhoto=null;existingPhoto=null;}
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
@@ -1870,7 +1918,7 @@ function renderChallengeTab(){
 const CAT_LABEL={strength:'Strength',hyrox:'HYROX',challenge:'Challenge',achievement:'Achievement',record:'Gym record'};
 function catLabel(s){if(s&&s.category==='customboard')return settings().customboard_submit_label||'Leaderboard';return CAT_LABEL[(s&&s.category)]||(s&&s.category)||'';}
 function subAv(s){if(settings().show_photos&&s.photo_url)return `<div class="sub-av" style="${bgUrl(s.photo_url)}"></div>`;return `<div class="sub-av">${esc((s.name||'?').slice(0,1))}</div>`;}
-function subDetailText(s){if(s.category==='achievement')return esc(s.detail||'');if(s.category==='record'){const it=recItem(s.detail);const sx=s.gender==='f'?'Women':(s.gender==='x'?'':'Men');const v=it?recFmt(it,parseFloat(s.score)):s.score;const cur=recFor(s.detail,s.gender);const beats=it&&cur?(recBeats(it,parseFloat(s.score),cur.value)?' · NEW best':' · current '+(cur.display||recFmt(it,cur.value))):'';return esc((it?it.l:s.detail)+(sx?(' · '+sx):'')+' · '+v+beats);}if(s.category==='hyrox')return esc((s.detail||'Result')+' · '+s.score);if(s.category==='challenge')return esc((s.score||'')+' '+(s.unit||''));if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);return esc((bd?bd.title:'Leaderboard')+' · '+(s.score||'')+' '+(s.unit||''));}return esc((s.detail||'')+' · '+s.score+' '+(s.unit||''));}
+function subDetailText(s){if(s.category==='achievement')return esc(s.detail||'');if(s.category==='record'){const sx=s.gender==='f'?'Women':(s.gender==='x'?'':'Men');const pl=recPL(s.detail);if(pl)return esc('Powerlifting · '+(sx||'Men')+' · Total '+pl.total+' kg  (Sq '+pl.sq+' / Bn '+pl.bn+' / Dl '+pl.dl+')');const it=recItem(s.detail);const v=it?recFmt(it,parseFloat(s.score)):s.score;const cur=recBest(s.detail,s.gender);const rank=it&&cur?(recBeats(it,parseFloat(s.score),cur.value)?' · would be #1':' · current best '+(cur.display||recFmt(it,cur.value))):' · first entry';return esc((it?(REC_CAT_LABEL[it.cat]+' · '+it.l):s.detail)+(sx?(' · '+sx):'')+' · '+v+rank);}if(s.category==='hyrox')return esc((s.detail||'Result')+' · '+s.score);if(s.category==='challenge')return esc((s.score||'')+' '+(s.unit||''));if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);return esc((bd?bd.title:'Leaderboard')+' · '+(s.score||'')+' '+(s.unit||''));}return esc((s.detail||'')+' · '+s.score+' '+(s.unit||''));}
 function isVideoUrl(u){return /\.(mp4|mov|m4v|webm|avi|ogg|ogv|3gp|mkv)(\?|$)/i.test(u||'');}
 function renderSubmissions(){
   const el=document.getElementById('submissions-list');if(!el)return;
@@ -1879,7 +1927,7 @@ function renderSubmissions(){
   if(!pend.length){el.innerHTML='<div style="font-size:13px;color:var(--muted);padding:6px 0;">No pending submissions. Member entries from the Submit tab show up here for approval.</div>';return;}
   el.innerHTML=pend.map(s=>{
     let proofBlock='';
-    if(s.category==='strength'){
+    if(s.category==='strength'||(s.category==='record'&&recPL(s.detail))){
       const vids=[['proof_url','Squat'],['proof_url2','Bench'],['proof_url3','Deadlift']];
       const parts=vids.filter(v=>s[v[0]]).map(v=>{const u=safeUrl(s[v[0]]);const m=isVideoUrl(s[v[0]])?`<video src="${u}" class="sub-proof-media" controls muted playsinline preload="metadata"></video>`:`<img src="${u}" class="sub-proof-media" alt="proof" onclick="window.open('${u}','_blank')">`;return `<div class="sub-proof-lift"><div class="sub-proof-lbl">${v[1]}</div>${m}<a href="${u}" target="_blank" rel="noopener noreferrer" class="sub-proof" style="margin-left:0;">\uD83D\uDCCE Open</a></div>`;});
       proofBlock=parts.length?`<div class="sub-proof-grid">${parts.join('')}</div>`:`<div class="sub-proof-missing">\u26A0 No videos attached</div>`;
@@ -1892,17 +1940,29 @@ function renderSubmissions(){
 async function approveSubmission(id){
   const s=cache.submissions.find(x=>x.id===id);if(!s)return;
   if(isDemo(s.id)){
-    if(s.category==='strength'||s.category==='hyrox'){cache.leaderboard.push({id:'demo_appr_'+Date.now(),board:s.category,name:s.name,gender:s.gender||'m',detail:s.detail||'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}
+    if(s.category==='record'){const sex=s.gender==='f'?'f':(s.gender==='x'?'x':'m');const pl=recPL(s.detail);const push=function(rk,v){const it=recItem(rk);if(!it)return;cache.records.push({id:'demo_appr_'+rk+'_'+Date.now(),cat:it.cat,rkey:rk,label:it.l,sex:sex,holder:titleCase(s.name||''),display:recParseInput(it,String(v)).display,value:v,dir:it.dir,date:todayKey()});};if(pl){push('squat',pl.sq);push('bench',pl.bn);push('deadlift',pl.dl);push('pl_total',pl.total);}else{const it=recItem(s.detail);if(it){const p=recParseInput(it,s.score);if(p)cache.records.push({id:'demo_appr_'+Date.now(),cat:it.cat,rkey:s.detail,label:it.l,sex:recSex(it,s.gender),holder:titleCase(s.name||''),display:p.display,value:p.value,dir:it.dir,date:todayKey()});}}}
+    else if(s.category==='strength'||s.category==='hyrox'){cache.leaderboard.push({id:'demo_appr_'+Date.now(),board:s.category,name:s.name,gender:s.gender||'m',detail:s.detail||'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}
     else if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);if(bd)cache.leaderboard.push({id:'demo_appr_'+Date.now(),board:bd.id,name:s.name,gender:s.gender||'m',detail:'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}
     cache.submissions=cache.submissions.filter(x=>x.id!==id);
-    confettiBurst();renderSubmissions();manageLB(curLB,document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button.on'));renderCustomBoards();renderDisplay();
+    confettiBurst();renderSubmissions();renderRecordsAdmin();renderCustomBoards();renderDisplay();
     return;
   }
   if(s.category==='strength'||s.category==='hyrox'){await rowInsert('leaderboard',{board:s.category,name:s.name,gender:s.gender||'m',detail:s.detail||'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}
   else if(s.category==='achievement'){await rowInsert('achievements',{name:s.name,detail:s.detail||'',photo_url:s.photo_url||null});}
   else if(s.category==='challenge'){const c=await ensureActiveChallenge();const entries=(c.entries||[]).slice();entries.push({id:uid(),name:s.name,gender:s.gender||'m',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null,proof_url:s.proof_url||null});await rowUpdate('challenges',c.id,{entries});}
   else if(s.category==='customboard'){const bd=(cache.boards||[]).find(b=>b.id===s.detail);if(bd){await rowInsert('leaderboard',{board:bd.id,name:s.name,gender:s.gender||'m',detail:'',score:s.score||'',unit:s.unit||'',photo_url:s.photo_url||null});}}
-  else if(s.category==='record'){const it=recItem(s.detail);const parsed=it?recParseInput(it,s.score):null;if(it&&parsed){const cur=recFor(s.detail,s.gender);if(!cur||recBeats(it,parsed.value,cur.value)){const row={cat:it.cat,rkey:s.detail,label:it.l,sex:recSex(it,s.gender),holder:titleCase(s.name||''),display:parsed.display,value:parsed.value,dir:it.dir,date:todayKey()};if(cur)await rowUpdate('records',cur.id,row);else await rowInsert('records',row);logActivity('record_set',(it.l)+' record → '+(s.name||''));}}}
+  else if(s.category==='record'){
+    const sex=s.gender==='f'?'f':(s.gender==='x'?'x':'m');
+    const pl=recPL(s.detail);
+    if(pl){
+      const mk=function(rk,v){const it=recItem(rk);return {cat:'powerlifting',rkey:rk,label:it.l,sex:sex,holder:titleCase(s.name||''),display:recParseInput(it,String(v)).display,value:v,dir:'high',date:todayKey()};};
+      await rowInsert('records',mk('squat',pl.sq));await rowInsert('records',mk('bench',pl.bn));await rowInsert('records',mk('deadlift',pl.dl));await rowInsert('records',mk('pl_total',pl.total));
+      logActivity('record_set','Powerlifting total → '+(s.name||''));
+    }else{
+      const it=recItem(s.detail);const parsed=it?recParseInput(it,s.score):null;
+      if(it&&parsed){await rowInsert('records',{cat:it.cat,rkey:s.detail,label:it.l,sex:recSex(it,s.gender),holder:titleCase(s.name||''),display:parsed.display,value:parsed.value,dir:it.dir,date:todayKey()});logActivity('record_set',(it.l)+' → '+(s.name||''));}
+    }
+  }
   if(s.category!=='challenge'){await deleteProofFile(s.proof_url);if(s.proof_url2)await deleteProofFile(s.proof_url2);if(s.proof_url3)await deleteProofFile(s.proof_url3);}
   await rowDelete('submissions',id,true);
   logActivity('submission_approved','Approved '+(s.category||'')+' submission from '+(s.name||''));
@@ -1912,53 +1972,43 @@ async function approveSubmission(id){
 async function rejectSubmission(id){if(!confirm('Reject and delete this submission?'))return;const s=cache.submissions.find(x=>x.id===id);await rowDelete('submissions',id);if(s){await deleteProofFile(s.proof_url);if(s.proof_url2)await deleteProofFile(s.proof_url2);if(s.proof_url3)await deleteProofFile(s.proof_url3);await deleteProofFile(s.photo_url);}logActivity('submission_rejected','Rejected submission'+(s?' from '+(s.name||''):''));renderSubmissions();}
 
 /* ---------- SUBMIT FORM (public) ---------- */
-let subCat='strength',subBoard=null,subRecKey=null,subPhotoFile=null,subProofFile=null,subStrengthProofs={squat:null,bench:null,deadlift:null},subDone=false;
+let subCat='record',subBoard=null,subRecKey=null,subPhotoFile=null,subProofFile=null,subStrengthProofs={squat:null,bench:null,deadlift:null},subDone=false;
 function submittableBoards(){return (cache.boards||[]).filter(b=>b.enabled!==false);}
 function pickSubBoard(id){subBoard=id;renderSubmitFields();}
 function renderSubmitForm(){
   const card=document.getElementById('submit-card');if(!card)return;
   if(!submissionsOpen()){card.innerHTML='<div class="submit-done"><div class="big">⏸️</div><h3>Submissions paused</h3><p>We\'re not taking submissions right now — check back soon. Thanks!</p></div>';return;}
   if(subDone){card.innerHTML=`<div class="submit-done"><div class="big">✅</div><h3>Submitted!</h3><p>Thanks — your entry is with the team for approval. Once it's approved it'll show up on the boards.</p><button class="btn-full" style="max-width:240px;margin:0 auto;" onclick="resetSubmit()">Submit another</button></div>`;return;}
-  if(subCat==='challenge'&&!challengeOn())subCat='strength';
-  if(subCat==='customboard'&&!customBoardsOn())subCat='strength';
-  const cats=[['strength','💪','Strength'],['hyrox','🏃','HYROX'],['record','🏆','Gym record'],['challenge','🏅','Challenge'],['achievement','⭐','Achievement']].filter(c=>c[0]!=='challenge'||challengeOn());
-  if(customBoardsOn())cats.push(['customboard','🏆',settings().customboard_submit_label||'Leaderboard']);
+  if(subCat==='strength'||subCat==='hyrox')subCat='record';
+  if(subCat==='challenge'&&!challengeOn())subCat='record';
+  if(subCat==='customboard'&&!customBoardsOn())subCat='record';
+  const cats=[['record','🏆','Record / PB']];
+  if(challengeOn())cats.push(['challenge','🏅','Challenge']);
+  cats.push(['achievement','⭐','Achievement']);
+  if(customBoardsOn())cats.push(['customboard','🏅',settings().customboard_submit_label||'Leaderboard']);
   let h=`<div class="fld"><label>Your name</label><input id="s-name" placeholder="e.g. Jordan K."></div>`;
   h+=`<div class="fld"><label>What are you submitting?</label><div class="cat-pick">`+cats.map(c=>`<button class="cat-btn ${subCat===c[0]?'on':''}" onclick="selectCat('${c[0]}')"><span class="ic">${c[1]}</span>${c[2]}</button>`).join('')+`</div></div>`;
   h+=`<div id="s-fields"></div>`;
-  h+=photoField('').replace('id="photo-prev"','id="s-photo-prev"').replace('onchange="onPhotoPick(this)"','onchange="onSubmitPhotoPick(this)"').replace('id="photo-status"','id="s-photo-status"');
+  if(subCat!=='record')h+=photoField('').replace('id="photo-prev"','id="s-photo-prev"').replace('onchange="onPhotoPick(this)"','onchange="onSubmitPhotoPick(this)"').replace('id="photo-status"','id="s-photo-status"');
   h+=`<button class="btn-full" onclick="doSubmit()">Submit for approval</button>`;
   card.innerHTML=h;
   renderSubmitFields();
 }
-function selectCat(c){subCat=c;subProofFile=null;subStrengthProofs={squat:null,bench:null,deadlift:null};document.querySelectorAll('#submit-card .cat-btn').forEach(b=>b.classList.remove('on'));event.currentTarget.classList.add('on');renderSubmitFields();}
+function selectCat(c){subCat=c;subProofFile=null;subStrengthProofs={squat:null,bench:null,deadlift:null};renderSubmitForm();}
 function proofField(required){
   return '<div class="fld"><label>\uD83D\uDCF9 Proof '+(required?'<span style="color:var(--blue);font-weight:800;">(photo or video, required)</span>':'(photo or video, optional)')+'</label><div class="photo-fld" style="margin-bottom:4px;"><div class="photo-prev" id="s-proof-prev" style="border-radius:10px;">\uD83C\uDFAC</div><label class="upl">Upload proof<input type="file" accept="image/*,video/*" onchange="onSubmitProofPick(this)"></label><span class="photo-status" id="s-proof-status"></span></div><div class="set-sub">Stored for verification only. Never shown on the boards.</div></div>';
 }
 function renderSubmitFields(){
   const el=document.getElementById('s-fields');if(!el)return;
   const g='<div class="fld"><label>Category</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
-  if(subCat==='strength'){
-    el.innerHTML=g
-      +'<div class="fld-row"><div class="fld"><label>Squat 1RM (kg)</label><input id="s-squat" type="number" inputmode="decimal" placeholder="e.g. 180" oninput="onStrengthLiftInput()"></div><div class="fld"><label>Bench 1RM (kg)</label><input id="s-bench" type="number" inputmode="decimal" placeholder="e.g. 120" oninput="onStrengthLiftInput()"></div></div>'
-      +'<div class="fld-row"><div class="fld"><label>Deadlift 1RM (kg)</label><input id="s-deadlift" type="number" inputmode="decimal" placeholder="e.g. 220" oninput="onStrengthLiftInput()"></div><div class="fld"><label>Total</label><input id="s-total" value="0 kg" readonly style="font-weight:800;color:var(--blue);"></div></div>'
-      +strengthProofField();
-  }else if(subCat==='hyrox'){
-    el.innerHTML=
-      '<div class="fld"><label>What did you do?</label><select id="s-hx-event"><option>Full Sim</option><option>Official Competition</option></select></div>'
-      +'<div class="fld"><label>Solo or doubles?</label><select id="s-hx-format" onchange="onHyroxFormat()"><option value="Solo">Solo</option><option value="Doubles">Doubles</option></select></div>'
-      +'<div id="s-hx-solo">'+g+'</div>'
-      +'<div id="s-hx-doubles" style="display:none;"><div class="fld"><label>Partner name</label><input id="s-hx-partner" placeholder="e.g. Jordan K."></div><div class="fld"><label>Division</label><select id="s-hx-division"><option value="Mixed">Mixed</option><option value="M/M">Male / Male</option><option value="F/F">Female / Female</option></select></div></div>'
-      +'<div class="fld"><label>Time</label><input id="s-score" placeholder="e.g. 1:08:40 or 68:40"></div><input type="hidden" id="s-unit" value="">'
-      +proofField(true);
+  if(subCat==='record'){
+    if(!subRecKey||!recItem(subRecKey))subRecKey=REC_CATS[0].items[0].k;
+    const opts=REC_CATS.map(function(c){return '<optgroup label="'+esc(c.label)+'">'+c.items.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
+    el.innerHTML='<div class="note" style="margin-bottom:12px;">Every verified result joins the leaderboard — the best one tops the wall. Pick what you did:</div><div class="fld"><label>What did you hit?</label><select id="s-rec" onchange="onRecPick(this.value)">'+opts+'</select></div><div id="s-rec-fields"></div>';
+    renderRecFields();
   }else if(subCat==='challenge'){
     const c=activeChallenge();const ttl=c?esc(c.title):"this month's challenge";
     el.innerHTML='<div class="note" style="margin-bottom:12px;">Submitting to: <strong>'+ttl+'</strong></div>'+g+'<div class="fld-row"><div class="fld"><label>Score</label><input id="s-score" placeholder="e.g. 4:32"></div><div class="fld"><label>Unit</label><input id="s-unit" placeholder="reps / hold / m"></div></div>'+proofField(true);
-  }else if(subCat==='record'){
-    if(!subRecKey||!recItem(subRecKey))subRecKey=REC_CATS[0].items[0].k;
-    const opts=REC_CATS.map(function(c){return '<optgroup label="'+esc(c.label)+'">'+c.items.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
-    el.innerHTML='<div class="note" style="margin-bottom:12px;">The all-time wall. If it beats the current record, it takes the top spot once we verify your proof.</div><div class="fld"><label>Which record?</label><select id="s-rec" onchange="onRecPick(this.value)">'+opts+'</select></div><div id="s-rec-fields"></div>';
-    renderRecFields();
   }else if(subCat==='customboard'){
     const boards=submittableBoards();
     const bid=(subBoard&&boards.some(b=>b.id===subBoard))?subBoard:(boards[0]&&boards[0].id);subBoard=bid;
@@ -1976,36 +2026,59 @@ function renderSubmitFields(){
 function onRecPick(v){subRecKey=v;renderRecFields();}
 function renderRecFields(){const el=document.getElementById('s-rec-fields');if(!el)return;const it=recItem(subRecKey);if(!it){el.innerHTML='';return;}
   const g=it.single?'<input type="hidden" id="s-gender" value="x">':'<div class="fld"><label>Category</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
+  if(subRecKey==='pl_total'){
+    el.innerHTML=g
+      +'<div class="set-sub" style="margin:-4px 0 8px;">Enter all three lifts — we’ll post your Total plus each individual lift to the board.</div>'
+      +'<div class="fld-row"><div class="fld"><label>Squat (kg)</label><input id="s-pl-sq" type="number" inputmode="decimal" placeholder="e.g. 200" oninput="onPlInput()"></div><div class="fld"><label>Bench (kg)</label><input id="s-pl-bn" type="number" inputmode="decimal" placeholder="e.g. 140" oninput="onPlInput()"></div></div>'
+      +'<div class="fld-row"><div class="fld"><label>Deadlift (kg)</label><input id="s-pl-dl" type="number" inputmode="decimal" placeholder="e.g. 240" oninput="onPlInput()"></div><div class="fld"><label>Total</label><input id="s-pl-total" value="0 kg" readonly style="font-weight:800;color:var(--blue);"></div></div>'
+      +strengthProofField();
+    return;
+  }
   let valFld;
   if(it.input==='time')valFld='<div class="fld"><label>Time</label><input id="s-score" placeholder="e.g. 1:08:40 or 7:45"></div>';
   else valFld='<div class="fld"><label>'+esc(it.l)+(it.u?(' ('+esc(it.u)+')'):'')+'</label><input id="s-score" type="number" inputmode="decimal" placeholder="e.g. '+(it.input==='kg'?'180':'30')+'"></div>';
   el.innerHTML=g+valFld+'<input type="hidden" id="s-unit" value="'+esc(it.u||'')+'">'+proofField(true);
 }
+function onPlInput(){var n=function(id){var v=parseFloat(val(id));return isNaN(v)?0:v;};var t=Math.round((n('s-pl-sq')+n('s-pl-bn')+n('s-pl-dl'))*100)/100;var el=document.getElementById('s-pl-total');if(el)el.value=(t||0)+' kg';}
 function onSubmitPhotoPick(inp){const f=inp.files&&inp.files[0];if(!f)return;subPhotoFile=f;const url=URL.createObjectURL(f);const p=document.getElementById('s-photo-prev');p.style.backgroundImage=`url('${url}')`;p.textContent='';document.getElementById('s-photo-status').textContent=f.name;}
 function onSubmitProofPick(inp){const f=inp.files&&inp.files[0];if(!f)return;subProofFile=f;const p=document.getElementById('s-proof-prev');const st=document.getElementById('s-proof-status');if(f.type.startsWith('image/')){p.style.backgroundImage=`url('${URL.createObjectURL(f)}')`;p.textContent='';}else{p.textContent='🎬';}if(st)st.textContent=f.name;}
 function strengthProofField(){var row=function(k,l){return '<div class="fld"><label>\uD83D\uDCF9 '+l+' video <span style="color:var(--blue);font-weight:800;">(required)</span></label><div class="photo-fld" style="margin-bottom:4px;"><div class="photo-prev" id="s-pv-'+k+'" style="border-radius:10px;">\uD83C\uDFAC</div><label class="upl">Upload<input type="file" accept="image/*,video/*" onchange="onStrengthProofPick(\''+k+'\',this)"></label><span class="photo-status" id="s-st-'+k+'"></span></div></div>';};return row('squat','Squat')+row('bench','Bench')+row('deadlift','Deadlift')+'<div class="set-sub" style="margin-top:-2px;">Stored for verification only. Never shown on the boards.</div>';}
-function onStrengthLiftInput(){var n=function(id){var v=parseFloat(val(id));return isNaN(v)?0:v;};var t=Math.round((n('s-squat')+n('s-bench')+n('s-deadlift'))*100)/100;var el=document.getElementById('s-total');if(el)el.value=(t||0)+' kg';}
 function onStrengthProofPick(lift,inp){var f=inp.files&&inp.files[0];if(!f)return;subStrengthProofs[lift]=f;var p=document.getElementById('s-pv-'+lift);var st=document.getElementById('s-st-'+lift);if(p){if(f.type.startsWith('image/')){p.style.backgroundImage="url('"+URL.createObjectURL(f)+"')";p.textContent='';}else{p.textContent='\uD83C\uDFAC';}}if(st)st.textContent=f.name;}
-async function doSubmitStrength(name){var sq=val('s-squat'),bn=val('s-bench'),dl=val('s-deadlift');var bad=[sq,bn,dl].some(function(v){return v===''||isNaN(parseFloat(v))||parseFloat(v)<0;});if(bad){alert('Please enter your squat, bench and deadlift 1RM (numbers).');return;}if(!subStrengthProofs.squat||!subStrengthProofs.bench||!subStrengthProofs.deadlift){alert('Please upload a video for each lift \u2014 squat, bench and deadlift.');return;}var total=Math.round((parseFloat(sq)+parseFloat(bn)+parseFloat(dl))*100)/100;var detail='Squat '+sq+' \u00b7 Bench '+bn+' \u00b7 Dead '+dl;var photo=null;if(subPhotoFile){var ps=document.getElementById('s-photo-status');if(ps)ps.textContent='Uploading\u2026';photo=await uploadPhoto(subPhotoFile);}var setSt=function(k,t){var e=document.getElementById('s-st-'+k);if(e)e.textContent=t;};setSt('squat','Uploading\u2026');var v1=await uploadPhoto(subStrengthProofs.squat);setSt('bench','Uploading\u2026');var v2=await uploadPhoto(subStrengthProofs.bench);setSt('deadlift','Uploading\u2026');var v3=await uploadPhoto(subStrengthProofs.deadlift);await rowInsert('submissions',{name:name,category:'strength',gender:val('s-gender')||'m',detail:detail,score:String(total),unit:'kg',photo_url:photo,proof_url:v1,proof_url2:v2,proof_url3:v3,status:'pending'});subDone=true;subPhotoFile=null;subProofFile=null;subStrengthProofs={squat:null,bench:null,deadlift:null};renderSubmitForm();renderSubmissions();}
-function onHyroxFormat(){var d=val('s-hx-format')==='Doubles';var solo=document.getElementById('s-hx-solo'),dbl=document.getElementById('s-hx-doubles');if(solo)solo.style.display=d?'none':'';if(dbl)dbl.style.display=d?'':'none';}
-async function doSubmitHyrox(name){var ev=val('s-hx-event')||'Full Sim';var fmt=val('s-hx-format')||'Solo';var time=val('s-score');if(!time){alert('Please enter your time.');return;}if(!subProofFile){alert('Photo or video proof is required. Please upload it.');return;}var gender,detail,finalName=name;if(fmt==='Doubles'){var partner=val('s-hx-partner');if(!partner){alert('Please enter your partner\'s name.');return;}var dv=val('s-hx-division')||'Mixed';finalName=name+' & '+partner;gender=dv==='F/F'?'f':'m';detail=ev+' \u00b7 Doubles \u00b7 '+dv;}else{gender=val('s-gender')||'m';detail=ev+' \u00b7 Solo';}var photo=null;if(subPhotoFile){var ps=document.getElementById('s-photo-status');if(ps)ps.textContent='Uploading\u2026';photo=await uploadPhoto(subPhotoFile);}var proof=null;if(subProofFile){var qs=document.getElementById('s-proof-status');if(qs)qs.textContent='Uploading proof\u2026';proof=await uploadPhoto(subProofFile);}await rowInsert('submissions',{name:finalName,category:'hyrox',gender:gender,detail:detail,score:time,unit:'',photo_url:photo,proof_url:proof,status:'pending'});subDone=true;subPhotoFile=null;subProofFile=null;renderSubmitForm();renderSubmissions();}
 async function doSubmit(){
   const name=val('s-name');if(!name){alert('Please enter your name.');return;}
-  if(subCat==='strength')return doSubmitStrength(name);
-  if(subCat==='hyrox')return doSubmitHyrox(name);
+  if(subCat==='record')return doSubmitRecord(name);
   const score=val('s-score');
   if(subCat!=='achievement'&&!score){alert('Please enter your score.');return;}
   if(subCat==='achievement'&&!val('s-detail')){alert('Please enter your achievement.');return;}
   if(subCat==='customboard'&&!subBoard){alert('Please pick a leaderboard to submit to.');return;}
-  if((subCat==='strength'||subCat==='hyrox'||subCat==='challenge'||subCat==='customboard'||subCat==='record')&&!subProofFile){alert('Photo or video proof is required for this submission. Please upload it.');return;}
-  if(subCat==='record')return doSubmitRecord(name,score);
+  if((subCat==='challenge'||subCat==='customboard')&&!subProofFile){alert('Photo or video proof is required for this submission. Please upload it.');return;}
   let photo=null;if(subPhotoFile){const st=document.getElementById('s-photo-status');if(st)st.textContent='Uploading…';photo=await uploadPhoto(subPhotoFile);}
   let proof=null;if(subProofFile){const st=document.getElementById('s-proof-status');if(st)st.textContent='Uploading proof…';proof=await uploadPhoto(subProofFile);}
   await rowInsert('submissions',{name,category:subCat,gender:val('s-gender')||'m',detail:(subCat==='customboard'?subBoard:val('s-detail'))||'',score,unit:val('s-unit'),photo_url:photo,proof_url:proof,status:'pending'});
   subDone=true;subPhotoFile=null;subProofFile=null;renderSubmitForm();renderSubmissions();
 }
-async function doSubmitRecord(name,score){var it=recItem(subRecKey);if(!it){alert('Please pick a record.');return;}var parsed=recParseInput(it,score);if(!parsed){alert(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}var proof=null;var st=document.getElementById('s-proof-status');if(st)st.textContent='Uploading proof…';proof=await uploadPhoto(subProofFile);await rowInsert('submissions',{name:name,category:'record',gender:(it.single?'x':(val('s-gender')||'m')),detail:subRecKey,score:String(parsed.value),unit:it.u||'',proof_url:proof,status:'pending'});subDone=true;subPhotoFile=null;subProofFile=null;renderSubmitForm();renderSubmissions();}
-function resetSubmit(){subDone=false;subCat='strength';subBoard=null;subRecKey=null;subPhotoFile=null;subProofFile=null;subStrengthProofs={squat:null,bench:null,deadlift:null};renderSubmitForm();}
+async function doSubmitRecord(name){
+  var it=recItem(subRecKey);if(!it){alert('Please pick what you did.');return;}
+  if(subRecKey==='pl_total'){
+    var sq=val('s-pl-sq'),bn=val('s-pl-bn'),dl=val('s-pl-dl');
+    if([sq,bn,dl].some(function(v){return v===''||isNaN(parseFloat(v))||parseFloat(v)<0;})){alert('Enter your squat, bench and deadlift (kg).');return;}
+    if(!subStrengthProofs.squat||!subStrengthProofs.bench||!subStrengthProofs.deadlift){alert('Upload a video for each lift — squat, bench and deadlift.');return;}
+    var total=Math.round((parseFloat(sq)+parseFloat(bn)+parseFloat(dl))*100)/100;
+    var setSt=function(k,t){var e=document.getElementById('s-st-'+k);if(e)e.textContent=t;};
+    setSt('squat','Uploading…');var v1=await uploadPhoto(subStrengthProofs.squat);
+    setSt('bench','Uploading…');var v2=await uploadPhoto(subStrengthProofs.bench);
+    setSt('deadlift','Uploading…');var v3=await uploadPhoto(subStrengthProofs.deadlift);
+    await rowInsert('submissions',{name:name,category:'record',gender:(val('s-gender')||'m'),detail:'pl_total:'+parseFloat(sq)+'/'+parseFloat(bn)+'/'+parseFloat(dl),score:String(total),unit:'kg',proof_url:v1,proof_url2:v2,proof_url3:v3,status:'pending'});
+    subDone=true;subStrengthProofs={squat:null,bench:null,deadlift:null};subProofFile=null;subPhotoFile=null;renderSubmitForm();renderSubmissions();return;
+  }
+  var score=val('s-score');if(!score){alert('Please enter your result.');return;}
+  var parsed=recParseInput(it,score);if(!parsed){alert(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}
+  if(!subProofFile){alert('Photo or video proof is required.');return;}
+  var st=document.getElementById('s-proof-status');if(st)st.textContent='Uploading proof…';var proof=await uploadPhoto(subProofFile);
+  await rowInsert('submissions',{name:name,category:'record',gender:(it.single?'x':(val('s-gender')||'m')),detail:subRecKey,score:String(parsed.value),unit:it.u||'',proof_url:proof,status:'pending'});
+  subDone=true;subPhotoFile=null;subProofFile=null;renderSubmitForm();renderSubmissions();
+}
+function resetSubmit(){subDone=false;subCat='record';subBoard=null;subRecKey=null;subPhotoFile=null;subProofFile=null;subStrengthProofs={squat:null,bench:null,deadlift:null};renderSubmitForm();}
 
 /* ---------- WOD ---------- */
 const WOD_BLOCKS=[{k:'purpose',cls:'purpose',i:'🎯',l:'Purpose'},{k:'warmup',cls:'warmup',i:'🟢',l:'Warm-up'},{k:'core',cls:'core',i:'🔴',l:'Main'},{k:'cool',cls:'cool',i:'🔵',l:'Cool-down'},{k:'bonus',cls:'bonus',i:'🟣',l:'Optional Bonus'}];
@@ -2481,33 +2554,37 @@ function pickPublicSlot(slot){publicWodSlot=slot;renderWOD();}
 // Records come from the `records` table — members submit with proof, an admin approves and the
 // best automatically takes the top spot; an admin can also set/clear any record directly.
 const REC_CATS=[
-  {key:'strength',label:'Strength',items:[
-    {k:'back_squat',l:'Back Squat'},{k:'front_squat',l:'Front Squat'},{k:'deadlift',l:'Deadlift'},
-    {k:'bench',l:'Bench Press'},{k:'strict_press',l:'Strict Press'},{k:'push_press',l:'Push Press'},
-    {k:'power_clean',l:'Power Clean'},{k:'clean_jerk',l:'Clean & Jerk'},{k:'snatch',l:'Snatch'}
+  {key:'powerlifting',label:'Powerlifting',blurb:'The big three + total',items:[
+    {k:'squat',l:'Squat'},{k:'bench',l:'Bench Press'},{k:'deadlift',l:'Deadlift'},{k:'pl_total',l:'Total'}
   ].map(function(x){return Object.assign({dir:'high',u:'kg',input:'kg'},x);})},
-  {key:'fitness',label:'Fitness',items:[
+  {key:'strength',label:'Strength',blurb:'Olympic & accessory 1RMs',items:[
+    {k:'front_squat',l:'Front Squat'},{k:'overhead_squat',l:'Overhead Squat'},{k:'strict_press',l:'Strict Press'},
+    {k:'push_press',l:'Push Press'},{k:'power_clean',l:'Power Clean'},{k:'clean_jerk',l:'Clean & Jerk'},{k:'snatch',l:'Snatch'}
+  ].map(function(x){return Object.assign({dir:'high',u:'kg',input:'kg'},x);})},
+  {key:'fitness',label:'Fitness',blurb:'Row · Ski · Run · Bike',items:[
     {k:'row_500',l:'500m Row',dir:'low',input:'time'},{k:'row_1000',l:'1000m Row',dir:'low',input:'time'},
     {k:'row_2000',l:'2000m Row',dir:'low',input:'time'},{k:'ski_500',l:'500m Ski',dir:'low',input:'time'},
     {k:'ski_1000',l:'1000m Ski',dir:'low',input:'time'},{k:'run_5k',l:'5km Run',dir:'low',input:'time'},
     {k:'bike_60',l:'Bike · 60s Cals',dir:'high',u:'cals',input:'cals'}
   ].map(function(x){return Object.assign({u:''},x);})},
-  {key:'hyrox',label:'HYROX',items:[
+  {key:'hyrox',label:'HYROX',blurb:'Race times & stations',items:[
     {k:'hyrox_open',l:'HYROX Open',dir:'low',input:'time'},{k:'hyrox_pro',l:'HYROX Pro',dir:'low',input:'time'},
     {k:'hyrox_doubles',l:'HYROX Doubles',dir:'low',input:'time',single:true},{k:'wallball_100',l:'100 Wall Balls',dir:'low',input:'time'}
   ].map(function(x){return Object.assign({u:''},x);})},
-  {key:'gym',label:'Gymnastics',items:[
+  {key:'gym',label:'Gymnastics',blurb:'Max-rep feats',items:[
     {k:'max_pullup',l:'Max Pull-ups'},{k:'max_strict_pullup',l:'Max Strict Pull-ups'},{k:'max_ttb',l:'Max Toes-to-Bar'},
     {k:'max_hspu',l:'Max HSPU'},{k:'max_wallwalk',l:'Max Wall Walks'},{k:'max_du',l:'Max Double-Unders'}
   ].map(function(x){return Object.assign({dir:'high',u:'reps',input:'reps'},x);})},
-  {key:'community',label:'Community',single:true,items:[
+  {key:'community',label:'Community',blurb:'Consistency & heart',single:true,items:[
     {k:'most_classes',l:'Most Classes · Month',u:''},{k:'most_wods',l:'Most WODs Logged',u:''},{k:'longest_streak',l:'Longest Streak',u:'days'}
   ].map(function(x){return Object.assign({dir:'high',input:'reps',single:true},x);})}
 ];
 const REC_MAP={};REC_CATS.forEach(function(c){c.items.forEach(function(it){REC_MAP[it.k]=Object.assign({cat:c.key},it);});});
+const REC_CAT_LABEL={};REC_CATS.forEach(function(c){REC_CAT_LABEL[c.key]=c.label;});
 function recItem(rkey){return REC_MAP[rkey]||null;}
+function recCatOf(rkey){const it=recItem(rkey);return it?it.cat:'';}
+function recCat(catKey){return REC_CATS.find(function(x){return x.key===catKey;})||null;}
 function recSex(it,sex){return (it&&it.single)?'x':(sex==='f'?'f':'m');}
-function recFor(rkey,sex){const it=recItem(rkey);if(!it)return null;const sx=recSex(it,sex);return (cache.records||[]).find(function(r){return r.rkey===rkey&&(r.sex||'m')===sx;})||null;}
 function recPad(n){return String(n).padStart(2,'0');}
 function recSecToClock(s){s=Math.max(0,Math.round(+s||0));const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h?(h+':'+recPad(m)+':'+recPad(sec)):(m+':'+recPad(sec));}
 function recClockToSec(str){str=String(str==null?'':str).trim();if(!str)return null;if(/^\d+(\.\d+)?$/.test(str))return Math.round(parseFloat(str));const p=str.split(':');if(p.length<2||p.length>3)return null;for(let i=0;i<p.length;i++){if(p[i].trim()===''||isNaN(p[i]))return null;}let s=0;for(let i=0;i<p.length;i++)s=s*60+parseFloat(p[i]);return Math.round(s);}
@@ -2518,11 +2595,34 @@ function recParseInput(it,raw){raw=String(raw==null?'':raw).trim();if(!it||!raw)
   return {value:v,display:num+unit};}
 function recFmt(it,value,display){if(display)return display;if(!it)return String(value);if(it.input==='time')return recSecToClock(value);const unit=(it.u&&it.u!=='reps')?(' '+it.u):'';return (Number.isInteger(value)?value:value)+unit;}
 function recBeats(it,nv,ov){if(ov==null)return true;return (it&&it.dir==='low')?(nv<ov):(nv>ov);}
-function recRowHTML(it){
-  const cell=function(sex){const r=recFor(it.k,sex);if(r&&r.holder)return '<div class="rec-holder">'+esc(titleCase(r.holder))+'</div><div class="rec-val">'+esc(r.display||recFmt(it,r.value))+'</div>';return '<div class="rec-up">Up for grabs</div>';};
-  if(it.single)return '<div class="rec-item single"><div class="rec-feat">'+esc(it.l)+'</div><div class="rec-one">'+cell('x')+'</div></div>';
-  return '<div class="rec-item"><div class="rec-feat">'+esc(it.l)+'</div><div class="rec-pair"><div class="rec-side male"><div class="rec-side-h">Men</div>'+cell('m')+'</div><div class="rec-side female"><div class="rec-side-h">Women</div>'+cell('f')+'</div></div></div>';}
-function recBoardHTML(catKey){const c=REC_CATS.find(function(x){return x.key===catKey;});if(!c)return '';return '<div class="rec-list">'+c.items.map(recRowHTML).join('')+'</div>';}
+// records now hold EVERY approved entry; the board computes the best. recEntries =
+// all entries for a feat+sex, deduped to each person's best, ranked best→worst.
+function recEntries(rkey,sex){const it=recItem(rkey);if(!it)return [];const sx=recSex(it,sex);
+  const rows=(cache.records||[]).filter(function(r){return r.rkey===rkey&&(r.sex||'m')===sx;});
+  const byName={};rows.forEach(function(r){const k=String(r.holder||'').trim().toLowerCase()||('#'+(r.id||''));const cur=byName[k];if(!cur||recBeats(it,r.value,cur.value))byName[k]=r;});
+  const list=Object.keys(byName).map(function(k){return byName[k];});
+  list.sort(function(a,b){return (it.dir==='low')?(a.value-b.value):(b.value-a.value);});return list;}
+function recBest(rkey,sex){return recEntries(rkey,sex)[0]||null;}
+function recFor(rkey,sex){return recBest(rkey,sex);} // back-compat: the current #1
+// Powerlifting Total submissions encode the three lifts in `detail` as "pl_total:sq/bn/dl".
+function recPL(detail){if(typeof detail!=='string'||detail.indexOf('pl_total:')!==0)return null;const p=detail.slice(9).split('/').map(parseFloat);if(p.length!==3||p.some(isNaN))return null;return {sq:p[0],bn:p[1],dl:p[2],total:Math.round((p[0]+p[1]+p[2])*100)/100};}
+function recCount(it){return it.single?recEntries(it.k,'x').length:(recEntries(it.k,'m').length+recEntries(it.k,'f').length);}
+let recOpenKey=null;
+function recCellHTML(it,sex){const r=recBest(it.k,sex);if(r&&r.holder)return '<div class="rec-holder">'+esc(titleCase(r.holder))+'</div><div class="rec-val">'+esc(r.display||recFmt(it,r.value))+'</div>';return '<div class="rec-up">Up for grabs</div>';}
+function recLbCol(it,sex,label){const list=recEntries(it.k,sex).slice(0,10);const cls=sex==='f'?'female':(sex==='m'?'male':'solo');const head='<div class="reclb-h '+cls+'">'+label+'</div>';
+  if(!list.length)return '<div class="reclb-col">'+head+'<div class="reclb-empty">No entries yet</div></div>';
+  return '<div class="reclb-col">'+head+list.map(function(r,i){return '<div class="reclb-row'+(i<3?' top'+(i+1):'')+'"><span class="reclb-rank">'+(i+1)+'</span><span class="reclb-name">'+esc(titleCase(r.holder))+'</span><span class="reclb-val">'+esc(r.display||recFmt(it,r.value))+'</span></div>';}).join('')+'</div>';}
+function recLeaderboardHTML(it){if(it.single)return '<div class="reclb single">'+recLbCol(it,'x','All-time')+'</div>';return '<div class="reclb">'+recLbCol(it,'m','Men')+recLbCol(it,'f','Women')+'</div>';}
+function recRowHTML(it,tv){
+  const cat=recCatOf(it.k);const has=recCount(it);const open=!tv&&recOpenKey===it.k&&has>0;
+  const podium=it.single?('<div class="rec-one">'+recCellHTML(it,'x')+'</div>'):('<div class="rec-pair"><div class="rec-side male"><div class="rec-side-h">Men</div>'+recCellHTML(it,'m')+'</div><div class="rec-side female"><div class="rec-side-h">Women</div>'+recCellHTML(it,'f')+'</div></div>');
+  if(tv)return '<div class="rec-item cat-'+cat+(it.single?' single':'')+'"><div class="rec-feat-row"><span class="rec-feat">'+esc(it.l)+'</span></div>'+podium+'</div>';
+  var cls='rec-feat-row',onc='';if(has>0){cls+=' rec-clickable';onc=' onclick="recToggle(\''+it.k+'\')"';}
+  const head='<div class="'+cls+'"'+onc+'><span class="rec-feat">'+esc(it.l)+'</span>'+(has>0?('<span class="rec-count">'+has+'</span><span class="rec-chev'+(open?' open':'')+'">▾</span>'):'<span class="rec-count empty">—</span>')+'</div>';
+  const lb=open?('<div class="rec-lb-wrap">'+recLeaderboardHTML(it)+'</div>'):'';
+  return '<div class="rec-item cat-'+cat+(it.single?' single':'')+(open?' open':'')+'">'+head+podium+lb+'</div>';}
+function recBoardHTML(catKey,tv){const c=recCat(catKey);if(!c)return '';return '<div class="rec-list">'+c.items.map(function(it){return recRowHTML(it,tv);}).join('')+'</div>';}
+function recToggle(k){recOpenKey=(recOpenKey===k)?null:k;renderMaster();if(recOpenKey){const el=document.getElementById('master');if(el){const card=el.querySelector('.rec-item.open');if(card&&card.scrollIntoView){try{card.scrollIntoView({block:'nearest'});}catch(e){}}}}}
 
 /* ---------- DISPLAY ---------- */
 let slideIdx=0,slideTimer=null,clockTimer=null,displaying=false;
@@ -2537,8 +2637,8 @@ function buildSlides(){
   const prof=screenProfile();
   const vis=k=>{if(prof)return !!(prof.show&&prof.show[k]);switch(k){case 'wod':return s.show_wod!==false;case 'strength':return s.show_strength!==false;case 'hyrox':return s.show_hyrox!==false;case 'challenge':return s.show_challenge!==false;case 'achievements':return s.show_achievements!==false;case 'records':return s.show_records!==false;case 'events':return s.show_events!==false;case 'ads':return s.show_ads!==false;case 'countdown':case 'quotes':return true;case 'event':return false;}return false;};
   if(vis('wod')){if(!wodLive(todayKey()))slides.push({title:"⏳ WODs Coming Soon",sub:"Coach-written workouts, available to all Cave members",teaser:true});else if(wodHasContent(w))slides.push({title:"🔥 "+(w.title||(f+" Day")),sub:"Today's workout",wod:w});}
-  if(vis('strength'))slides.push({title:"💪 Strength Leaderboard",sub:"Squat · Bench · Deadlift Total",split:split(sortScore(getBoard('strength')))});
-  if(vis('hyrox'))slides.push({title:"🏃 HYROX Leaderboard",sub:"Fastest times at The Cave",single:sortTime(getBoard('hyrox'))});
+  if(vis('strength')){const _sb=getBoard('strength');if(_sb.length)slides.push({title:"💪 Strength Leaderboard",sub:"Squat · Bench · Deadlift Total",split:split(sortScore(_sb))});}
+  if(vis('hyrox')){const _hb=getBoard('hyrox');if(_hb.length)slides.push({title:"🏃 HYROX Leaderboard",sub:"Fastest times at The Cave",single:sortTime(_hb)});}
   if(vis('challenge')&&challengeOn()){const ac=activeChallenge();if(ac){const range=chDateRange(ac);let days=null;if(ac.end_date){const now=new Date();now.setHours(0,0,0,0);const end=new Date(ac.end_date);days=Math.ceil((end-now)/864e5);}slides.push({title:"🏅 "+(ac.title||"Monthly Challenge"),sub:ac.prize?("🏆 "+ac.prize):"This month's community challenge",split:split(ac.entries||[]),chRange:range,chDays:days});}}
   if(vis('achievements'))slides.push({title:"⭐ Recent Achievements",sub:"Celebrating our members",ach:cache.achievements});
   if(vis('records')&&(cache.records||[]).length)REC_CATS.forEach(function(rc){const has=rc.items.some(function(it){return recFor(it.k,'m')||recFor(it.k,'f')||recFor(it.k,'x');});if(has)slides.push({recordsCat:rc.key,title:"🏆 "+rc.label+" — All-Time",sub:"The best of the best at The Cave"});});
@@ -2575,7 +2675,7 @@ function renderDisplay(){
     if(s.big){body=`<div class="cd-big">${s.sub}</div>`;return `<div class="slide ${i===0?'on':''}"><div class="slide-title" style="font-size:clamp(60px,12vw,200px);color:var(--blue);">${s.title}</div><div class="cd-sub">${esc(s.sub)}</div></div>`;}
     if(s.quote){return `<div class="slide ${i===0?'on':''}"><div class="quote-mark">“</div><div class="quote-text">${esc(s.quote)}</div></div>`;}
     if(s.teaser){return `<div class="slide ${i===0?'on':''}"><div class="slide-title">${s.title}</div><div class="slide-sub">${esc(s.sub)}</div><div class="wod-teaser disp"><div class="teaser-ic">⏳</div><div class="teaser-h">Coming soon</div><div class="teaser-b">Awesome coach-written WODs are landing here soon, available to all Cave members.</div></div></div>`;}
-    if(s.recordsCat){return `<div class="slide ${i===0?'on':''}"><div class="slide-title">${s.title}</div><div class="slide-sub">${esc(s.sub)}</div><div class="rec-disp">${recBoardHTML(s.recordsCat)}</div></div>`;}
+    if(s.recordsCat){return `<div class="slide ${i===0?'on':''}"><div class="slide-title">${s.title}</div><div class="slide-sub">${esc(s.sub)}</div><div class="rec-disp">${recBoardHTML(s.recordsCat,true)}</div></div>`;}
     if(s.wod){body=wodBlocksHTML(s.wod);}
     else if(s.ev){body=`<div class="lb-table">`+s.ev.slice(0,5).map(e=>{const d=new Date(e.date);return `<div class="lb-row"><div class="lb-rank" style="font-size:clamp(16px,1.6vw,28px);color:var(--blue)">${d.getDate()}/${d.getMonth()+1}</div><div class="lb-name">${esc(e.title)}<div class="lb-detail">${esc(e.note||'')}</div></div></div>`;}).join('')+`</div>`;}
     else if(s.ach){body=`<div class="lb-table">`+(s.ach.length?s.ach.slice(0,6).map(a=>`<div class="lb-row">${settings().show_photos?avHtml(a):'<div class="lb-rank">⭐</div>'}<div class="lb-name">${esc(a.name)}<div class="lb-detail">${esc(a.detail)}</div></div></div>`).join(''):'<div class="disp-empty">No achievements yet</div>')+`</div>`;}
@@ -2587,15 +2687,15 @@ function renderDisplay(){
   document.getElementById('disp-dots').innerHTML=slides.map((s,i)=>`<div class="disp-dot ${i===0?'on':''}" onclick="goSlide(${i})"></div>`).join('');
   slideIdx=0;goSlide(0);
 }
-let recTabKey='strength';
-function recTabsDef(){const tabs=REC_CATS.map(function(c){return {k:c.key,l:c.label};});tabs.push({k:'ach',l:'Achievements'});tabs.push({k:'coming',l:"What's coming"});return tabs;}
+let recTabKey='powerlifting';
+function recTabsDef(){const tabs=REC_CATS.map(function(c){return {k:c.key,l:c.label};});tabs.push({k:'ach',l:'Achievements'});tabs.push({k:'coming',l:"What’s On"});return tabs;}
 function renderMaster(){
   const el=document.getElementById('master');if(!el)return;
-  const tabs=recTabsDef();if(!tabs.some(function(t){return t.k===recTabKey;}))recTabKey='strength';
+  const tabs=recTabsDef();if(!tabs.some(function(t){return t.k===recTabKey;}))recTabKey='powerlifting';
   let body;
   if(recTabKey==='ach')body=masterAchHTML();
   else if(recTabKey==='coming')body=masterComingHTML();
-  else body=recBoardHTML(recTabKey);
+  else {const c=recCat(recTabKey);body=(c?('<div class="mw-cat cat-'+c.key+'"><span class="mw-cat-name">'+esc(c.label)+'</span>'+(c.blurb?('<span class="mw-cat-blurb">'+esc(c.blurb)+'</span>'):'')+'</div>'):'')+recBoardHTML(recTabKey);}
   el.innerHTML='<div class="mw">'
     +'<div class="mw-head"><div class="mw-eyebrow">The Cave</div><div class="mw-title">All-Time Records</div><div class="mw-sub">The best of the best — be the next name on the wall.</div></div>'
     +'<div class="mw-tabs">'+tabs.map(function(t){return '<button class="mw-tab'+(t.k===recTabKey?' on':'')+'" onclick="recTab(\''+t.k+'\')">'+esc(t.l)+'</button>';}).join('')+'</div>'
@@ -2608,10 +2708,15 @@ function masterAchHTML(){const a=cache.achievements||[];if(!a.length)return '<di
 function masterComingHTML(){
   const today=new Date(todayKey()+'T00:00:00');
   const evs=(cache.events||[]).slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);}).filter(function(e){return new Date(e.date+'T00:00:00')>=today;});
-  let h='';
-  if(challengeOn()){const c=activeChallenge();if(c)h+='<div class="rec-coming"><div class="rc-tag">Challenge</div><div class="rc-title">'+esc(c.title||'Monthly Challenge')+'</div>'+(c.prize?'<div class="rc-sub">🏆 '+esc(c.prize)+'</div>':'')+(c.description?'<div class="rc-desc">'+esc(c.description)+'</div>':'')+'</div>';}
-  if(evs.length)h+=evs.slice(0,8).map(function(e){const d=new Date(e.date+'T00:00:00');return '<div class="rec-coming"><div class="rc-tag">'+d.getDate()+' '+d.toLocaleDateString('en-AU',{month:'short'})+'</div><div class="rc-title">'+esc(e.title)+'</div>'+(e.note?'<div class="rc-sub">'+esc(e.note)+'</div>':'')+'</div>';}).join('');
-  return h||'<div class="rec-none">Nothing on the calendar right now — check back soon.</div>';
+  const daysTo=function(ds){return Math.round((new Date(ds+'T00:00:00')-today)/864e5);};
+  const dayChip=function(n){return n===0?'Today':(n===1?'Tomorrow':(n+' days'));};
+  let h='<div class="wo-list">';
+  if(challengeOn()){const c=activeChallenge();if(c){let left=null;if(c.end_date){left=Math.ceil((new Date(c.end_date+'T00:00:00')-today)/864e5);}
+    h+='<div class="wo-card challenge"><div class="wo-top"><span class="wo-tag">This month’s challenge</span>'+(left!=null&&left>=0?'<span class="wo-count">'+(left===0?'Ends today':left+' day'+(left===1?'':'s')+' left')+'</span>':'')+'</div><div class="wo-title">'+esc(c.title||'Monthly Challenge')+'</div>'+(c.prize?'<div class="wo-prize">🏆 '+esc(c.prize)+'</div>':'')+(c.description?'<div class="wo-desc">'+esc(c.description)+'</div>':'')+'</div>';}}
+  if(evs.length)h+=evs.slice(0,10).map(function(e){const d=new Date(e.date+'T00:00:00');const n=daysTo(e.date);return '<div class="wo-card cat-hyrox"><div class="wo-top"><span class="wo-date"><span class="d">'+d.getDate()+'</span><span class="m">'+d.toLocaleDateString('en-AU',{month:'short'}).slice(0,3)+'</span></span><span class="wo-tag">'+d.toLocaleDateString('en-AU',{weekday:'long'})+'</span><span class="wo-count">'+dayChip(n)+'</span></div><div class="wo-title">'+esc(e.title)+'</div>'+(e.note?'<div class="wo-sub">'+esc(e.note)+'</div>':'')+'</div>';}).join('');
+  h+='</div>';
+  if(!challengeOn()&&!evs.length)return '<div class="rec-none">Nothing on the calendar right now — check back soon.</div>';
+  return h;
 }
 function goSlide(i){const sl=document.querySelectorAll('.slide'),dt=document.querySelectorAll('.disp-dot');if(!sl.length)return;slideIdx=i%sl.length;const cur=sl[slideIdx];sl.forEach(s=>{s.classList.remove('on');const v=s.querySelector('video');if(v&&s!==cur){try{v.pause();}catch(e){}v.onended=null;}});dt.forEach(d=>d.classList.remove('on'));cur.classList.add('on');if(dt[slideIdx])dt[slideIdx].classList.add('on');const disp=document.getElementById('display');if(disp)disp.classList.toggle('ad-active',cur.classList.contains('ad-slide'));if(displaying)scheduleNext(cur);}
 function nextSlide(){goSlide(slideIdx+1);}
@@ -3756,14 +3861,22 @@ async function renderMembersAdmin(){var el=document.getElementById('members-admi
   }catch(e){var b2=document.getElementById('mem-admin-list');if(b2)b2.textContent='Could not load members.';}
 }
 async function resetReqClear(id){if(!LIVE)return;try{await sb.from('reset_requests').delete().eq('id',id);}catch(e){}renderMembersAdmin();}
-function recAdminRow(it,sex){var r=recFor(it.k,sex);var who=(r&&r.holder)?(esc(titleCase(r.holder))+' · '+esc(r.display||recFmt(it,r.value))):'—';var lbl=esc(it.l)+(it.single?'':(' · '+(sex==='f'?'W':'M')));return '<div class="rlist-row"><span class="rl-name" style="flex:1.2;">'+lbl+'</span><span class="rl-time" style="flex:1.3;text-align:right;color:'+(r?'var(--text)':'var(--muted)')+';">'+who+'</span><button class="btn-sm" onclick="openModal(\'record\',\''+it.k+'|'+sex+'\')">'+(r?'Edit':'Set')+'</button>'+(r?'<button class="btn-sm" onclick="recClear(\''+it.k+'|'+sex+'\')">Clear</button>':'')+'</div>';}
+let recAdminOpen=null;
+function recAdminEntries(rk,sex){var it=recItem(rk);var sx=recSex(it,sex);return (cache.records||[]).filter(function(r){return r.rkey===rk&&(r.sex||'m')===sx;}).slice().sort(function(a,b){return it.dir==='low'?(a.value-b.value):(b.value-a.value);});}
+function recAdminRow(it,sex){var sx=recSex(it,sex);var best=recBest(it.k,sex);var all=recAdminEntries(it.k,sex);var count=all.length;var key=it.k+'|'+sex;var open=recAdminOpen===key;
+  var who=best?(esc(titleCase(best.holder))+' · '+esc(best.display||recFmt(it,best.value))):'—';
+  var lbl=esc(it.l)+(it.single?'':(' · '+(sex==='f'?'W':'M')));
+  var h='<div class="rlist-row"><span class="rl-name" style="flex:1.2;">'+lbl+'</span><span class="rl-time" style="flex:1.4;text-align:right;color:'+(best?'var(--text)':'var(--muted)')+';">'+who+(count>1?(' <span style="color:var(--muted);font-weight:600;">+'+(count-1)+'</span>'):'')+'</span><button class="btn-sm" onclick="openModal(\'record\',\''+key+'\')">Add</button>'+(count?'<button class="btn-sm" onclick="recAdminToggle(\''+key+'\')">'+(open?'Hide':'Manage')+'</button>':'')+'</div>';
+  if(open){h+='<div style="margin:2px 0 8px 8px;padding-left:8px;border-left:2px solid var(--border);">'+(all.length?all.map(function(r,i){return '<div class="rlist-row"><span class="rl-name">'+(i+1)+'. '+esc(titleCase(r.holder||''))+'</span><span class="rl-time">'+esc(r.display||recFmt(it,r.value))+'</span><button class="btn-sm" onclick="recDelEntry(\''+r.id+'\')">✕</button></div>';}).join(''):'<div class="ot-sub" style="padding:4px 0;">No entries.</div>')+'</div>';}
+  return h;}
+function recAdminToggle(key){recAdminOpen=(recAdminOpen===key)?null:key;renderRecordsAdmin();}
+async function recDelEntry(id){if(!confirm('Delete this entry from the board?'))return;await rowDelete('records',id,true);renderRecordsAdmin();renderDisplay();toast('Entry removed');}
 function renderRecordsAdmin(){var el=document.getElementById('records-admin');if(!el)return;if(!isUnlocked()){el.innerHTML='<div class="ot-sub">Admin only.</div>';return;}
-  var h='<div class="ot-cap" style="margin-bottom:8px;">The hall of fame. Members submit with proof — approve a submission and the best automatically takes the top spot. You can also set or clear any record directly here.</div>';
+  var h='<div class="ot-cap" style="margin-bottom:8px;">Every verified result lives here — the best tops the wall, the rest fill the leaderboard. Approve member submissions or add/remove entries directly.</div>';
   REC_CATS.forEach(function(c){h+='<div class="set-section" style="margin:12px 0 4px;">'+esc(c.label)+'</div>';c.items.forEach(function(it){if(it.single){h+=recAdminRow(it,'x');}else{h+=recAdminRow(it,'m')+recAdminRow(it,'f');}});});
   el.innerHTML=h;
 }
-async function saveRecord(){var rk=val('f-rec-key'),sex=val('f-rec-sex')||'m';var it=recItem(rk);if(!it)return;var holder=val('f-rec-holder');var raw=val('f-rec-val');if(!holder){alert('Enter the record holder name.');return;}var parsed=recParseInput(it,raw);if(!parsed){alert(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}var cur=recFor(rk,sex);var row={cat:it.cat,rkey:rk,label:it.l,sex:recSex(it,sex),holder:titleCase(holder),display:parsed.display,value:parsed.value,dir:it.dir,date:todayKey()};if(cur)await rowUpdate('records',cur.id,row);else await rowInsert('records',row);closeModal();renderRecordsAdmin();renderDisplay();toast('Record saved ✓');}
-async function recClear(idsex){var parts=String(idsex||'').split('|');var rk=parts[0],sex=parts[1]||'m';var it=recItem(rk);var r=recFor(rk,sex);if(!r)return;if(!confirm('Clear the '+(it?it.l:'')+' record'+(it&&!it.single?(' ('+(sex==='f'?'Women':'Men')+')'):'')+'?'))return;await rowDelete('records',r.id,true);closeModal();renderRecordsAdmin();renderDisplay();toast('Record cleared');}
+async function saveRecord(){var rk=val('f-rec-key'),sex=val('f-rec-sex')||'m';var it=recItem(rk);if(!it)return;var holder=val('f-rec-holder');var raw=val('f-rec-val');if(!holder){alert('Enter the name.');return;}var parsed=recParseInput(it,raw);if(!parsed){alert(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}await rowInsert('records',{cat:it.cat,rkey:rk,label:it.l,sex:recSex(it,sex),holder:titleCase(holder),display:parsed.display,value:parsed.value,dir:it.dir,date:todayKey()});closeModal();renderRecordsAdmin();renderDisplay();toast('Entry added ✓');}
 async function memberAdminAct(id){var m=(cache.member_profiles||[]).find(function(x){return x.id===id;})||{};
   var act=(prompt('Manage '+(m.name||'member')+':\n\nType  reset   to set a new password (their mobile)\nType  remove  to permanently delete the account','')||'').trim().toLowerCase();
   if(!act)return;
