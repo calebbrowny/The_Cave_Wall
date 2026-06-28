@@ -322,10 +322,9 @@ body.no-tab-emoji .te{display:none;}
 .mw-eyebrow{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
 .mw-title{font-size:clamp(28px,8vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.05;color:var(--text);}
 .mw-note{font-size:12.5px;color:var(--muted);text-align:center;margin:2px auto 14px;max-width:40ch;}
-.mw-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:12px 2px 18px;position:sticky;top:var(--nav-h,56px);background:var(--bg);z-index:3;margin:0 -18px;padding-left:20px;padding-right:20px;}
-.mw-tab{border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:700;font-size:13px;padding:8px 17px;border-radius:999px;cursor:pointer;white-space:nowrap;}
+.mw-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 7px;padding:12px 2px 18px;}
+.mw-tab{border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;}
 .mw-tab.on{background:var(--blue);border-color:var(--blue);color:#0e1116;}
-@media(max-width:760px){.mw-tabs{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-top:10px;padding-bottom:12px;}.mw-tabs::-webkit-scrollbar{display:none;}.mw-tab{flex:0 0 auto;}}
 /* group = blue pill header, then a plain divided list */
 .rec-grp{margin-bottom:22px;}
 .rec-grp-h{display:flex;align-items:center;justify-content:space-between;width:100%;background:var(--blue);color:#0e1116;border:none;border-radius:10px;padding:11px 15px;margin-bottom:4px;cursor:pointer;font:inherit;}
@@ -3738,11 +3737,7 @@ async function toggleMaintenance(){const s=settings();s.maintenance_on=!(s.maint
 function navModeLabel(m){return {peek:'Pull-down',header:'Header bar',pinned:'Pinned'}[m]||m;}
 function deviceNavMode(){try{return (JSON.parse(localStorage.getItem('cave_nav_dev')||'{}')||{}).mode||'';}catch(e){return '';}}
 function setDeviceNavMode(m){try{var d=JSON.parse(localStorage.getItem('cave_nav_dev')||'{}')||{};if(m)d.mode=m;else delete d.mode;localStorage.setItem('cave_nav_dev',JSON.stringify(d));}catch(e){}applyNavMode();renderOwnerTools();toast(m?('This device: '+navModeLabel(m)):'This device follows the default');}
-function applyNavMode(){var m=deviceNavMode()||(settings().nav_mode)||'header';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned','nav-expand');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');b.classList.toggle('nav-wrap',settings().nav_wrap===true);var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');syncNavH();if(typeof requestAnimationFrame==='function')requestAnimationFrame(syncNavH);}
-/* keep sticky page headers (e.g. The Wall tab strip) parked just below the fixed top nav */
-function syncNavH(){var n=document.getElementById('nav');var sticky=document.body&&(document.body.classList.contains('nav-header')||document.body.classList.contains('nav-pinned'));var h=(n&&sticky)?n.offsetHeight:0;document.documentElement.style.setProperty('--nav-h',h+'px');}
-window.addEventListener('resize',syncNavH);
-window.addEventListener('orientationchange',function(){setTimeout(syncNavH,250);});
+function applyNavMode(){var m=deviceNavMode()||(settings().nav_mode)||'header';var b=document.body;if(!b)return;b.classList.remove('nav-header','nav-pinned','nav-expand');if(m==='header')b.classList.add('nav-header');else if(m==='pinned')b.classList.add('nav-pinned');b.classList.toggle('nav-wrap',settings().nav_wrap===true);var nav=document.getElementById('nav');if(nav)nav.classList.remove('show');}
 async function setNavMode(m){const s=settings();s.nav_mode=m;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();toast('All screens: '+navModeLabel(m));}
 async function toggleNavWrap(){const s=settings();const cur=s.nav_wrap!==false;s.nav_wrap=!cur;await stateUpdate({settings:s});applyNavMode();renderOwnerTools();toast(s.nav_wrap?'Tabs wrap onto multiple lines':'Tabs stay on one line (scroll)');}
 async function ownerSetAccent(val){const s=settings();s.appearance=Object.assign({},s.appearance,{accent:val});await stateUpdate({settings:s});applyAppearance();renderOwnerTools();renderDisplay();toast(val==='#20b0e0'?'Accent: Brand blue':(val==='#8ab4f8'?'Accent: Soft blue':'Accent set'));}
