@@ -1651,7 +1651,7 @@ const DEMO_DATA={
  ]
 };
 // Built lazily (after REC_MAP/recParseInput are defined) so it can format values.
-function demoRecordsData(){var R=[],n=0;var mk=function(cat,rk,sex,holder,raw){var it=REC_MAP[rk];if(!it)return;var p=recParseInput(it,raw);if(!p)return;R.push({id:'demo_rec_'+(n++),cat:cat,rkey:rk,label:it.l,sex:sex,holder:'Demo \u00b7 '+holder,display:p.display,value:p.value,dir:it.dir,date:'2026-06-01'});};
+function demoRecordsData(){var R=[],n=0;var mk=function(cat,rk,sex,holder,raw){var it=REC_MAP[rk];if(!it)return;var p=recParseInput(it,raw);if(!p)return;R.push({id:'demo_rec_'+(n++),cat:it.cat,rkey:rk,label:it.l,sex:sex,holder:'Demo \u00b7 '+holder,display:p.display,value:p.value,dir:it.dir,date:'2026-06-01'});};
   mk('powerlifting','squat','m','Caleb B','230');mk('powerlifting','squat','m','Jake M','210');mk('powerlifting','squat','f','Sarah T','135');
   mk('powerlifting','bench','m','Caleb B','150');mk('powerlifting','deadlift','m','Tim R','280');mk('powerlifting','deadlift','f','Lisa W','170');
   mk('powerlifting','pl_total','m','Caleb B','620');mk('powerlifting','pl_total','m','Jake M','585');mk('powerlifting','pl_total','f','Sarah T','370');
