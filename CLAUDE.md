@@ -289,8 +289,12 @@ The single performance system: members submit a result (with proof) → admin ap
 as an entry → the wall shows the best **Male + Female** (or one overall) per feat, and tapping a feat drills
 into the **full ranked leaderboard**. No separate "old leaderboard" + "records" split (the standalone
 Strength/HYROX submit categories were folded in). Mobile-first default view of The Wall + a per-TV rotator.
-**Design = strict brand-blue + FLAT** (owner's call): `var(--blue)` accents only, no gradients, no
-per-category colours, M/F distinguished by label not colour. ClubFit auto-population is a future tie-in.
+**Design = clean divided LIST, brand-blue accents** (owner's call, "like the McDonald's app"): thin
+divider lines (no cards/rounded rows/left-accents/grey cell bg), strong type hierarchy (big bold white feat
+names, muted Men/Women labels, **bold blue values**); blue used only as a punch — **filled pill tabs +
+filled blue group-pill accordion headers (dark text)** + values + buttons, never dull pastel body text. Tabs
+centred; page title reads "Strength Leaderboard" / "Fitness Leaderboard" (`REC_TABS[].title`). M/F by label,
+not colour. ClubFit auto-population is a future tie-in.
 - **Catalog = `REC_GROUPS` → `REC_MAP`.** Feats live in **groups**, groups live in top-level **tabs**
   (`REC_TABS` = **All-Time / Strength / Fitness / Community**). Groups: Strength = Powerlifting (squat/bench/
   deadlift/`pl_total`), Olympic lifting (snatch/clean&jerk/power clean/front squat/OHS/push & strict press),
@@ -322,12 +326,15 @@ per-category colours, M/F distinguished by label not colour. ClubFit auto-popula
   (default true) and per-screen by the `records` key in `SCREEN_KEYS`. Legacy Strength/HYROX leaderboard slides
   only render if their `leaderboard` board actually has rows.
 - **Submit = one unified flow.** Categories: **🏆 Record / PB** + Challenge (if active) + Achievement + custom
-  leaderboards. Record: pick the feat from an `<optgroup>`-per-group dropdown → value input typed by
-  `it.input` → **required** proof; for **Powerlifting → Total**, the 3-lift form (squat/bench/deadlift + 3
-  videos, live total). `doSubmitRecord` stores `{category:'record', detail:rkey | 'pl_total:sq/bn/dl',
-  score, unit, gender, proof_url(/2/3)}` into `submissions`. Members never write `records` directly. (The old
-  `doSubmitStrength`/`doSubmitHyrox` and their submit categories were removed; `strengthProofField`/
-  `onStrengthProofPick`/`subStrengthProofs` are reused by the Powerlifting form.)
+  leaderboards. Record: pick the feat from an `<optgroup>`-per-group dropdown → value input typed + labelled by
+  `it.input` (kg/time/reps/cals, with a one-line help, e.g. 60s Bike → "Calories") → **required** proof; for
+  **Powerlifting → Total**, the 3-lift form (squat/bench/deadlift + 3 videos, live total). The
+  **Attendance & consistency** group is `adminOnly:true` — **excluded from the member submit dropdown** (owner
+  sets those via the records admin panel), but still shown on the Community board + admin panel. `doSubmitRecord`
+  stores `{category:'record', detail:rkey | 'pl_total:sq/bn/dl', score, unit, gender, proof_url(/2/3)}` into
+  `submissions`. Members never write `records` directly. (`pl_total` is intentionally **left out of `REC_SUMMARY`**
+  so the All-Time tab doesn't show it; old `doSubmitStrength`/`doSubmitHyrox` removed; `strengthProofField`/
+  `onStrengthProofPick`/`subStrengthProofs` reused by the Powerlifting form. Gender select is labelled "Gender".)
 - **Approve → entry (no "beats" gating).** `approveSubmission` `category:'record'`: a normal feat inserts one
   entry; a `pl_total:…` payload (`recPL`) inserts **four** entries — Total + Squat + Bench + Deadlift (the
   intelligent connection). The board recomputes the best automatically. Proof is **deleted** on approval.
