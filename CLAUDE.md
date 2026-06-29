@@ -414,6 +414,14 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
 - **Next layer (when API access is live):** a Supabase edge function proxies ClubFit (creds as secrets, admin-verified)
   to auto-fill membership/contract/billing fields onto a case; a Jotform webhook → edge function ingests cancellation
   submissions into `cancellations` (raw into `jotform_raw`) and matches to a member by member-number / email+mobile.
+- **ClubFit cost discipline (owner requirement — do NOT burn API credits):** NEVER call the ClubFit API live per
+  page-load / per-case. Mirror it. A scheduled edge function (`pg_cron` → `pg_net`) runs the sync **once or twice a
+  day** (default daily ~3am; a second midday run is the max) into local `cf_*` mirror tables, using `fromdate`/
+  `updatedate` deltas + `limit=500` paging so a ~1000-member club is only a handful of requests per run (low
+  hundreds/month vs the 1M/mo Basic plan — credits are a non-issue at this cadence). The hub + cases read ONLY the
+  mirror. The single allowed on-demand call is a manual **"Refresh from ClubFit"** button (admin-only, rate-limited/
+  debounced) for when an operator needs a case's data refreshed immediately. Cache the OAuth token (1h) and reuse it;
+  one re-token-and-retry on 401. Stay on the Basic plan.
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
