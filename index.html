@@ -3209,7 +3209,7 @@ function handleSession(session){
     currentMember=null;memberProfile=null;
     const was=isUnlocked();currentUser=u;const now=isUnlocked();
     setUnlocked(now);
-    if(now&&!was){hidePwGate();logActivity('login','Signed in',u&&u.email);fetchAll().then(()=>{loadHistory();renderAll();_setMode('plan');});}
+    if(now&&!was){hidePwGate();logActivity('login','Signed in',u&&u.email);fetchAll().catch(function(e){console.error(e);}).then(function(){loadHistory();renderAll();_setMode('plan');});}
     return;
   }
   /* MEMBER (authenticated, not an admin) — keep signed in */
@@ -3713,6 +3713,7 @@ function _setMode(mode){
   if(mode==='rowcoach')renderRowCoach();
   if(mode==='me')renderMemberDash();
   if(mode==='home')renderHome();
+  if(mode==='plan'&&typeof cxChrome==='function')cxChrome();/* ensure the Cancellations entry is shown the moment the planner opens (covers first-login timing) */
   var _noTab=!!activeScreenSlug;/* hide only on a dedicated TV-screen kiosk; keep nav everywhere else */var _tbb=document.getElementById('tabbar');if(_tbb)_tbb.style.display=_noTab?'none':'flex';document.body.classList.toggle('tabbar-on',!_noTab);
   applyMaintenance();
 }
