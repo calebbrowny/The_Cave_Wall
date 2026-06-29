@@ -380,26 +380,37 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   sensitive data never lands in the `history` undo log.
 - **The engine (`cxCalc`, pure + unit-matched to the owner's worked example).** Constants `CX_TXN_FEE=0.77`,
   `CX_NOTICE_DAYS=30`, `CX_CANCEL_FEE=200`. final access = submission + 30 days. In-min-term = `!no_lock_in &&
-  submission_date <= min_term_end` → $200 fee added to the FIRST scheduled payment (or "over the counter" per
-  `fee_pref`). Schedule: step from `next_payment_date` by 7/14 days while `<= finalAccess`; each payment with
+  submission_date <= min_term_end` → $200 fee. The fee rides the FIRST scheduled payment when `fee_pref==='next'`
+  AND a payment falls in the window (`calc.feeOnLine`); otherwise it's **over the counter** (`calc.feeCounter`,
+  incl. the edge case where the notice window is so short there are **no** remaining payments — the fee is never
+  silently dropped). Schedule: step from `next_payment_date` by 7/14 days while `<= finalAccess`; each payment with
   `remainingDays (inclusive) >= period` is a full payment, else a **pro-rata** final payment computed the owner's way
-  — `daily = round2((amount − 0.77)/period)`, `prorata = round2(daily × days) + 0.77` (remove the txn fee, daily
-  rate, × days, add the fee back). Verified against the worked example (08/06/2026 weekly $24.14 in-term →
-  224.14 / 24.14 / 24.14 / 4.11, total 276.53, final access 08/07/2026).
+  — `daily = round2((amount − 0.77)/period)`, `prorata = round2(daily × days) + 0.77`. **Google-review discount**
+  (`CX_REVIEW_DAYS=12`): `cxNoticeDays(c)=30 − (review_applied?12:0)` → an 18-day notice; everything (final access,
+  schedule, pro-rata, fee placement, tasks, emails) recomputes off it. Verified: 08/06/2026 weekly $24.14 in-term →
+  224.14 / 24.14 / 24.14 / 4.11, total 276.53, access 08/07/2026; with review → 224.14 / 10.79, total 234.93, access 26/06/2026.
 - **Outputs (all auto, copy-to-clipboard with rich HTML + plain-text fallback via `cxCopyRich`).** Member email
   (`cxMemberEmail` — Template 1 in-term / Template 2 out-of-term, Australian English, DD/MM/YYYY, "Hi {first},",
-  key parts bold), plus "if the member asks" replies (`cxEmailNoticeQ` / `cxEmailFeeQ`). Internal ClubFit note
+  key parts bold, all review-aware), plus "if the member asks" replies (`cxEmailNoticeQ` / `cxEmailFeeQ`) and a
+  **Google-review offer email** (`cxEmailReviewOffer`, "leave a review → 12 days off"; link from `settings.cx_review_url`
+  set by the owner in the review card, `cxReviewUrl()`; `cxCopyReview` refuses to copy a blank-link placeholder).
+  A `review_applied` checkbox (+ optional `review_note`) on the case applies the −12 days. Internal ClubFit note
   (`cxInternalNote` = Archive Reason / Archive Date / Comments). Archive reason auto-suggested from the reason +
   feedback text (`cxSuggestReason` over `CX_REASON_KW`, `CX_ARCHIVE_REASONS` dropdown overrides). Comments
   auto-drafted (`cxDraftComment`, editable). **Tasks checklist** (`cxTasks`) = the manual ClubFit steps: add the
   $200 fee to the right payment, set the pro-rata final payment, send the email, archive on the final-access date,
   confirm in ClubFit — each a persisted checkbox (`task_done`).
-- **UI.** `renderCancelHub` → list (`renderCancelList`: New button, filter pills To action/Processed/Stayed/All,
-  a row per case with member/submitted/final-access/term/tasks/status) or detail (`renderCancelDetail`: status
-  pills, two-column `cx-cols` = editable form left, computed `#cx-out` right). Fields persist on change via `cxSet`
-  (`''`→null; refreshes only `#cx-out` so left-column focus is never lost). `cxChrome()` (called from `renderAll`)
-  manages visibility + the cancel-only body class; realtime `renderAll` never clobbers an open detail (only re-renders
-  the hub when on the list view). All emoji-free, dark theme + blue accents, matching the app.
+- **UI = a full-screen page** (`#cancel-page`, fixed overlay z-index 200, deep-link `#cancel`), opened by
+  `openCancelPage()` from the bottom-of-planner "Cancellations" button (Caleb) or auto-opened for Charley via
+  `cxChrome()`; closed by `cxClose()` (owner → back to admin; Charley → confirm + sign out). `renderCancelHub` builds
+  a header with **Cases / To-do** tabs into the page. **Cases** (`cxListHTML`/`cxDetailHTML`, returns HTML strings):
+  list (New, filter pills To action/Processed/Stayed/All, ★ marks a review case) ↔ detail (status pills, two-column
+  `cx-cols` = editable form left, computed `#cx-out` right). **To-do** (`cxAllTodos`/`cxTodoHTML`): every outstanding
+  task across **open** cases (reversed + processed excluded), soonest-first, overdue in red, tick syncs with the
+  per-case checklist (`cxToggleTaskTodo`). Fields persist on change via `cxSet` (`''`→null); `cxRefreshOut` rebuilds
+  only `#cx-out` and is **focus-guarded** (skips while a text input/textarea in it is focused, re-runs on blur) so
+  edits/focus are never clobbered. On sign-out, `cache.cancellations` + the overlay DOM + `cancel-only`/`cx-open`
+  classes are cleared (no PII residue). All emoji-free, dark theme + blue accents, desktop-optimised.
 - **Next layer (when API access is live):** a Supabase edge function proxies ClubFit (creds as secrets, admin-verified)
   to auto-fill membership/contract/billing fields onto a case; a Jotform webhook → edge function ingests cancellation
   submissions into `cancellations` (raw into `jotform_raw`) and matches to a member by member-number / email+mobile.

@@ -3202,7 +3202,7 @@ async function verifyCode(){
   if(error){err.textContent='Incorrect or expired code.';return;}
   // onAuthStateChange handles the unlock
 }
-async function signOut(){try{logActivity('logout','Signed out',currentUser&&currentUser.email);}catch(e){}if(LIVE)await sb.auth.signOut();currentUser=null;setUnlocked(false);_setMode('wod');toast('Signed out');}
+async function signOut(){try{logActivity('logout','Signed out',currentUser&&currentUser.email);}catch(e){}if(LIVE)await sb.auth.signOut();currentUser=null;setUnlocked(false);cache.cancellations=[];cxState={tab:'cases',view:'list',id:null,filter:'active'};var _cp=document.getElementById('cancel-page');if(_cp){_cp.style.display='none';_cp.innerHTML='';}if(document.body)document.body.classList.remove('cx-open','cancel-only');_setMode('wod');toast('Signed out');}
 function handleSession(session){
   const u=session&&session.user?session.user:null;
   if(u&&emailAllowed(u.email)){/* ADMIN */
@@ -3225,7 +3225,7 @@ function handleSession(session){
       if(explicit){toast('Hey '+(memFirst()||'there'));_setMode('me');}
       else if(!wasMember)renderMemberChip();
     });
-  }else{currentMember=null;memberProfile=null;cache.workout_logs=[];cache.body_metrics=[];cache.daily_results=[];cache.my_results=[];drLoadedDate=null;drOpen=false;metHistOpen.clear();renderMemberChip();renderWodMember();}
+  }else{currentMember=null;memberProfile=null;cache.workout_logs=[];cache.body_metrics=[];cache.daily_results=[];cache.my_results=[];cache.cancellations=[];drLoadedDate=null;drOpen=false;metHistOpen.clear();var _cp=document.getElementById('cancel-page');if(_cp){_cp.style.display='none';_cp.innerHTML='';}if(document.body)document.body.classList.remove('cx-open','cancel-only');renderMemberChip();renderWodMember();}
 }
 function lockPlanner(){signOut();}
 
@@ -4094,19 +4094,26 @@ function cxCalc(c){
     lines.push(line);d=cxAdd(d,period);
   }
   var inTerm=cxInMinTerm(c),fee=inTerm?CX_CANCEL_FEE:0;
-  if(fee>0&&(c.fee_pref||'next')==='next'&&lines.length){lines[0].amount=cxRound2(lines[0].amount+fee);lines[0].hasFee=true;}
+  var feeOnLine=fee>0&&(c.fee_pref||'next')==='next'&&lines.length>0;
+  if(feeOnLine){lines[0].amount=cxRound2(lines[0].amount+fee);lines[0].hasFee=true;}
+  var feeCounter=fee>0&&!feeOnLine;/* over-the-counter, or no payment left to ride on */
   var total=cxRound2(lines.reduce(function(s,l){return s+l.amount;},0));
-  return {finalAccess:cxYMD(finalMs),lines:lines,total:total,period:period,inTerm:inTerm,fee:fee,normal:amt,noticeDays:nd,reviewApplied:!!c.review_applied};
+  return {finalAccess:cxYMD(finalMs),lines:lines,total:total,period:period,inTerm:inTerm,fee:fee,feeOnLine:feeOnLine,feeCounter:feeCounter,feeDate:feeOnLine?lines[0].date:null,normal:amt,noticeDays:nd,reviewApplied:!!c.review_applied};
 }
-function cxPayLine(l,calc){var base=cxLong(l.date)+': '+cxMoney(l.amount);if(l.hasFee)return base+', which includes your '+cxMoney(calc.normal)+' membership payment and the $200 cancellation fee';if(l.prorata)return base+' final pro-rata payment';return base;}
+function cxPayLine(l,calc){var base=cxLong(l.date)+': '+cxMoney(l.amount);if(l.hasFee&&l.prorata)return base+', which includes your '+cxMoney(cxRound2(l.amount-CX_CANCEL_FEE))+' pro-rata membership payment ('+l.days+' day'+(l.days===1?'':'s')+') and the $200 cancellation fee';if(l.hasFee)return base+', which includes your '+cxMoney(calc.normal)+' membership payment and the $200 cancellation fee';if(l.prorata)return base+' final pro-rata payment';return base;}
 function cxMemberEmail(c){
   var calc=cxCalc(c);if(!calc)return null;var first=cxFirstName(c.member_name);
-  var feeDate=calc.lines.length?cxLong(calc.lines[0].date):'';
+  var feeDate=calc.feeOnLine?cxLong(calc.feeDate):'';
   var text='Hi '+first+',\n\nThanks for submitting your membership cancellation form.\n\n';
   var html='Hi '+esc(first)+',<br><br>Thanks for submitting your membership cancellation form.<br><br>';
   if(calc.inTerm){
-    text+='As your membership is still within the minimum term, a $200 cancellation fee applies. This will be added to your next scheduled payment on '+feeDate+', unless you would prefer to pay it over the counter before then.\n\n';
-    html+='As your membership is still within the minimum term, a <b>$200 cancellation fee</b> applies. This will be added to your next scheduled payment on <b>'+esc(feeDate)+'</b>, unless you would prefer to pay it over the counter before then.<br><br>';
+    if(calc.feeOnLine){
+      text+='As your membership is still within the minimum term, a $200 cancellation fee applies. This will be added to your next scheduled payment on '+feeDate+', unless you would prefer to pay it over the counter before then.\n\n';
+      html+='As your membership is still within the minimum term, a <b>$200 cancellation fee</b> applies. This will be added to your next scheduled payment on <b>'+esc(feeDate)+'</b>, unless you would prefer to pay it over the counter before then.<br><br>';
+    }else{
+      text+='As your membership is still within the minimum term, a $200 cancellation fee applies, payable over the counter.\n\n';
+      html+='As your membership is still within the minimum term, a <b>$200 cancellation fee</b> applies, payable over the counter.<br><br>';
+    }
   }
   var alsoT=calc.inTerm?'also ':'',sub=cxDMY(c.submission_date);
   if(calc.reviewApplied){
@@ -4116,21 +4123,39 @@ function cxMemberEmail(c){
     text+='Your membership '+alsoT+'has a 30-day paid notice period from the date your cancellation form was submitted, '+sub+'. During this time, your standard membership payments will continue and you will retain full access to the gym.\n\n';
     html+='Your membership '+alsoT+'has a <b>30-day paid notice period</b> from the date your cancellation form was submitted, <b>'+esc(sub)+'</b>. During this time, your standard membership payments will continue and you will retain full access to the gym.<br><br>';
   }
-  text+='Based on your current payment cycle, your remaining payments are:\n\n'+calc.lines.map(function(l){return cxPayLine(l,calc);}).join('\n')+'\n\n';
-  html+='Based on your current payment cycle, your remaining payments are:<br><br>'+calc.lines.map(function(l){return '<b>'+esc(cxPayLine(l,calc))+'</b>';}).join('<br>')+'<br><br>';
+  if(calc.lines.length){
+    text+='Based on your current payment cycle, your remaining payments are:\n\n'+calc.lines.map(function(l){return cxPayLine(l,calc);}).join('\n')+'\n\n';
+    html+='Based on your current payment cycle, your remaining payments are:<br><br>'+calc.lines.map(function(l){return '<b>'+esc(cxPayLine(l,calc))+'</b>';}).join('<br>')+'<br><br>';
+  }else{
+    text+='You have no further scheduled membership payments before your access ends.\n\n';
+    html+='You have no further scheduled membership payments before your access ends.<br><br>';
+  }
   text+='Your membership will be fully cancelled after the notice period, with your final day of access being '+cxLong(calc.finalAccess)+'.\n\nLet me know if you have any questions.';
   html+='Your membership will be fully cancelled after the notice period, with your <b>final day of access being '+esc(cxLong(calc.finalAccess))+'</b>.<br><br>Let me know if you have any questions.';
   return {subject:'Membership Cancellation Confirmation',text:text,html:html};
 }
-function cxEmailNoticeQ(c){var calc=cxCalc(c);if(!calc)return null;var first=cxFirstName(c.member_name);return {subject:'Membership Cancellation Notice Period',text:'Hi '+first+',\n\nThanks for getting in touch.\n\nAs outlined in the membership cancellation process, all cancellations require a 30-day paid notice period from the date the cancellation form is submitted.\n\nDuring this period, standard membership fees continue to apply and you retain full access to the gym until your final day of access, '+cxLong(calc.finalAccess)+'.\n\nYour remaining payments are:\n\n'+calc.lines.map(function(l){return cxPayLine(l,calc);}).join('\n')+'\n\nLet me know if you have any questions.'};}
-function cxEmailFeeQ(c){var calc=cxCalc(c);if(!calc)return null;var first=cxFirstName(c.member_name);var feeDate=calc.lines.length?cxLong(calc.lines[0].date):'';return {subject:'Membership Cancellation Fee',text:'Hi '+first+',\n\nThanks for getting in touch.\n\nAs your membership is still within the minimum contract term, a $200 cancellation fee applies.\n\nThis will be added to your next scheduled payment on '+feeDate+', unless you would prefer to pay it over the counter before then.\n\nYour membership will also continue through the 30-day paid notice period, and your final day of access will be '+cxLong(calc.finalAccess)+'.\n\nLet me know if you have any questions.'};}
-function cxEmailReviewOffer(c){var first=cxFirstName(c.member_name);var link=CX_REVIEW_URL||'[your Google review link]';return {subject:'A thank-you offer before you go',text:'Hi '+first+',\n\nThanks for submitting your membership cancellation form.\n\nBefore you head off — if you leave us an honest Google review about your time at The Cave, we’ll take '+CX_REVIEW_DAYS+' days off your 30-day notice period as a thank you. That means an earlier final day of access and lower remaining payments.\n\nYou can leave a review here: '+link+'\n\nOnce it’s up, just reply to this email to let us know and we’ll update your notice period, payments and final access date and send through the confirmation.\n\nLet me know if you have any questions.'};}
+function cxEmailNoticeQ(c){var calc=cxCalc(c);if(!calc)return null;var first=cxFirstName(c.member_name);var notice='As outlined in the membership cancellation process, all cancellations require a 30-day paid notice period from the date the cancellation form is submitted.'+(calc.reviewApplied?(' As a thank you for your Google review, we have taken '+CX_REVIEW_DAYS+' days off your notice period.'):'');var pay=calc.lines.length?('\n\nYour remaining payments are:\n\n'+calc.lines.map(function(l){return cxPayLine(l,calc);}).join('\n')):'\n\nYou have no further scheduled membership payments before your access ends.';return {subject:'Membership Cancellation Notice Period',text:'Hi '+first+',\n\nThanks for getting in touch.\n\n'+notice+'\n\nDuring this period, standard membership fees continue to apply and you retain full access to the gym until your final day of access, '+cxLong(calc.finalAccess)+'.'+pay+'\n\nLet me know if you have any questions.'};}
+function cxEmailFeeQ(c){var calc=cxCalc(c);if(!calc)return null;var first=cxFirstName(c.member_name);var feeLine=calc.feeOnLine?('This will be added to your next scheduled payment on '+cxLong(calc.feeDate)+', unless you would prefer to pay it over the counter before then.'):'This is payable over the counter.';var noticeLine='Your membership will also continue through the notice period'+(calc.reviewApplied?(' (reduced by '+CX_REVIEW_DAYS+' days for your Google review)'):'')+', and your final day of access will be '+cxLong(calc.finalAccess)+'.';return {subject:'Membership Cancellation Fee',text:'Hi '+first+',\n\nThanks for getting in touch.\n\nAs your membership is still within the minimum contract term, a $200 cancellation fee applies.\n\n'+feeLine+'\n\n'+noticeLine+'\n\nLet me know if you have any questions.'};}
+function cxReviewUrl(){return ((settings().cx_review_url||CX_REVIEW_URL||'')+'').trim();}
+function cxEmailReviewOffer(c){var first=cxFirstName(c.member_name);var link=cxReviewUrl()||'[your Google review link]';return {subject:'A thank-you offer before you go',text:'Hi '+first+',\n\nThanks for submitting your membership cancellation form.\n\nBefore you head off — if you leave us an honest Google review about your time at The Cave, we’ll take '+CX_REVIEW_DAYS+' days off your 30-day notice period as a thank you. That means an earlier final day of access and lower remaining payments.\n\nYou can leave a review here: '+link+'\n\nOnce it’s up, just reply to this email to let us know and we’ll update your notice period, payments and final access date and send through the confirmation.\n\nLet me know if you have any questions.'};}
 function cxDraftComment(c){var r=(c.cancellation_reason||'').trim().replace(/\.$/,'');if(r&&!/^[A-Z]{2,}/.test(r))r=r.charAt(0).toLowerCase()+r.slice(1);var f=(c.feedback||'').trim().replace(/\.$/,'');var s=r?('Member cancelled due to '+r+'.'):'Member cancelled.';if(f)s+=' Feedback: '+f+'.';return s;}
 function cxEffectiveReason(c){return c.archive_reason||cxSuggestReason((c.cancellation_reason||'')+' '+(c.feedback||''))||'Other';}
 function cxEffectiveComment(c){return (c.archive_comments!=null&&c.archive_comments!=='')?c.archive_comments:cxDraftComment(c);}
 function cxInternalNote(c){var calc=cxCalc(c);return {text:'Archive Reason: '+cxEffectiveReason(c)+'\nArchive Date: '+(calc?cxDMY(calc.finalAccess):'')+'\nComments: '+cxEffectiveComment(c),html:'Archive Reason: '+esc(cxEffectiveReason(c))+'<br>Archive Date: '+esc(calc?cxDMY(calc.finalAccess):'')+'<br>Comments: '+esc(cxEffectiveComment(c))};}
-function cxTasks(c){var calc=cxCalc(c);var t=[];if(!calc)return t;if(calc.fee>0&&(c.fee_pref||'next')==='next'&&calc.lines.length)t.push({key:'fee',due:calc.lines[0].date,label:'Add the $200 cancellation fee to the payment on '+cxDMY(calc.lines[0].date)+' (new amount '+cxMoney(calc.lines[0].amount)+')'});var pr=calc.lines.filter(function(l){return l.prorata;})[0];if(pr)t.push({key:'prorata',due:pr.date,label:'Set the final payment on '+cxDMY(pr.date)+' to '+cxMoney(pr.amount)+' (pro-rata, '+pr.days+' day'+(pr.days===1?'':'s')+')'});t.push({key:'email',due:null,label:'Send the cancellation confirmation email to the member'});t.push({key:'archive',due:calc.finalAccess,label:'Archive the member in ClubFit on '+cxDMY(calc.finalAccess)+' — reason: '+cxEffectiveReason(c)});t.push({key:'confirm',due:calc.finalAccess,label:'Confirm the cancellation is set in ClubFit'});return t;}
-function cxAllTodos(){var out=[];(cache.cancellations||[]).forEach(function(c){if(c.status==='reversed')return;var done=c.task_done||{};cxTasks(c).forEach(function(t){out.push({caseId:c.id,member:c.member_name||'(no name)',key:t.key,label:t.label,due:t.due||null,done:!!done[t.key],status:c.status});});});return out;}
+function cxTasks(c){var calc=cxCalc(c);var t=[];if(!calc)return t;
+  var pr=calc.lines.filter(function(l){return l.prorata;})[0];
+  var feeLine=calc.feeOnLine?calc.lines[0]:null;
+  if(feeLine&&feeLine.prorata){
+    t.push({key:'feepro',due:feeLine.date,label:'Set the final payment on '+cxDMY(feeLine.date)+' to '+cxMoney(feeLine.amount)+' — pro-rata '+feeLine.days+' day'+(feeLine.days===1?'':'s')+' ('+cxMoney(cxRound2(feeLine.amount-CX_CANCEL_FEE))+') plus the $200 cancellation fee'});
+  }else{
+    if(feeLine)t.push({key:'fee',due:feeLine.date,label:'Add the $200 cancellation fee to the payment on '+cxDMY(feeLine.date)+' (new amount '+cxMoney(feeLine.amount)+')'});
+    if(calc.feeCounter)t.push({key:'feecounter',due:null,label:'Collect the $200 cancellation fee over the counter'});
+    if(pr)t.push({key:'prorata',due:pr.date,label:'Set the final payment on '+cxDMY(pr.date)+' to '+cxMoney(pr.amount)+' (pro-rata, '+pr.days+' day'+(pr.days===1?'':'s')+')'});
+  }
+  t.push({key:'email',due:null,label:'Send the cancellation confirmation email to the member'});
+  t.push({key:'archive',due:calc.finalAccess,label:'Archive the member in ClubFit on '+cxDMY(calc.finalAccess)+' — reason: '+cxEffectiveReason(c)});
+  t.push({key:'confirm',due:calc.finalAccess,label:'Confirm the cancellation is set in ClubFit'});return t;}
+function cxAllTodos(){var out=[];(cache.cancellations||[]).forEach(function(c){if(c.status==='reversed'||c.status==='processed')return;var done=c.task_done||{};cxTasks(c).forEach(function(t){out.push({caseId:c.id,member:c.member_name||'(no name)',key:t.key,label:t.label,due:t.due||null,done:!!done[t.key],status:c.status});});});return out;}
 /* CRUD */
 function cxFindCase(id){return (cache.cancellations||[]).find(function(x){return x.id===id;});}
 async function cxSet(id,field,val){var c=cxFindCase(id);if(!c)return;if(val==='')val=null;c[field]=val;var patch={updated_at:new Date().toISOString()};patch[field]=val;if(field==='member_name'){var t=document.getElementById('cx-title');if(t)t.textContent=val||'New cancellation';}await rowUpdate('cancellations',id,patch);cxRefreshOut(id);}
@@ -4150,7 +4175,8 @@ function cxCopyEmail(id){var em=cxMemberEmail(cxFindCase(id));if(!em){toast('Add
 function cxCopySubject(id){var em=cxMemberEmail(cxFindCase(id));if(em)cxCopyRich(em.subject,null,'Subject copied');}
 function cxCopyNote(id){var n=cxInternalNote(cxFindCase(id));cxCopyRich(n.text,n.html,'Internal note copied');}
 function cxCopyReply(id,kind){var e=kind==='fee'?cxEmailFeeQ(cxFindCase(id)):cxEmailNoticeQ(cxFindCase(id));if(!e){toast('Add the billing details first');return;}cxCopyRich(e.text,null,'Reply copied');}
-function cxCopyReview(id){var e=cxEmailReviewOffer(cxFindCase(id));if(e)cxCopyRich(e.text,null,'Review offer copied');}
+function cxCopyReview(id){if(!cxReviewUrl()){toast('Add the gym’s Google review link first (in the Google review card).');return;}var e=cxEmailReviewOffer(cxFindCase(id));if(e)cxCopyRich(e.text,null,'Review offer copied');}
+async function cxSetReviewUrl(v){if(!isOwner())return;var s=settings();s.cx_review_url=(v||'').trim();await stateUpdate({settings:s});toast('Google review link saved');if(cxState.id)cxRefreshOut(cxState.id);}
 /* render */
 function cxF(c,field,label,type,attrs){var v=c[field]==null?'':c[field];return '<div class="fld"><label>'+esc(label)+'</label><input type="'+(type||'text')+'" value="'+esc(v)+'" '+(attrs||'')+' onchange="cxSet(\''+c.id+'\',\''+field+'\',this.value)"></div>';}
 function cxFormHTML(c){var h='';
@@ -4162,11 +4188,13 @@ function cxFormHTML(c){var h='';
 function cxOutHTML(c){var calc=cxCalc(c),h='';
   h+='<div class="cx-card"><div class="cx-card-h">Summary</div>';
   if(!calc){h+='<div class="cx-muted">Enter the <b>form submitted</b> date, <b>next payment date</b> and <b>normal payment</b> to calculate the notice period and final payments.</div>';}
-  else{h+='<div class="cx-badges">'+(c.no_lock_in?'<span class="cx-badge ok">No lock-in</span>':(calc.inTerm?'<span class="cx-badge warn">In minimum term · $200 fee</span>':'<span class="cx-badge ok">Out of minimum term</span>'))+(calc.reviewApplied?'<span class="cx-badge ok">Google review · −'+CX_REVIEW_DAYS+' days</span>':'')+'<span class="cx-badge">'+calc.noticeDays+'-day notice</span><span class="cx-badge">Final access '+cxDMY(calc.finalAccess)+'</span><span class="cx-badge blue">Total '+cxMoney(calc.total)+'</span></div>';
-    h+='<table class="cx-sched"><thead><tr><th>Payment date</th><th>Amount</th><th>Note</th></tr></thead><tbody>';
-    calc.lines.forEach(function(l){h+='<tr><td>'+cxLong(l.date)+'</td><td class="cx-amt">'+cxMoney(l.amount)+'</td><td class="cx-nt">'+(l.hasFee?'Incl. $200 cancellation fee':(l.prorata?('Pro-rata · '+l.days+' day'+(l.days===1?'':'s')):'Full payment'))+'</td></tr>';});
-    h+='<tr class="cx-total"><td>Total remaining</td><td class="cx-amt">'+cxMoney(calc.total)+'</td><td></td></tr></tbody></table>';
-    var pr=calc.lines.filter(function(l){return l.prorata;})[0];if(pr)h+='<div class="cx-hint">Pro-rata: ('+cxMoney(calc.normal)+' − $0.77) ÷ '+calc.period+' = '+cxMoney(pr.daily)+'/day × '+pr.days+' day'+(pr.days===1?'':'s')+' + $0.77 = '+cxMoney(cxRound2(pr.daily*pr.days+CX_TXN_FEE))+'.</div>';
+  else{h+='<div class="cx-badges">'+(c.no_lock_in?'<span class="cx-badge ok">No lock-in</span>':(calc.inTerm?'<span class="cx-badge warn">In minimum term · $200 fee</span>':'<span class="cx-badge ok">Out of minimum term</span>'))+(calc.reviewApplied?'<span class="cx-badge ok">Google review · −'+CX_REVIEW_DAYS+' days</span>':'')+'<span class="cx-badge">'+calc.noticeDays+'-day notice</span><span class="cx-badge">Final access '+cxDMY(calc.finalAccess)+'</span><span class="cx-badge blue">Total '+cxMoney(calc.total)+'</span>'+(calc.feeCounter?'<span class="cx-badge warn">+ $200 fee over the counter</span>':'')+'</div>';
+    if(calc.lines.length){
+      h+='<table class="cx-sched"><thead><tr><th>Payment date</th><th>Amount</th><th>Note</th></tr></thead><tbody>';
+      calc.lines.forEach(function(l){h+='<tr><td>'+cxLong(l.date)+'</td><td class="cx-amt">'+cxMoney(l.amount)+'</td><td class="cx-nt">'+((l.hasFee&&l.prorata)?('Pro-rata · '+l.days+' day'+(l.days===1?'':'s')+' · incl. $200 fee'):(l.hasFee?'Incl. $200 cancellation fee':(l.prorata?('Pro-rata · '+l.days+' day'+(l.days===1?'':'s')):'Full payment')))+'</td></tr>';});
+      h+='<tr class="cx-total"><td>Total remaining</td><td class="cx-amt">'+cxMoney(calc.total)+'</td><td></td></tr></tbody></table>';
+      var pr=calc.lines.filter(function(l){return l.prorata;})[0];if(pr)h+='<div class="cx-hint">Pro-rata: ('+cxMoney(calc.normal)+' − $0.77) ÷ '+calc.period+' = '+cxMoney(pr.daily)+'/day × '+pr.days+' day'+(pr.days===1?'':'s')+' + $0.77 = '+cxMoney(cxRound2(pr.daily*pr.days+CX_TXN_FEE))+'.</div>';
+    }else{h+='<div class="cx-muted">No further scheduled payments before the final access date'+(calc.feeCounter?' — the $200 cancellation fee is collected over the counter':'')+'.</div>';}
   }
   h+='</div>';
   var em=cxMemberEmail(c);
@@ -4174,7 +4202,7 @@ function cxOutHTML(c){var calc=cxCalc(c),h='';
   if(!em){h+='<div class="cx-muted">Add the billing details to generate the confirmation email.</div>';}
   else{h+='<div class="cx-sub">Subject: '+esc(em.subject)+' <button class="cx-link" onclick="cxCopySubject(\''+c.id+'\')">copy</button></div><div class="cx-email">'+em.html+'</div><div class="cx-replies"><span class="cx-muted">If the member asks:</span> <button class="btn-sm" onclick="cxCopyReply(\''+c.id+'\',\'notice\')">Why pay during notice</button>'+(calc&&calc.inTerm?' <button class="btn-sm" onclick="cxCopyReply(\''+c.id+'\',\'fee\')">About the $200 fee</button>':'')+'</div>';}
   h+='</div>';
-  h+='<div class="cx-card cx-review"><div class="cx-card-h"><span>Google review offer</span><span class="cx-card-acts"><button class="btn-sm" onclick="cxCopyReview(\''+c.id+'\')">Copy offer email</button></span></div><label class="cx-check"><input type="checkbox"'+(c.review_applied?' checked':'')+' onchange="cxSet(\''+c.id+'\',\'review_applied\',this.checked)"> Positive Google review left — take '+CX_REVIEW_DAYS+' days off the notice</label>'+(calc&&calc.reviewApplied?'<div class="cx-hint">Applied: notice cut to '+calc.noticeDays+' days, final access now '+cxDMY(calc.finalAccess)+'. Re-copy the confirmation email above and re-send.</div>':'<div class="cx-hint">Send the offer email; once their review is up, tick the box and the notice, payments and final access date all recalculate.</div>')+'<div class="fld" style="margin-top:10px;"><label>Review note (optional)</label><input type="text" value="'+esc(c.review_note||'')+'" placeholder="e.g. 5★ left 12/06 by Sam T" onchange="cxSet(\''+c.id+'\',\'review_note\',this.value)"></div></div>';
+  h+='<div class="cx-card cx-review"><div class="cx-card-h"><span>Google review offer</span><span class="cx-card-acts"><button class="btn-sm" onclick="cxCopyReview(\''+c.id+'\')">Copy offer email</button></span></div><label class="cx-check"><input type="checkbox"'+(c.review_applied?' checked':'')+' onchange="cxSet(\''+c.id+'\',\'review_applied\',this.checked)"> Positive Google review left — take '+CX_REVIEW_DAYS+' days off the notice</label>'+(calc&&calc.reviewApplied?'<div class="cx-hint">Applied: notice cut to '+calc.noticeDays+' days, final access now '+cxDMY(calc.finalAccess)+'. Re-copy the confirmation email above and re-send.</div>':'<div class="cx-hint">Send the offer email; once their review is up, tick the box and the notice, payments and final access date all recalculate.</div>')+'<div class="fld" style="margin-top:10px;"><label>Review note (optional)</label><input type="text" value="'+esc(c.review_note||'')+'" placeholder="e.g. 5★ left 12/06 by Sam T" onchange="cxSet(\''+c.id+'\',\'review_note\',this.value)"></div>'+(isOwner()?('<div class="fld" style="margin-top:10px;"><label>Gym Google review link (used in the offer email)</label><input type="url" value="'+esc(cxReviewUrl())+'" placeholder="https://g.page/r/…" onchange="cxSetReviewUrl(this.value)"></div>'):(cxReviewUrl()?'':'<div class="cx-hint">No Google review link set yet — ask Caleb to add it before sending the offer.</div>'))+'</div>';
   var eff=cxEffectiveReason(c),comm=cxEffectiveComment(c);
   h+='<div class="cx-card"><div class="cx-card-h"><span>Internal note (ClubFit)</span><span class="cx-card-acts"><button class="btn-sm" onclick="cxCopyNote(\''+c.id+'\')">Copy note</button></span></div>';
   h+='<div class="fld"><label>Archive reason</label><select onchange="cxSet(\''+c.id+'\',\'archive_reason\',this.value)">'+CX_ARCHIVE_REASONS.map(function(r){return '<option'+(r===eff?' selected':'')+'>'+esc(r)+'</option>';}).join('')+'</select></div>';
@@ -4187,7 +4215,7 @@ function cxOutHTML(c){var calc=cxCalc(c),h='';
   h+='</div>';
   h+='<div class="cx-card"><div class="cx-card-h">Processing notes</div><textarea rows="3" placeholder="Anything to remember when processing in ClubFit…" onchange="cxSet(\''+c.id+'\',\'notes\',this.value)">'+esc(c.notes||'')+'</textarea></div>';
   return h;}
-function cxRefreshOut(id){var el=document.getElementById('cx-out');if(!el)return;var c=cxFindCase(id);if(c)el.innerHTML=cxOutHTML(c);}
+function cxRefreshOut(id){var el=document.getElementById('cx-out');if(!el)return;var a=document.activeElement;if(a&&el.contains(a)&&(a.tagName==='TEXTAREA'||(a.tagName==='INPUT'&&a.type!=='checkbox'))){a.addEventListener('blur',function(){cxRefreshOut(id);},{once:true});return;}var c=cxFindCase(id);if(c)el.innerHTML=cxOutHTML(c);}
 function cxDetailHTML(c){
   var STAT=[['new','New'],['in_progress','In progress'],['processed','Processed'],['reversed','Member stayed']];
   var h='<div class="cx-detail"><div class="cx-dhead"><button class="btn-sm" onclick="cxBack()">← All cancellations</button><div class="cx-title" id="cx-title">'+esc(c.member_name||'New cancellation')+'</div><button class="cx-del" onclick="cxDelete(\''+c.id+'\')">Delete</button></div>';
@@ -4230,7 +4258,7 @@ function renderCancelHub(){if(!isCancelStaff())return;var el=document.getElement
   el.innerHTML=h;}
 function cxTab(t){cxState.tab=t;renderCancelHub();}
 function openCancelPage(){if(!isCancelStaff())return;var el=document.getElementById('cancel-page');if(!el)return;var wasOpen=el.style.display==='block';el.style.display='block';if(document.body)document.body.classList.add('cx-open');if(!wasOpen||cxState.view!=='detail')renderCancelHub();}
-function cxClose(){var el=document.getElementById('cancel-page');if(el)el.style.display='none';if(document.body)document.body.classList.remove('cx-open');try{if((location.hash||'').toLowerCase()==='#cancel')history.replaceState(null,'',location.pathname+location.search);}catch(e){}if(!isOwner())signOut();}
+function cxClose(){var ae=document.activeElement;if(ae&&typeof ae.blur==='function')ae.blur();if(!isOwner()&&!confirm('Sign out of the cancellation hub?'))return;var el=document.getElementById('cancel-page');if(el){el.style.display='none';el.innerHTML='';}if(document.body)document.body.classList.remove('cx-open');cxState.view='list';cxState.id=null;cxState.tab='cases';try{if((location.hash||'').toLowerCase()==='#cancel')history.replaceState(null,'',location.pathname+location.search);}catch(e){}if(!isOwner())signOut();}
 function cxChrome(){var cw=document.getElementById('cancel-wrap');if(cw)cw.style.display=isCancelStaff()?'':'none';if(document.body)document.body.classList.toggle('cancel-only',isCancelStaff()&&!isOwner());
   var el=document.getElementById('cancel-page');if(!el)return;
   if(!isCancelStaff()){if(el.style.display==='block'){el.style.display='none';if(document.body)document.body.classList.remove('cx-open');}return;}
