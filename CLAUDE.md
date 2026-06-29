@@ -11,7 +11,7 @@ step — backed by Supabase and hosted on Netlify.
   Tables: `leaderboard`, `achievements`, `events`, `todos`, `kpis`, `challenges`, `submissions`,
   `wods`, `ads`, `boards`, `app_state`, `activity_log`, `history`, `row500`, `benchmarks`,
   `benchmark_phones`, `member_profiles`, `workout_logs`, `body_metrics`, `daily_results`,
-  `reset_requests`, `records`.
+  `reset_requests`, `records`, `cancellations`.
   - `records` = the **all-time records / leaderboard wall** (public read; admin-only insert/update/
     delete via `is_cave_admin()`, all perf-wrapped in `(select …)`; in the realtime publication). Holds
     **every approved entry** (NOT one row per feat — the `unique(rkey,sex)` constraint was dropped; the
@@ -358,6 +358,51 @@ not colour. ClubFit auto-population is a future tie-in.
 - **Dynamic bottom tabs.** `refreshNav` shows/hides the bottom-bar tabs by state: Challenge (`challengeOn()`),
   Event (`evp().enabled` — updates the `.tl` label, keeps its SVG icon), Timer (`show_timer`), Row
   (`row500_tab` && `row500On()`). WOD / The Wall / Submit are always present.
+
+## Cancellation hub (membership cancellation workflow — Caleb + Charley only)
+A hidden, **desktop-optimised** admin section at the very bottom of the planner (`#cancel-wrap` accordion, after
+Owner controls) that turns a membership cancellation into a worked, tracked **case** with all the payment maths,
+the member email + GymMaster note, and a processing checklist. Built to layer ClubFit + Jotform **auto-fill** on
+later (Caleb has API access requested) — for now it's **manual entry** and is fully useful that way.
+- **Access = two emails only.** `CANCEL_STAFF = ['calebbrowny@gmail.com','charley@thecavegym.com.au']`;
+  `isCancelStaff()` gates the UI and `emailAllowed()` includes them so Charley can OTP-sign-in as admin **without**
+  being added to `admin_emails` (so Postgres `is_cave_admin()` stays false for her → she canNOT write WODs/records).
+  For a non-owner cancel-staffer (Charley), `cxChrome()` adds `body.cancel-only` which hides every planner panel
+  except the hub (`#planner>div:not(#cancel-wrap){display:none}`) and auto-opens it — she sees only this tool.
+  Caleb (owner) sees the hub plus everything else.
+- **Table `cancellations`** (RLS: SELECT/INSERT/UPDATE/DELETE all gated by `is_cancel_staff()` SECURITY DEFINER fn
+  = the two emails, perf-wrapped in `(select …)`; **NOT** in the realtime publication; loaded in `fetchAll` only when
+  `isCancelStaff()`). Cols: member_name/email/phone, membership_type, submission_date, contract_start, min_term_end,
+  no_lock_in, payment_amount, payment_frequency ('weekly'|'fortnightly'), next_payment_date, fee_pref ('next'|
+  'counter'), cancellation_reason, feedback, status ('new'|'in_progress'|'processed'|'reversed'), archive_reason,
+  archive_comments, notes, task_done (jsonb {key:bool}), processed_by/at, and **future-integration** cols
+  jotform_id/jotform_raw/clubfit_number/clubfit_snapshot/match_status (unused for now). Deletes pass `noUndo` so
+  sensitive data never lands in the `history` undo log.
+- **The engine (`cxCalc`, pure + unit-matched to the owner's worked example).** Constants `CX_TXN_FEE=0.77`,
+  `CX_NOTICE_DAYS=30`, `CX_CANCEL_FEE=200`. final access = submission + 30 days. In-min-term = `!no_lock_in &&
+  submission_date <= min_term_end` → $200 fee added to the FIRST scheduled payment (or "over the counter" per
+  `fee_pref`). Schedule: step from `next_payment_date` by 7/14 days while `<= finalAccess`; each payment with
+  `remainingDays (inclusive) >= period` is a full payment, else a **pro-rata** final payment computed the owner's way
+  — `daily = round2((amount − 0.77)/period)`, `prorata = round2(daily × days) + 0.77` (remove the txn fee, daily
+  rate, × days, add the fee back). Verified against the worked example (08/06/2026 weekly $24.14 in-term →
+  224.14 / 24.14 / 24.14 / 4.11, total 276.53, final access 08/07/2026).
+- **Outputs (all auto, copy-to-clipboard with rich HTML + plain-text fallback via `cxCopyRich`).** Member email
+  (`cxMemberEmail` — Template 1 in-term / Template 2 out-of-term, Australian English, DD/MM/YYYY, "Hi {first},",
+  key parts bold), plus "if the member asks" replies (`cxEmailNoticeQ` / `cxEmailFeeQ`). Internal GymMaster note
+  (`cxInternalNote` = Archive Reason / Archive Date / Comments). Archive reason auto-suggested from the reason +
+  feedback text (`cxSuggestReason` over `CX_REASON_KW`, `CX_ARCHIVE_REASONS` dropdown overrides). Comments
+  auto-drafted (`cxDraftComment`, editable). **Tasks checklist** (`cxTasks`) = the manual GymMaster steps: add the
+  $200 fee to the right payment, set the pro-rata final payment, send the email, archive on the final-access date,
+  confirm in GymMaster/ClubFit — each a persisted checkbox (`task_done`).
+- **UI.** `renderCancelHub` → list (`renderCancelList`: New button, filter pills To action/Processed/Stayed/All,
+  a row per case with member/submitted/final-access/term/tasks/status) or detail (`renderCancelDetail`: status
+  pills, two-column `cx-cols` = editable form left, computed `#cx-out` right). Fields persist on change via `cxSet`
+  (`''`→null; refreshes only `#cx-out` so left-column focus is never lost). `cxChrome()` (called from `renderAll`)
+  manages visibility + the cancel-only body class; realtime `renderAll` never clobbers an open detail (only re-renders
+  the hub when on the list view). All emoji-free, dark theme + blue accents, matching the app.
+- **Next layer (when API access is live):** a Supabase edge function proxies ClubFit (creds as secrets, admin-verified)
+  to auto-fill membership/contract/billing fields onto a case; a Jotform webhook → edge function ingests cancellation
+  submissions into `cancellations` (raw into `jotform_raw`) and matches to a member by member-number / email+mobile.
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
