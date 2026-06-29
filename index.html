@@ -4022,7 +4022,7 @@ function renderLive(){applyScales();applyAppearance();applyNavMode();renderFocus
 /* ===================== CANCELLATION HUB (Caleb + Charley only) ===================== */
 const CX_TXN_FEE=0.77, CX_NOTICE_DAYS=30, CX_CANCEL_FEE=200;
 let cxState={view:'list',id:null,filter:'active'};
-const CX_ARCHIVE_REASONS=['No Time = Life/Work Commitments','Do Not Use Gym','No Motivation','Cost of Living/Financial Difficulties/Too Expensive','Moving/Moved/Travelling','Medical Reasons','Joined Another Gym/Home Gym','Not Happy with Gym','Change of Membership','Fitness Passport Expired','Contract Expired','Sessions Expired','Visits Expired','Max Sessions Used','Max Visits Used','Excessive Dishonours','Bad Debt - Sent to Debt Collector','Breach of Gym Rules','Other','GymMaster Archived'];
+const CX_ARCHIVE_REASONS=['No Time = Life/Work Commitments','Do Not Use Gym','No Motivation','Cost of Living/Financial Difficulties/Too Expensive','Moving/Moved/Travelling','Medical Reasons','Joined Another Gym/Home Gym','Not Happy with Gym','Change of Membership','Fitness Passport Expired','Contract Expired','Sessions Expired','Visits Expired','Max Sessions Used','Max Visits Used','Excessive Dishonours','Bad Debt - Sent to Debt Collector','Breach of Gym Rules','Other','ClubFit Archived'];
 const CX_REASON_KW=[
  ['Medical Reasons',['injur','illness','sick','surgery','pregnan','medical','health','rehab','operation']],
  ['Moving/Moved/Travelling',['moving','moved','relocat','travel','away','interstate','overseas','no longer live']],
@@ -4093,7 +4093,7 @@ function cxDraftComment(c){var r=(c.cancellation_reason||'').trim().replace(/\.$
 function cxEffectiveReason(c){return c.archive_reason||cxSuggestReason((c.cancellation_reason||'')+' '+(c.feedback||''))||'Other';}
 function cxEffectiveComment(c){return (c.archive_comments!=null&&c.archive_comments!=='')?c.archive_comments:cxDraftComment(c);}
 function cxInternalNote(c){var calc=cxCalc(c);return {text:'Archive Reason: '+cxEffectiveReason(c)+'\nArchive Date: '+(calc?cxDMY(calc.finalAccess):'')+'\nComments: '+cxEffectiveComment(c),html:'Archive Reason: '+esc(cxEffectiveReason(c))+'<br>Archive Date: '+esc(calc?cxDMY(calc.finalAccess):'')+'<br>Comments: '+esc(cxEffectiveComment(c))};}
-function cxTasks(c){var calc=cxCalc(c);var t=[];if(!calc)return t;if(calc.fee>0&&(c.fee_pref||'next')==='next'&&calc.lines.length)t.push({key:'fee',label:'Add the $200 cancellation fee to the payment on '+cxDMY(calc.lines[0].date)+' (new amount '+cxMoney(calc.lines[0].amount)+')'});var pr=calc.lines.filter(function(l){return l.prorata;})[0];if(pr)t.push({key:'prorata',label:'Set the final payment on '+cxDMY(pr.date)+' to '+cxMoney(pr.amount)+' (pro-rata, '+pr.days+' day'+(pr.days===1?'':'s')+')'});t.push({key:'email',label:'Send the cancellation confirmation email to the member'});t.push({key:'archive',label:'Archive the member in GymMaster on '+cxDMY(calc.finalAccess)+' — reason: '+cxEffectiveReason(c)});t.push({key:'confirm',label:'Confirm the cancellation is set in GymMaster / ClubFit'});return t;}
+function cxTasks(c){var calc=cxCalc(c);var t=[];if(!calc)return t;if(calc.fee>0&&(c.fee_pref||'next')==='next'&&calc.lines.length)t.push({key:'fee',label:'Add the $200 cancellation fee to the payment on '+cxDMY(calc.lines[0].date)+' (new amount '+cxMoney(calc.lines[0].amount)+')'});var pr=calc.lines.filter(function(l){return l.prorata;})[0];if(pr)t.push({key:'prorata',label:'Set the final payment on '+cxDMY(pr.date)+' to '+cxMoney(pr.amount)+' (pro-rata, '+pr.days+' day'+(pr.days===1?'':'s')+')'});t.push({key:'email',label:'Send the cancellation confirmation email to the member'});t.push({key:'archive',label:'Archive the member in ClubFit on '+cxDMY(calc.finalAccess)+' — reason: '+cxEffectiveReason(c)});t.push({key:'confirm',label:'Confirm the cancellation is set in ClubFit'});return t;}
 /* CRUD */
 function cxFindCase(id){return (cache.cancellations||[]).find(function(x){return x.id===id;});}
 async function cxSet(id,field,val){var c=cxFindCase(id);if(!c)return;if(val==='')val=null;c[field]=val;var patch={updated_at:new Date().toISOString()};patch[field]=val;if(field==='member_name'){var t=document.getElementById('cx-title');if(t)t.textContent=val||'New cancellation';}await rowUpdate('cancellations',id,patch);cxRefreshOut(id);}
@@ -4134,7 +4134,7 @@ function cxOutHTML(c){var calc=cxCalc(c),h='';
   else{h+='<div class="cx-sub">Subject: '+esc(em.subject)+' <button class="cx-link" onclick="cxCopySubject(\''+c.id+'\')">copy</button></div><div class="cx-email">'+em.html+'</div><div class="cx-replies"><span class="cx-muted">If the member asks:</span> <button class="btn-sm" onclick="cxCopyReply(\''+c.id+'\',\'notice\')">Why pay during notice</button>'+(calc&&calc.inTerm?' <button class="btn-sm" onclick="cxCopyReply(\''+c.id+'\',\'fee\')">About the $200 fee</button>':'')+'</div>';}
   h+='</div>';
   var eff=cxEffectiveReason(c),comm=cxEffectiveComment(c);
-  h+='<div class="cx-card"><div class="cx-card-h"><span>Internal note (GymMaster)</span><span class="cx-card-acts"><button class="btn-sm" onclick="cxCopyNote(\''+c.id+'\')">Copy note</button></span></div>';
+  h+='<div class="cx-card"><div class="cx-card-h"><span>Internal note (ClubFit)</span><span class="cx-card-acts"><button class="btn-sm" onclick="cxCopyNote(\''+c.id+'\')">Copy note</button></span></div>';
   h+='<div class="fld"><label>Archive reason</label><select onchange="cxSet(\''+c.id+'\',\'archive_reason\',this.value)">'+CX_ARCHIVE_REASONS.map(function(r){return '<option'+(r===eff?' selected':'')+'>'+esc(r)+'</option>';}).join('')+'</select></div>';
   h+='<div class="fld"><label>Archive date</label><input type="text" value="'+esc(calc?cxDMY(calc.finalAccess):'')+'" readonly></div>';
   h+='<div class="fld"><label>Comments</label><textarea rows="3" onchange="cxSet(\''+c.id+'\',\'archive_comments\',this.value)">'+esc(comm)+'</textarea></div></div>';
@@ -4143,7 +4143,7 @@ function cxOutHTML(c){var calc=cxCalc(c),h='';
   if(!tasks.length){h+='<div class="cx-muted">Add the billing details to build the processing checklist.</div>';}
   else{h+='<div class="cx-tasks">'+tasks.map(function(t){var dn=!!done[t.key];return '<label class="cx-task'+(dn?' done':'')+'"><input type="checkbox"'+(dn?' checked':'')+' onclick="cxToggleTask(\''+c.id+'\',\''+t.key+'\')"><span>'+esc(t.label)+'</span></label>';}).join('')+'</div>';}
   h+='</div>';
-  h+='<div class="cx-card"><div class="cx-card-h">Processing notes</div><textarea rows="3" placeholder="Anything to remember when processing in GymMaster…" onchange="cxSet(\''+c.id+'\',\'notes\',this.value)">'+esc(c.notes||'')+'</textarea></div>';
+  h+='<div class="cx-card"><div class="cx-card-h">Processing notes</div><textarea rows="3" placeholder="Anything to remember when processing in ClubFit…" onchange="cxSet(\''+c.id+'\',\'notes\',this.value)">'+esc(c.notes||'')+'</textarea></div>';
   return h;}
 function cxRefreshOut(id){var el=document.getElementById('cx-out');if(!el)return;var c=cxFindCase(id);if(c)el.innerHTML=cxOutHTML(c);}
 function renderCancelDetail(id){var c=cxFindCase(id),p=document.getElementById('cancel-panel');if(!p)return;if(!c){cxState.view='list';renderCancelList();return;}
@@ -4161,7 +4161,7 @@ function renderCancelList(){var p=document.getElementById('cancel-panel');if(!p)
   var counts={active:rows.filter(function(c){return c.status==='new'||c.status==='in_progress';}).length,processed:rows.filter(function(c){return c.status==='processed';}).length,reversed:rows.filter(function(c){return c.status==='reversed';}).length,all:rows.length};
   var FT=[['active','To action'],['processed','Processed'],['reversed','Stayed'],['all','All']];
   var h='<div class="cx-wrap"><div class="cx-bar"><button class="btn-full cx-new" onclick="cxNew()">+ New cancellation</button></div>';
-  h+='<div class="cx-intro cx-muted">Log a cancellation → it works out the 30-day notice, the pro-rata final payment and any $200 in-term fee, drafts the member email + GymMaster note, and tracks it to processed. ClubFit + Jotform auto-fill will plug in here once your API access is live.</div>';
+  h+='<div class="cx-intro cx-muted">Log a cancellation → it works out the 30-day notice, the pro-rata final payment and any $200 in-term fee, drafts the member email + ClubFit note, and tracks it to processed. ClubFit + Jotform auto-fill will plug in here once your API access is live.</div>';
   h+='<div class="cx-filters">'+FT.map(function(x){return '<button class="cx-fp'+(f===x[0]?' on':'')+'" onclick="cxFilter(\''+x[0]+'\')">'+x[1]+' ('+counts[x[0]]+')</button>';}).join('')+'</div>';
   if(!list.length){h+='<div class="cx-empty">Nothing here yet.</div>';}
   else{h+='<div class="cx-list"><div class="cx-lh"><span>Member</span><span>Submitted</span><span>Final access</span><span>Term</span><span>Tasks</span><span>Status</span></div>';

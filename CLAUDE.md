@@ -362,7 +362,7 @@ not colour. ClubFit auto-population is a future tie-in.
 ## Cancellation hub (membership cancellation workflow — Caleb + Charley only)
 A hidden, **desktop-optimised** admin section at the very bottom of the planner (`#cancel-wrap` accordion, after
 Owner controls) that turns a membership cancellation into a worked, tracked **case** with all the payment maths,
-the member email + GymMaster note, and a processing checklist. Built to layer ClubFit + Jotform **auto-fill** on
+the member email + ClubFit note, and a processing checklist. Built to layer ClubFit + Jotform **auto-fill** on
 later (Caleb has API access requested) — for now it's **manual entry** and is fully useful that way.
 - **Access = two emails only.** `CANCEL_STAFF = ['calebbrowny@gmail.com','charley@thecavegym.com.au']`;
   `isCancelStaff()` gates the UI and `emailAllowed()` includes them so Charley can OTP-sign-in as admin **without**
@@ -388,12 +388,12 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   224.14 / 24.14 / 24.14 / 4.11, total 276.53, final access 08/07/2026).
 - **Outputs (all auto, copy-to-clipboard with rich HTML + plain-text fallback via `cxCopyRich`).** Member email
   (`cxMemberEmail` — Template 1 in-term / Template 2 out-of-term, Australian English, DD/MM/YYYY, "Hi {first},",
-  key parts bold), plus "if the member asks" replies (`cxEmailNoticeQ` / `cxEmailFeeQ`). Internal GymMaster note
+  key parts bold), plus "if the member asks" replies (`cxEmailNoticeQ` / `cxEmailFeeQ`). Internal ClubFit note
   (`cxInternalNote` = Archive Reason / Archive Date / Comments). Archive reason auto-suggested from the reason +
   feedback text (`cxSuggestReason` over `CX_REASON_KW`, `CX_ARCHIVE_REASONS` dropdown overrides). Comments
-  auto-drafted (`cxDraftComment`, editable). **Tasks checklist** (`cxTasks`) = the manual GymMaster steps: add the
+  auto-drafted (`cxDraftComment`, editable). **Tasks checklist** (`cxTasks`) = the manual ClubFit steps: add the
   $200 fee to the right payment, set the pro-rata final payment, send the email, archive on the final-access date,
-  confirm in GymMaster/ClubFit — each a persisted checkbox (`task_done`).
+  confirm in ClubFit — each a persisted checkbox (`task_done`).
 - **UI.** `renderCancelHub` → list (`renderCancelList`: New button, filter pills To action/Processed/Stayed/All,
   a row per case with member/submitted/final-access/term/tasks/status) or detail (`renderCancelDetail`: status
   pills, two-column `cx-cols` = editable form left, computed `#cx-out` right). Fields persist on change via `cxSet`
