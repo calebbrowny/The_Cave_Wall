@@ -426,6 +426,29 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   only `#cx-out` and is **focus-guarded** (skips while a text input/textarea in it is focused, re-runs on blur) so
   edits/focus are never clobbered. On sign-out, `cache.cancellations` + the overlay DOM + `cancel-only`/`cx-open`
   classes are cleared (no PII residue). All emoji-free, dark theme + blue accents, desktop-optimised.
+- **Cases list = leaderboard-style + tap-to-expand person dropdown (this pass).** The Cases list now mirrors The Wall's
+  clean divided-row look (`cxListHTML`→`cxRowHTML`, `.cxr-*`): big bold name + inline meta (submitted / ends / term /
+  tasks) + status pill. **Tapping a name** expands an inline dropdown (`cxRowDetailHTML`, accordion via
+  `cxState.openRow`/`cxRowToggle`, one open at a time, reset on filter/sign-out): summary chips (term + $fee / notice /
+  final access / total), contact links (email + `tel:`), a reason snippet, and smart actions — **Send email**, **Call**,
+  **ClubFit**, **Copy email**, **View all details** (→ `cxOpen` full detail). Send/Copy only show when billing exists.
+- **Send email** (`cxSendEmail`) copies the rich+plain email to the clipboard (`cxCopyRich`) then opens the composer
+  pre-filled To+Subject — **Gmail web compose** by default or the **default mail app** (`settings.cx_email_client`,
+  `cxComposeUrl`); the body rides the clipboard (paste) to keep bold and dodge URL length limits. `cxTelHref` normalises
+  AU mobiles to `+61`; **ClubFit** (`cxProfile`) opens `settings.cx_clubfit_url` (optional `{n}` = member number, guarded
+  when absent). New tabs use `window.open` WITHOUT `noopener` (so a blocked pop-up is actually detectable) + `w.opener=null`.
+- **Fully editable email templates + Settings tab (owner-only, `cxSettingsHTML`).** All four emails are a token engine
+  (`cxRender`/`cxTokens`/`cxTpl`/`cxTplDefaults`): `{token}` substitution, `**bold**`→`<b>`, XSS-safe (` ` sentinels,
+  escape-once). VALUE tokens (`{first_name}`…`{signature}`) + **smart clause tokens** (`{fee_clause}`/`{notice_clause}`/
+  `{schedule_clause}`/`{notice_q_clause}`/`{schedule_q_clause}`/`{fee_detail_clause}`/`{notice_q_line}`) carry the
+  conditional maths so the numbers/legals stay correct no matter how staff reword the prose. Owner edits subject+body per
+  template with a **live preview** (`cxTplLive`, draft stash restored in `finally`), per-template **Reset to default**, and
+  a missing-token warning; only deviations are stored in `settings.cx_templates`. **Defaults reproduce the prior emails
+  byte-for-byte** (regression-tested). The tab also holds the **email signature** (`cx_email_sig`), the Google-review +
+  ClubFit links, the composer choice, and **editable policy values** (`settings.cx_policy`: cancellation fee / notice days /
+  review-reduction days / txn fee) that back the `CX_*` constants via `cxCancelFee()/cxNoticeBase()/cxReviewDays()/cxTxnFee()`
+  (blank→default, `0` honoured for fee+review, notice `0` rejected) and flow through every calc, email and task. All setters
+  gated `isOwner()`; policy/signature changes refresh previews in place (`cxRefreshPreviews`) without a full re-render.
 - **Jotform ingest (LIVE — read-only).** New "Cancellation Form" submissions (Jotform form `210138830976055`) flow
   into `cancellations` automatically. **Read-only by design:** the Jotform key is a **Read Access** key (GET only —
   cannot edit/delete in Jotform), held in **Supabase Vault** (`jotform_api_key`), never in client JS or git. Edge

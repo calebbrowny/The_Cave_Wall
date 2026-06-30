@@ -1155,7 +1155,8 @@ body.cancel-only #cancel-wrap{margin-top:0;border-top:none;padding-top:0;}
 .cxr-act.ghost:hover{border-color:var(--border);color:var(--muted);}
 .cx-tokref{font-size:12px;color:var(--muted);line-height:1.8;}
 .cx-tokref b{color:var(--text);}
-.cx-rv{color:var(--blue);font-size:11px;font-weight:700;}
+.cxr-edit{color:var(--blue);font-size:11px;font-weight:700;}
+a.btn-sm{text-decoration:none;display:inline-block;}
 .cx-warn-missing{color:var(--amber);font-size:12px;margin-top:6px;}
 @media(max-width:820px){
   .cxr-main{flex-wrap:wrap;gap:8px 10px;padding:14px 2px;}
@@ -4345,10 +4346,10 @@ function cxEmailClient(){return (settings().cx_email_client==='mailto')?'mailto'
 function cxClubfitUrl(){return ((settings().cx_clubfit_url||'')+'').trim();}
 function cxEmailFor(c,kind){if(kind==='notice')return cxEmailNoticeQ(c);if(kind==='fee')return cxEmailFeeQ(c);if(kind==='review')return cxEmailReviewOffer(c);return cxMemberEmail(c);}
 function cxComposeUrl(to,subject){var t=encodeURIComponent(to||''),s=encodeURIComponent(subject||'');if(cxEmailClient()==='gmail')return 'https://mail.google.com/mail/?view=cm&fs=1&tf=1&to='+t+'&su='+s;return 'mailto:'+t+'?subject='+s;}
-function cxSendEmail(id,kind){var c=cxFindCase(id);if(!c){toast('Open the case first');return;}if(kind==='review'&&!cxReviewUrl()){toast('Add the gym’s Google review link first (in the hub settings).');return;}var em=cxEmailFor(c,kind);if(!em){toast('Add the billing details first');return;}var to=(c.member_email||'').trim();if(!to){toast('No email on file — add the member’s email, then send.');return;}cxCopyRich(em.text,em.html||null,'Email copied — opening your composer, just paste (Ctrl/Cmd+V)');var w=window.open(cxComposeUrl(to,em.subject),'_blank','noopener');if(!w){toast('Pop-up blocked — opening your default mail app. The email is on your clipboard to paste.');try{location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(em.subject);}catch(e){}}}
+function cxSendEmail(id,kind){var c=cxFindCase(id);if(!c){toast('Open the case first');return;}if(kind==='review'&&!cxReviewUrl()){toast('Add the gym’s Google review link first (in the hub settings).');return;}var em=cxEmailFor(c,kind);if(!em){toast('Add the billing details first');return;}var to=(c.member_email||'').trim();if(!to){toast('No email on file — add the member’s email, then send.');return;}cxCopyRich(em.text,em.html||null,'Email copied — opening your composer, just paste (Ctrl/Cmd+V)');if(cxEmailClient()==='gmail'){var w=window.open(cxComposeUrl(to,em.subject),'_blank');if(w){try{w.opener=null;}catch(e){}}else{toast('Pop-up blocked — opening your default mail app. The email is on your clipboard to paste.');try{location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(em.subject);}catch(e){}}}else{try{location.href=cxComposeUrl(to,em.subject);}catch(e){}}}
 function cxTelHref(phone){var d=(phone||'').replace(/[^\d+]/g,'');if(/^\+/.test(d))return 'tel:'+d;if(/^0\d{8,9}$/.test(d))return 'tel:+61'+d.slice(1);if(/^\d{6,}$/.test(d))return 'tel:'+d;return '';}
 function cxCall(id){var c=cxFindCase(id);if(!c)return;var href=cxTelHref(c.member_phone);if(!href){toast('No valid phone number on file');return;}location.href=href;}
-function cxProfile(id){var base=cxClubfitUrl();if(!base){toast('No ClubFit link set yet — add it in the hub settings.');return;}var c=cxFindCase(id),url=base;if(c&&c.clubfit_number&&/\{n\}/.test(base))url=base.replace('{n}',encodeURIComponent(c.clubfit_number));var w=window.open(url,'_blank','noopener');if(!w)location.href=url;}
+function cxProfile(id){var base=cxClubfitUrl();if(!base){toast('No ClubFit link set yet — add it in the hub settings.');return;}var c=cxFindCase(id),url=base;if(/\{n\}/.test(base)){if(!(c&&c.clubfit_number)){toast('No ClubFit member number on this case yet');return;}url=base.replace('{n}',encodeURIComponent(c.clubfit_number));}var w=window.open(url,'_blank');if(w){try{w.opener=null;}catch(e){}}else{toast('Allow pop-ups for this site to open ClubFit');}}
 async function cxSetStatus(id,st){var c=cxFindCase(id);if(!c)return;var patch={status:st,updated_at:new Date().toISOString()};if(st==='processed'){patch.processed_at=new Date().toISOString();patch.processed_by=(currentUser&&currentUser.email)||'';c.processed_at=patch.processed_at;c.processed_by=patch.processed_by;}c.status=st;await rowUpdate('cancellations',id,patch);renderCancelHub();toast('Marked '+cxStatusLabel(st));}
 async function cxDelete(id){var c=cxFindCase(id);if(!confirm('Delete this cancellation record'+(c&&c.member_name?(' for '+c.member_name):'')+'? This cannot be undone.'))return;await rowDelete('cancellations',id,true);cxState.view='list';cxState.id=null;renderCancelHub();toast('Deleted');}
 async function cxToggleTaskRaw(id,key){var c=cxFindCase(id);if(!c)return;var td=Object.assign({},c.task_done||{});td[key]=!td[key];c.task_done=td;await rowUpdate('cancellations',id,{task_done:td,updated_at:new Date().toISOString()});}
@@ -4452,7 +4453,7 @@ function cxRowDetailHTML(c,calc,inT){
   var snipLine=snip?('<div class="cxr-snip">'+esc(snip)+'</div>'):'';
   var cf=(c.clubfit_number||'').trim();
   var acts='<div class="cxr-acts">'
-    +(email?'<button class="cxr-act primary" onclick="cxSendEmail(\''+c.id+'\',\'member\')">Send email</button>':'')
+    +((email&&calc)?'<button class="cxr-act primary" onclick="cxSendEmail(\''+c.id+'\',\'member\')">Send email</button>':'')
     +(phone&&cxTelHref(phone)?'<a class="cxr-act" href="'+esc(cxTelHref(phone))+'">Call</a>':'')
     +(calc?'<button class="cxr-act" onclick="cxCopyEmail(\''+c.id+'\')">Copy email</button>':'')
     +(cxClubfitUrl()?'<button class="cxr-act" onclick="cxProfile(\''+c.id+'\')">ClubFit'+(cf?(' '+esc(cf)):'')+'</button>':(cf?'<span class="cxr-act ghost">ClubFit '+esc(cf)+'</span>':''))
@@ -4501,16 +4502,17 @@ function cxTplCardHTML(key,label,s){
   var miss='';
   if(key==='confirm'){var need=['{fee_clause}','{notice_clause}','{schedule_clause}','{final_access_long}'];var gone=need.filter(function(x){return t.body.indexOf(x)<0;});if(gone.length)miss='<div class="cx-warn-missing">Heads up — this template no longer uses: '+esc(gone.join(' '))+'. Those details won’t appear in the email.</div>';}
   var pv=cxRender(key,cxSampleCase());
-  var h='<div class="cx-card"><div class="cx-card-h"><span>'+esc(label)+(edited?' <span class="cx-rv">· edited</span>':'')+'</span><span class="cx-card-acts">'+(edited?'<button class="btn-sm" onclick="cxTplReset(\''+key+'\')">Reset to default</button>':'')+'</span></div>';
+  var h='<div class="cx-card"><div class="cx-card-h"><span>'+esc(label)+(edited?' <span class="cxr-edit">· edited</span>':'')+'</span><span class="cx-card-acts">'+(edited?'<button class="btn-sm" onclick="cxTplReset(\''+key+'\')">Reset to default</button>':'')+'</span></div>';
   h+='<div class="fld"><label>Subject</label><input type="text" id="cxtpl-'+key+'-subject" value="'+esc(t.subject)+'" oninput="cxTplLive(\''+key+'\')" onchange="cxTplSave(\''+key+'\',\'subject\',this.value)"></div>';
   h+='<div class="fld"><label>Body</label><textarea rows="10" id="cxtpl-'+key+'-body" oninput="cxTplLive(\''+key+'\')" onchange="cxTplSave(\''+key+'\',\'body\',this.value)">'+esc(t.body)+'</textarea></div>'+miss;
   h+='<div class="cx-sub" style="margin-top:8px;">Preview — Subject: <span id="cxprev-'+key+'-subj">'+esc(pv.subject)+'</span></div><div class="cx-email" id="cxprev-'+key+'">'+pv.html+'</div>';
   return h+'</div>';
 }
-async function cxSetSig(v){if(!isOwner())return;var s=settings();s.cx_email_sig=(v||'').replace(/\s+$/,'');await stateUpdate({settings:s});if(cxState.id)cxRefreshOut(cxState.id);renderCancelHub();}
+function cxRefreshPreviews(){['confirm','notice_q','fee_q','review_offer'].forEach(function(k){if(document.getElementById('cxtpl-'+k+'-body'))cxTplLive(k);});if(cxState.id)cxRefreshOut(cxState.id);}
+async function cxSetSig(v){if(!isOwner())return;var s=settings();s.cx_email_sig=(v||'').replace(/\s+$/,'');await stateUpdate({settings:s});cxRefreshPreviews();}
 async function cxSetEmailClient(v){if(!isOwner())return;var s=settings();s.cx_email_client=(v==='mailto'?'mailto':'gmail');await stateUpdate({settings:s});toast('Composer set to '+(s.cx_email_client==='mailto'?'your default mail app':'Gmail'));}
 async function cxSetClubfitUrl(v){if(!isOwner())return;var s=settings();s.cx_clubfit_url=(v||'').trim();await stateUpdate({settings:s});toast('ClubFit link saved');}
-async function cxSetPolicy(field,val){if(!isOwner())return;var s=settings();var p=Object.assign({},s.cx_policy||{});var n=parseFloat(val);if(val===''||val==null||isNaN(n))delete p[field];else p[field]=n;s.cx_policy=p;await stateUpdate({settings:s});renderCancelHub();}
+async function cxSetPolicy(field,val){if(!isOwner())return;var s=settings();var p=Object.assign({},s.cx_policy||{});var n=parseFloat(val);if(val===''||val==null||isNaN(n))delete p[field];else p[field]=n;s.cx_policy=p;await stateUpdate({settings:s});cxRefreshPreviews();}
 async function cxTplSave(key,field,val){if(!isOwner())return;var s=settings();var t=Object.assign({},s.cx_templates||{});var e=Object.assign({},t[key]||{});var def=cxTplDefaults()[key]||{};if((val||'')===''||val===def[field])delete e[field];else e[field]=val;if(Object.keys(e).length)t[key]=e;else delete t[key];s.cx_templates=t;await stateUpdate({settings:s});if(cxState.id)cxRefreshOut(cxState.id);}
 async function cxTplReset(key){if(!isOwner())return;if(!confirm('Reset this template to the default wording?'))return;var s=settings();var t=Object.assign({},s.cx_templates||{});delete t[key];s.cx_templates=t;await stateUpdate({settings:s});renderCancelHub();toast('Reset to default');}
 function cxSampleCase(){if(cxState.id){var c=cxFindCase(cxState.id);if(c&&cxCalc(c))return c;}return {member_name:'Sam Taylor',member_email:'sam@example.com',membership_type:'18 Month Membership',submission_date:'2026-06-08',min_term_end:'2027-01-01',no_lock_in:false,payment_amount:24.14,payment_frequency:'weekly',next_payment_date:'2026-06-17',fee_pref:'next'};}
