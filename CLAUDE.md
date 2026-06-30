@@ -91,7 +91,17 @@ Fields: `date` (YYYY-MM-DD), `slot` ('a'/'b' for dual-WOD), `title`, `focus`
 ## WOD generator (admin → WOD → "Generate workout 💫")
 No-API, built from The Cave's HYROX logic. Key pieces:
 - `DAYFOCUS` (by weekday) is the single source of truth for a day's focus; `buildWod`'s "Auto" derives
-  from it so the generated focus never disagrees with the WOD page.
+  from it so the generated focus never disagrees with the WOD page. **Default week (HTCx):** Mon = Strength
+  (`STR_PATTERN[1]` = heavy lower, squat/hinge → title "Lower-body strength"), Tue = Engine, Wed = Strength
+  (`STR_PATTERN[3]`='upper' + a midline/core block → "Upper-body & core strength"), Thu = Endurance,
+  **Fri = Power** (`wgPower`: explosive/contrast lifting + SIT sprint intervals → "Cave Power"), Sat = Partner,
+  Sun = Challenge. **Power** is a focus alongside Strength/Engine/Endurance/Challenge/Partner/Custom
+  (`DEFAULT_FOCUS.Power` red; in the focus dropdown, appearance colours, `defaultCool`, `wgWarmup` primer).
+- **Optional running finisher** (`wgOptional(focus,pattern)`, set into `bonus` by `buildWod`): keyed to leg
+  fatigue, framed as a race-building add-on (core class stays complete without it). Lower/hinge strength → easy
+  Zone-2 run (don't run hard on loaded legs); upper strength (legs fresh) → quality run (4–6×400m / tempo);
+  Power → no extra running (SIT covers it), just an easy flush / Roxzone + mobility. Other focuses keep the
+  builder's own bonus.
 - `WG_LIFTS` — catalog of strength main lifts (name + rx + scaled + bodyweight variant + pattern).
 - `HYROX` — the 8 race stations in order (ski, sledpush, sledpull, burpee, row, carry, lunge, wallball)
   with RX/scaled distances; `wgStationMove` renders one (equipment-aware), `wgStationKey` maps UI

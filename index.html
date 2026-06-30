@@ -1308,7 +1308,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
       <div class="wod-edit-date" id="wod-edit-date"></div>
       <div class="wod-edit-fld"><label>📅 WOD Title (optional — defaults to that day's focus)</label><input id="wod-title-in" placeholder="e.g. Sled Day / Engine Builder"></div>
       <div class="wod-edit-fld"><label>🎚️ Focus for this day</label><select id="wod-focus-sel" onchange="applyFocusEditor()">
-        <option value="">Auto (by day of week)</option><option value="Strength">Strength</option><option value="Engine">Engine</option><option value="Endurance">Endurance</option><option value="Challenge">Challenge</option><option value="Partner">Partner</option><option value="__custom__">Custom…</option></select>
+        <option value="">Auto (by day of week)</option><option value="Strength">Strength</option><option value="Engine">Engine</option><option value="Endurance">Endurance</option><option value="Challenge">Challenge</option><option value="Partner">Partner</option><option value="Power">Power</option><option value="__custom__">Custom…</option></select>
         <input id="wod-focus-custom" placeholder="Name it — e.g. HYROX Sim, Chipper, Hero WOD" style="display:none;margin-top:8px;" oninput="applyFocusEditor()">
         <div class="focus-auto-note" id="focus-note" style="margin-top:6px;"></div></div>
       <div class="wod-edit-fld"><label>🟡 Purpose (why we're doing this)</label><textarea id="wod-purpose" rows="2" placeholder="e.g. Building posterior chain strength to power the sled pull and row stations."></textarea></div>
@@ -1586,8 +1586,8 @@ function uid(){return (crypto&&crypto.randomUUID)?crypto.randomUUID():'id'+Date.
 /* ---------- WEEK / FOCUS ---------- */
 const WEEK1=new Date(2026,4,18);
 const WEEKS=[{t:"Pre-launch — Announce It",d:"Reveal the build. First posts. Register interest live."},{t:"Pre-launch — Educate",d:"What HYROX is. Equipment arriving. Grow the interest list."},{t:"Pre-launch — The Sport",d:"Race format content. Two weeks out. Meet Jay."},{t:"Pre-launch — Final Countdown",d:"Last week before opening. Timetable drops."},{t:"🏆 Launch Week",d:"Grand opening. Free sessions. Community boards unveiled."},{t:"First Full Week",d:"Classes running. Inside the centre. First reactions."},{t:"Building Momentum",d:"Three weeks open. Member spotlights."},{t:"Community Focus",d:"One month in. Road to Melbourne ramps up."}];
-const DAYFOCUS=["Challenge","Strength","Engine","Strength","Endurance","Strength","Partner"];
-const DEFAULT_FOCUS={Strength:'#fdd663',Engine:'#8ab4f8',Endurance:'#bb86fc',Challenge:'#81c995',Partner:'#ff8a65',Custom:'#4dd0e1'};
+const DAYFOCUS=["Challenge","Strength","Engine","Strength","Endurance","Power","Partner"];
+const DEFAULT_FOCUS={Strength:'#fdd663',Engine:'#8ab4f8',Endurance:'#bb86fc',Challenge:'#81c995',Partner:'#ff8a65',Power:'#ef5350',Custom:'#4dd0e1'};
 function hexToRgba(hex,a){hex=String(hex||'').replace('#','');if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');const n=parseInt(hex||'8ab4f8',16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
 function focusHex(f){const ap=(cache.state.settings&&cache.state.settings.appearance)||{};const fc=ap.focus||{};return fc[f]||DEFAULT_FOCUS[f]||fc.Custom||DEFAULT_FOCUS.Custom||'#8ab4f8';}
 function focusColor(f){const h=focusHex(f);return [h,hexToRgba(h,0.16)];}
@@ -2237,7 +2237,7 @@ function loadWODForm(){
   const _cc=document.getElementById('wod-custom-color');if(_cc)_cc.value=(/^#[0-9a-fA-F]{6}$/.test(w.custom_color||'')?w.custom_color:'#4ecdc4');
   const _cb=document.getElementById('wod-custom-body');if(_cb)_cb.value=w.custom_body||'';
   const sel=document.getElementById('wod-focus-sel'),ci=document.getElementById('wod-focus-custom');
-  const known=['Strength','Engine','Endurance','Challenge','Partner'];
+  const known=['Strength','Engine','Endurance','Challenge','Partner','Power'];
   if(sel){if(w.focus&&!known.includes(w.focus)){sel.value='__custom__';if(ci){ci.style.display='';ci.value=w.focus;}}else{sel.value=w.focus||'';if(ci){ci.style.display='none';ci.value='';}}}
 }
 async function toggleDualWod(el){const s=settings();s.dual_wod=!s.dual_wod;el.classList.toggle('on',s.dual_wod);if(!s.dual_wod)adminWodSlot='a';await stateUpdate({settings:s});loadWODForm();renderWOD();renderDisplay();}
@@ -2316,7 +2316,8 @@ function wgWarmup(F,want){
     Engine:'Then 3 x 20s rising to target pace on a machine, 40s easy between.',
     Endurance:'Then ease into nose-breathing pace before the clock starts.',
     Challenge:'Then take one easy practice rep at each station before you start.',
-    Partner:'Then both partners run one easy practice round together.'}[F]||'';
+    Partner:'Then both partners run one easy practice round together.',
+    Power:'Then prime the nervous system: 3–4 short build-ups (a few fast reps, then one near-max effort), full recovery between — fast and crisp, never grind.'}[F]||'';
   return cardio+'.\n'+drills+'.'+(prime?'\n'+prime:'');
 }
 function wgCool(){return wgRand(['2 min easy walk or spin','90s easy bike, shake the legs out','2 min slow row, nose breathing'])+'.\nStatic: '+wgRand(['couch stretch, hip flexor, hamstring, quad','calves, hamstrings, shoulders, lats','pigeon, thoracic opener, hamstrings, chest','quads, adductors, lats, pecs'])+', about 30s each.';}
@@ -2366,6 +2367,7 @@ function wgStrength(want,len){
     const L=wgRand(list);
     a='PART A - Strength (~'+partAmin+' min)\n'+L.n+': '+scheme+', '+rest+' between sets.\nRX: '+L.rx+'.\nScaled: '+L.sc+'.';
   }
+  if(pat==='upper')a+='\n\nMidline (3 rounds, slot between sets or straight after):\n30s hollow hold + 10 strict toes-to-bar, controlled.\nScaled: 30s dead-bug hold + 12 sit-ups.';
   const stings=[
     {t:'8 rounds: 30s machine sprint (ski, row, bike or runner, your pick), 90s easy.',rx:'hard, hold the same calories every round',sc:'20s on, 100s easy'},
     {t:'10 min AMRAP: 12 KB swings, 10 burpees, '+wgRun(want,'200m')+'.',rx:'unbroken swings, steady run',sc:'8 swings, 6 burpees'},
@@ -2392,10 +2394,51 @@ function wgStrength(want,len){
     {t:'Tabata (8 x 20s on / 10s off) through squats, push-ups, sit-ups, burpees.',rx:'max honest reps',sc:'pick three of the four'}]);
   const partBmin=len==='45 min'?'10':'12';
   const b='\n\nPART B - Engine sting (~'+partBmin+' min)\n'+s.t+'\nRX: '+s.rx+'.\nScaled: '+s.sc+'.';
-  const titleMap={lower:'Lower strength',upper:'Upper strength',posterior:'Posterior strength'};
-  return {core:a+b,title:titleMap[pat],focus:'Strength',
-    purpose:wgRand(['Build real strength in the '+(pat==='posterior'?'hinge and pull':pat+' lifts')+', quality first, then a short sting to light up the engine.','Heavy and clean on the main lift, take the rest you need, then finish sharp with a quick conditioning hit.']),
-    bonus:len==='45 min'?'':wgRand(['3 easy rounds: '+wgRun(want,'400m')+', 1 min plank.','8 min easy bike or row at a nose-breathing pace, flush the legs.','3 rounds: 30s hollow hold, 30s side plank each side, 15 sit-ups.'])};
+  const titleMap={lower:'Lower-body strength',upper:'Upper-body & core strength',posterior:'Lower-body strength'};
+  return {core:a+b,title:titleMap[pat],focus:'Strength',pattern:pat,
+    purpose:(pat==='upper'?'Upper-body and midline strength — press and pull heavy, then lock in the core, finished with a short engine sting.':'Heavy lower-body strength — squat and hinge with real load and low reps, full rest, then a short engine sting.'),
+    bonus:len==='45 min'?'':wgRand(['8 min easy bike or row at a nose-breathing pace, flush the legs.','3 rounds: 30s hollow hold, 30s side plank each side, 15 sit-ups.'])};
+}
+function wgPower(want,len){
+  const partAmin=len==='45 min'?'16':(len==='75 min'?'24':'20');
+  const rest=len==='45 min'?'full recovery, ~90s between efforts':'full recovery, ~2 min between efforts';
+  const barLifts=[
+    {t:'Power clean: 6 x 2, building to a fast, crisp double',rx:'speed off the floor, catch tall, reset each rep — no slow grinders',sc:'hang power clean or fast, heavy KB swing'},
+    {t:'Dynamic-effort back squat: 8 x 3 @ ~55–65%, on a 60-second clock',rx:'explode out of the bottom, every rep fast',sc:'tempo-up goblet squat, drive hard'},
+    {t:'Speed deadlift: 8 x 2 @ ~60%, on a 60-second clock',rx:'rip it fast, reset every rep, flat back',sc:'KB or trap-bar deadlift, snappy'},
+    {t:'Push press: 6 x 3, building, sharp dip-drive',rx:'aggressive drive, lock out tall and fast',sc:'DB push press'},
+    {t:'Hang power snatch: 7 x 2, technical and fast',rx:'fast turnover, punch tall, reset each rep',sc:'DB snatch, alternate arms'}];
+  const contrast=[
+    {t:'Contrast pairs, 5 rounds: 3 heavy-ish squats then 5 box jumps (rest 90s)',rx:'jump tall and land soft, full recovery between rounds',sc:'5 goblet squats + 5 tuck jumps or tall step-ups'},
+    {t:'Contrast pairs, 5 rounds: 2 power cleans then 3 broad jumps (rest 90s)',rx:'reset every jump, max distance, soft landing',sc:'KB swings + tuck jumps'},
+    {t:'5 rounds: 4 trap-bar jumps then 6 med-ball slams, explosive (rest 75s)',rx:'jump for height, slam hard',sc:'KB swings + slams'}];
+  const bwExplosive=[
+    {t:'5 rounds: 5 broad jumps + 5 explosive push-ups + 6 tuck jumps (rest 75s)',rx:'max distance and height, land soft, full recovery',sc:'4 reps each, hands on a box for the push-ups'},
+    {t:'EMOM 16 (alternating): odd 5 tall box jumps, even 6 explosive push-ups',rx:'fast and powerful, never grind',sc:'tall step-ups + incline push-ups'},
+    {t:'6 rounds: 6 squat jumps + 8 med-ball throws (rest 75s)',rx:'jump high, throw hard',sc:'4 squat jumps, lighter ball'}];
+  const liftPool=want.bodyweight?bwExplosive:(wgRand([0,1])?barLifts:contrast);
+  const A=wgRand(liftPool);
+  const a='PART A - Explosive power (~'+partAmin+' min)\n'+A.t+'.\n'+rest+' — this is a power day: every rep fast and crisp, stop well short of failure.\nRX: '+A.rx+'.\nScaled: '+A.sc+'.';
+  const sits=[
+    {t:'8 x 20s all-out machine sprint (assault bike, row, ski or runner — your pick), 100s easy spin between',rx:'truly maximal each rep, recover fully so every one is fast',sc:'8 x 15s hard, 105s easy'},
+    {t:'10 x 15s max sprint, 75s easy between',rx:'all-out, hold the power across all ten',sc:'8 x 12s, 80s easy'},
+    {t:'6 x 30s hard / 2 min easy',rx:'near-max and even across the six',sc:'6 x 20s / 2 min easy'},
+    {t:'12 x 10s max sprint on the bike or runner, 50s easy between',rx:'pure speed, fully recovered each rep',sc:'10 x 10s'}];
+  const runSits=want.noRun?[]:[
+    {t:'10 x 100m sprint at ~90–95%, walk-back recovery',rx:'tall and fast, fully recover each rep',sc:'8 x 80m, relaxed and fast'},
+    {t:'8 x 150m fast, walk 90s between',rx:'smooth top-end speed, even splits',sc:'8 x 100m'}];
+  const S=wgRand(sits.concat(runSits));
+  const partBmin=len==='45 min'?'12':'14';
+  const b='\n\nPART B - Sprint intervals / SIT (~'+partBmin+' min)\n'+S.t+'.\nRX: '+S.rx+'.\nScaled: '+S.sc+'.';
+  return {core:a+b,title:'Cave Power',focus:'Power',
+    purpose:'Explosive lifts and sprint intervals — top-end power and speed across weights and cardio. Move fast, rest fully, quality over fatigue.',
+    bonus:''};
+}
+function wgOptional(F,pattern){
+  if(F==='Power')return 'OPTIONAL — no extra running today; the sprint intervals already cover top-end speed.\n8–10 min easy flush (bike, row or walk), OR Roxzone / transition practice, then 5 min mobility.\nThe class is complete without this.';
+  if(F==='Strength'&&pattern==='upper')return 'OPTIONAL — add this if you are building toward a race. Legs are fresh today, so push run quality.\nQuality run: 4–6 x 400m at 5k / threshold effort, equal rest — OR a 15–20 min tempo run.\nRX: hold even, strong splits. Scaled: 4 x 300m, or a 12–15 min tempo.\nThe class is complete without this.';
+  if(F==='Strength')return 'OPTIONAL — add this if you are building toward a race. Easy aerobic base only.\nEasy run 15–25 min at Zone 2 (conversational, nose-breathing).\nNote: do NOT run hard on loaded legs — keep it genuinely easy, or skip it if today was heavy.\nThe class is complete without this.';
+  return null;
 }
 function wgEngine(want,len){
   const cap=len==='45 min'?'20 min':(len==='75 min'?'30 min':'24 min');
@@ -2518,7 +2561,7 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
   if(stlist.indexOf('wallball')>=0)want.wallball=true;
   // Auto focus mirrors the day-focus shown on the WOD page (DAYFOCUS) so "Auto" never disagrees with the advertised focus.
   const DAY_IDX={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
-  const STR_PATTERN={1:'lower',3:'upper',5:'posterior'}; // Mon / Wed / Fri strength split
+  const STR_PATTERN={1:wgRand(['lower','posterior']),3:'upper'}; // Mon = heavy lower (squat/hinge), Wed = upper + core
   let F=focus;
   if(focus==='Auto'){const idx=DAY_IDX[dayName];F=(idx==null?'Engine':DAYFOCUS[idx]);if(F==='Strength')want.pattern=STR_PATTERN[idx]||wgRand(['lower','upper','posterior']);}
   if(focus==='HYROX sim'){F='Challenge';want.hyroxSim=true;}
@@ -2528,10 +2571,13 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
   if(multiSt&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgStationCircuit(want,length);out.focus=F;}
   else if(want.bodyweight&&(F==='Engine'||F==='Endurance'||F==='Challenge')){out=wgBodyweight(want,length);out.focus=F;}
   else if(F==='Strength')out=wgStrength(want,length);
+  else if(F==='Power')out=wgPower(want,length);
   else if(F==='Engine')out=wgEngine(want,length);
   else if(F==='Endurance')out=wgAerobic(want,length);
   else if(F==='Partner')out=wgPartner(want,length);
   else out=wgComplete(want,length);
+  // optional running finisher matched to the day's leg fatigue (race-building add-on; core stays complete without it)
+  const opt=wgOptional(out.focus,out.pattern);if(opt)out.bonus=opt;
   let core=out.core;
   if(want.sandbag&&!/sandbag/i.test(core))core+='\nFinish with 3 x 50m sandbag lunge if there is time, 20/30 kg.';
   if(ctx&&ctx.on)core+='\n\nCLASS & KIT\n'+wgKitNote(core,ctx.size);
@@ -2559,7 +2605,7 @@ function renderWodGenResult(w){const res=document.getElementById('wod-gen-result
 async function applyGenWod(){if(!wodGenLast)return;const w=wodGenLast;
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
   set('wod-title-in',w.title);set('wod-purpose',w.purpose);set('wod-warmup',w.warmup);set('wod-core',w.core);set('wod-cool',w.cool);set('wod-bonus',w.bonus);
-  const sel=document.getElementById('wod-focus-sel'),ci=document.getElementById('wod-focus-custom');const known=['Strength','Engine','Endurance','Challenge','Partner'];
+  const sel=document.getElementById('wod-focus-sel'),ci=document.getElementById('wod-focus-custom');const known=['Strength','Engine','Endurance','Challenge','Partner','Power'];
   if(sel&&w.focus){if(known.includes(w.focus)){sel.value=w.focus;if(ci)ci.style.display='none';}else{sel.value='__custom__';if(ci){ci.style.display='';ci.value=w.focus;}}}
   wodGenApplied=true;
   await saveWOD();
@@ -2606,7 +2652,8 @@ function defaultCool(w){
     Engine:'5 min easy walk or spin, nose breathing, then hip flexors, calves and hamstrings — 45s each side.',
     Endurance:'5 min easy walk or spin, nose breathing, then hip flexors, calves and hamstrings — 45s each side.',
     Partner:'5 min easy spin together to flush the legs, then quads, hip flexors and hamstrings — 45s each side.',
-    Challenge:'5 min easy spin to flush, then pigeon, couch stretch and hamstrings — 60s each side.'
+    Challenge:'5 min easy spin to flush, then pigeon, couch stretch and hamstrings — 60s each side.',
+    Power:'5 min easy spin or walk to bring the heart rate down, then hips, quads, calves, hamstrings and shoulders — 30–45s each.'
   }[f]||'3–5 min easy walk, spin or row to bring the heart rate down, then stretch the main muscles you worked — 30–45s each.';
 }
 function wodBlocksHTML(w){
@@ -2986,8 +3033,8 @@ async function mesoSave(){const s=settings();s.mesocycle=mesoWork;await stateUpd
 
 /* ----- Generate WODs from the plan (phase-matched daily sessions) ----- */
 const MESO_PROG={
-  base:    ['Challenge','Strength','Engine','Engine','Endurance','Strength','Partner'],
-  build:   ['Challenge','Strength','Engine','Strength','Endurance','Strength','Partner'],
+  base:    ['Challenge','Strength','Engine','Engine','Endurance','Power','Partner'],
+  build:   ['Challenge','Strength','Engine','Strength','Endurance','Power','Partner'],
   specific:['Challenge','Strength','HYROX sim','Engine','Endurance','HYROX sim','Partner'],
   peak:    ['Challenge','HYROX sim','Engine','Strength','HYROX sim','Engine','Partner'],
   taper:   ['Engine','Engine','Strength','Engine','HYROX sim','Engine','Partner'],
@@ -3115,7 +3162,7 @@ function renderSettings(){
       `<div class="set-section">Accent colour</div><div class="set-sub" style="margin-bottom:6px;">The blue across buttons, active tabs, highlights, clock and scores — site-wide.</div><div class="set-row"><div><div class="set-lbl">Quick set</div><div class="set-sub">Match the logo, or revert to the soft default</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn-sm" style="background:#20b0e0;color:#10242c;border-color:#20b0e0;" onclick="setAppearance('accent','#20b0e0')">Brand blue</button><button class="btn-sm" style="background:#8ab4f8;color:#10242c;border-color:#8ab4f8;" onclick="setAppearance('accent','#8ab4f8')">Soft blue</button></div></div><div class="set-row"><div><div class="set-lbl">Custom accent</div><div class="set-sub">Or pick any colour / preset</div></div><input type="color" class="set-color" value="${accent}" oninput="setAppearance('accent',this.value)"></div><div class="sw-dots">${swatches}</div>`+
       `<div class="set-section">Background theme</div><div class="set-sub" style="margin-bottom:6px;">Used in dark mode.</div><div class="bg-opts">${bgBtn('charcoal','Charcoal')}${bgBtn('black','True black')}${bgBtn('navy','Navy')}${bgBtn('forest','Forest')}</div>`+
       `<div class="set-section">Podium &amp; leaderboard</div><div class="set-sub" style="margin-bottom:6px;">Colour the top 3 places and the score numbers. Go vivid if you like.</div>`+podRow('p1','1st place',DEFAULT_FOCUS?'#fdd663':'#fdd663')+podRow('p2','2nd place','#c0c4cc')+podRow('p3','3rd place','#cd7f32')+`<div class="set-row"><div><div class="set-lbl">Score colour</div></div><input type="color" class="set-color" value="${a.score||accent}" oninput="setAppearance('score',this.value)"></div>`+
-      `<div class="set-section">Focus highlight colours</div><div class="set-sub" style="margin-bottom:6px;">These colour the focus tags, WOD headers and day dots. Custom covers any one-off label you type (HYROX Sim, Chipper, etc).</div>`+focusRow('Strength')+focusRow('Engine')+focusRow('Endurance')+focusRow('Challenge')+focusRow('Partner')+focusRow('Custom')+
+      `<div class="set-section">Focus highlight colours</div><div class="set-sub" style="margin-bottom:6px;">These colour the focus tags, WOD headers and day dots. Custom covers any one-off label you type (HYROX Sim, Chipper, etc).</div>`+focusRow('Strength')+focusRow('Engine')+focusRow('Endurance')+focusRow('Challenge')+focusRow('Partner')+focusRow('Power')+focusRow('Custom')+
       `<div class="set-section">Header</div>`+tog('show_gymname','Show Cave logo','In the WOD, Event & Display headers',true)+tog('show_clock','Show clock','Top-right time on WOD & Display',true)+
       `<div class="set-section">Navigation tabs</div>`+tog('tab_emojis','Emoji on tabs','Show the little icons (🔥 ✍️ 📊) on the nav tabs. Off = clean text-only tabs.',true)+
       `<div class="set-section">WOD tiles</div>`+tog('wod_fill','Full-colour tiles','Fill each WOD tile with its colour instead of just a side bar',false)+
