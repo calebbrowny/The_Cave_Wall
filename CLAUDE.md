@@ -426,9 +426,27 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   only `#cx-out` and is **focus-guarded** (skips while a text input/textarea in it is focused, re-runs on blur) so
   edits/focus are never clobbered. On sign-out, `cache.cancellations` + the overlay DOM + `cancel-only`/`cx-open`
   classes are cleared (no PII residue). All emoji-free, dark theme + blue accents, desktop-optimised.
-- **Next layer (when API access is live):** a Supabase edge function proxies ClubFit (creds as secrets, admin-verified)
-  to auto-fill membership/contract/billing fields onto a case; a Jotform webhook → edge function ingests cancellation
-  submissions into `cancellations` (raw into `jotform_raw`) and matches to a member by member-number / email+mobile.
+- **Jotform ingest (LIVE — read-only).** New "Cancellation Form" submissions (Jotform form `210138830976055`) flow
+  into `cancellations` automatically. **Read-only by design:** the Jotform key is a **Read Access** key (GET only —
+  cannot edit/delete in Jotform), held in **Supabase Vault** (`jotform_api_key`), never in client JS or git. Edge
+  function **`jotform-sync`** (slug = name; `verify_jwt=false` + custom auth: a Vault `jotform_cron_secret` header for
+  the scheduled run, OR a signed-in cancel-staff JWT for manual refresh) calls `GET /form/{id}/submissions?filter=
+  {"created_at:gt":cursor}` (paged, `limit=100`), maps fields → a case (qid2 name, qid3 email, qid10 phone, qid18/22
+  membership_type, qid11 reason, qid6 rating + qid8 factors → `feedback`; full payload → `jotform_raw`; status `new`),
+  and **upserts ON CONFLICT (jotform_id) DO NOTHING** (idempotent; never overwrites a case staff have started). It
+  **self-initialises** (first run, cursor null → sets the high-water mark to the latest existing submission and ingests
+  nothing, so the ~3,900 historical rows are NOT dumped in). State + high-water mark live in `public.jotform_sync`
+  (one row/form: `cursor_ts` raw Jotform `created_at` text [tz-agnostic], `enabled`, `last_run/last_count/last_pulled/
+  last_error`; RLS select+update = cancel-staff; service role writes the cursor). Config (Vault secrets + cursor/form/
+  enabled) is read by the function via the **service-role-only** SECURITY DEFINER RPC `jotform_sync_config()` (revoked
+  from anon/authenticated). **Scheduled** every 3 h via `pg_cron` → `pg_net` (`net.http_post` with the cron secret read
+  from Vault at run time — never stored in the job). Hub UI: a status line + **"↻ Refresh from Jotform"** + **Backfill…**
+  (`cxJotformRefresh`/`cxJotformBackfill`/`cxJotformStatusHTML`/`cxReloadCancellations`, `sb.functions.invoke('jotform-sync')`);
+  `cache.jotform_sync` loaded in `fetchAll` when `isCancelStaff()`, cleared on sign-out. Jotform cost is a non-issue
+  (Starter = 1,000 calls/day; a poll is 1–2 requests). Source kept at `supabase/functions/jotform-sync/index.ts`.
+- **Next layer (ClubFit, when API access is live):** a Supabase edge function proxies ClubFit (creds as secrets,
+  admin-verified) to auto-fill membership/contract/billing fields onto a case and match a Jotform case to a member by
+  member-number / email+mobile.
 - **ClubFit cost discipline (owner requirement — do NOT burn API credits):** NEVER call the ClubFit API live per
   page-load / per-case. Mirror it. A scheduled edge function (`pg_cron` → `pg_net`) runs the sync **once or twice a
   day** (default daily ~3am; a second midday run is the max) into local `cf_*` mirror tables, using `fromdate`/

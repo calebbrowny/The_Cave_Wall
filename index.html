@@ -1051,6 +1051,10 @@ body.cancel-only #cancel-wrap{margin-top:0;border-top:none;padding-top:0;}
 .cx-bar{display:flex;gap:10px;margin-bottom:12px;}
 .cx-new{max-width:230px;}
 .cx-intro{margin-bottom:14px;max-width:none;font-size:12.5px;line-height:1.5;}
+.cx-jf{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:-2px 0 14px;padding:10px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.02);}
+.cx-jf-info{font-size:12px;}
+.cx-jf-acts{display:flex;align-items:center;gap:12px;}
+.cx-jf-err{color:#ef5350;}
 .cx-muted{color:var(--muted);font-size:12.5px;}
 .cx-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
 .cx-fp{border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;padding:7px 14px;border-radius:999px;cursor:pointer;}
@@ -1540,7 +1544,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
-const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],records:[],cancellations:[],state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
+const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],records:[],cancellations:[],jotform_sync:null,state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
 const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_records:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'header',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true,whatson_note:''};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
@@ -1654,7 +1658,7 @@ async function fetchAll(){
   cache.leaderboard=lb.data||[];cache.achievements=ac.data||[];cache.events=ev.data||[];cache.todos=td.data||[];cache.kpis=kp.data||[];cache.challenges=ch.data||[];cache.submissions=sub.data||[];cache.wods=wd.data||[];cache.ads=ad.data||[];cache.boards=bd.data||[];cache.row500=(rw&&rw.data)||[];cache.benchmarks=(bm&&bm.data)||[];cache.records=(rc&&rc.data)||[];applyDemo();
   if(st.data)cache.state={wod:st.data.wod||{},settings:st.data.settings||{},focus_override:st.data.focus_override||null,challenge_title:st.data.challenge_title||'Monthly Challenge',event_page:st.data.event_page||{enabled:false,title:'Event',subtitle:'',sections:[]}};
   if(currentUser){try{const{data:bp}=await sb.from('benchmark_phones').select('*');cache.benchmark_phones=bp||[];}catch(e){}}
-  if(isCancelStaff()){try{const{data:cx}=await sb.from('cancellations').select('*').order('created_at',{ascending:false});cache.cancellations=cx||[];}catch(e){}}else{cache.cancellations=[];}
+  if(isCancelStaff()){try{const{data:cx}=await sb.from('cancellations').select('*').order('created_at',{ascending:false});cache.cancellations=cx||[];}catch(e){}try{const{data:js}=await sb.from('jotform_sync').select('*').limit(1);cache.jotform_sync=(js&&js[0])||null;}catch(e){}}else{cache.cancellations=[];cache.jotform_sync=null;}
   if(currentMember){try{const[wl,bx,mr]=await Promise.all([sb.from('workout_logs').select('*'),sb.from('body_metrics').select('*'),sb.from('daily_results').select('*').eq('member_id',currentMember.id)]);cache.workout_logs=wl.data||[];cache.body_metrics=bx.data||[];cache.my_results=mr.data||[];}catch(e){}}else{cache.workout_logs=[];cache.body_metrics=[];cache.my_results=[];}
 }
 function subscribe(){
@@ -3259,7 +3263,7 @@ async function verifyCode(){
   if(error){err.textContent='Incorrect or expired code.';return;}
   // onAuthStateChange handles the unlock
 }
-async function signOut(){try{logActivity('logout','Signed out',currentUser&&currentUser.email);}catch(e){}if(LIVE)await sb.auth.signOut();currentUser=null;setUnlocked(false);cache.cancellations=[];cxState={tab:'cases',view:'list',id:null,filter:'active'};var _cp=document.getElementById('cancel-page');if(_cp){_cp.style.display='none';_cp.innerHTML='';}if(document.body)document.body.classList.remove('cx-open','cancel-only');_setMode('wod');toast('Signed out');}
+async function signOut(){try{logActivity('logout','Signed out',currentUser&&currentUser.email);}catch(e){}if(LIVE)await sb.auth.signOut();currentUser=null;setUnlocked(false);cache.cancellations=[];cache.jotform_sync=null;cxState={tab:'cases',view:'list',id:null,filter:'active'};var _cp=document.getElementById('cancel-page');if(_cp){_cp.style.display='none';_cp.innerHTML='';}if(document.body)document.body.classList.remove('cx-open','cancel-only');_setMode('wod');toast('Signed out');}
 function handleSession(session){
   const u=session&&session.user?session.user:null;
   if(u&&emailAllowed(u.email)){/* ADMIN */
@@ -3282,7 +3286,7 @@ function handleSession(session){
       if(explicit){toast('Hey '+(memFirst()||'there'));_setMode('me');}
       else if(!wasMember)renderMemberChip();
     });
-  }else{currentMember=null;memberProfile=null;cache.workout_logs=[];cache.body_metrics=[];cache.daily_results=[];cache.my_results=[];cache.cancellations=[];drLoadedDate=null;drOpen=false;metHistOpen.clear();var _cp=document.getElementById('cancel-page');if(_cp){_cp.style.display='none';_cp.innerHTML='';}if(document.body)document.body.classList.remove('cx-open','cancel-only');renderMemberChip();renderWodMember();}
+  }else{currentMember=null;memberProfile=null;cache.workout_logs=[];cache.body_metrics=[];cache.daily_results=[];cache.my_results=[];cache.cancellations=[];cache.jotform_sync=null;drLoadedDate=null;drOpen=false;metHistOpen.clear();var _cp=document.getElementById('cancel-page');if(_cp){_cp.style.display='none';_cp.innerHTML='';}if(document.body)document.body.classList.remove('cx-open','cancel-only');renderMemberChip();renderWodMember();}
 }
 function lockPlanner(){signOut();}
 
@@ -4218,6 +4222,12 @@ function cxAllTodos(){var out=[];(cache.cancellations||[]).forEach(function(c){i
 function cxFindCase(id){return (cache.cancellations||[]).find(function(x){return x.id===id;});}
 async function cxSet(id,field,val){var c=cxFindCase(id);if(!c)return;if(val==='')val=null;c[field]=val;var patch={updated_at:new Date().toISOString()};patch[field]=val;if(field==='member_name'){var t=document.getElementById('cx-title');if(t)t.textContent=val||'New cancellation';}await rowUpdate('cancellations',id,patch);cxRefreshOut(id);}
 async function cxNew(){var row=await rowInsert('cancellations',{status:'new',payment_frequency:'weekly',fee_pref:'next',no_lock_in:false,submission_date:todayKey(),task_done:{}});cxState.tab='cases';cxState.view='detail';cxState.id=row.id;renderCancelHub();}
+/* ---- Jotform read-only sync (Cancellation Form -> cases). Pull only; never writes to Jotform. ---- */
+async function cxReloadCancellations(){if(!LIVE||!isCancelStaff())return;try{const{data:cx}=await sb.from('cancellations').select('*').order('created_at',{ascending:false});cache.cancellations=cx||[];}catch(e){}try{const{data:js}=await sb.from('jotform_sync').select('*').limit(1);cache.jotform_sync=(js&&js[0])||null;}catch(e){}}
+function cxWhen(iso){if(!iso)return 'not yet';try{var d=new Date(iso);if(isNaN(d.getTime()))return 'recently';var now=new Date();var t=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});return (d.toDateString()===now.toDateString())?('today '+t):(d.toLocaleDateString([],{day:'2-digit',month:'2-digit'})+' '+t);}catch(e){return 'recently';}}
+function cxJotformStatusHTML(){var s=cache.jotform_sync;var when=cxWhen(s&&s.last_run);var err=(s&&s.last_error)?' <span class="cx-jf-err">· last sync had an error</span>':'';return '<div class="cx-jf"><div class="cx-jf-info cx-muted">Cancellation form syncs automatically every 3 hours · last checked '+esc(when)+err+'</div><div class="cx-jf-acts"><button class="btn-sm" id="cx-jf-btn" onclick="cxJotformRefresh(this)">↻ Refresh from Jotform</button><button class="cx-link" onclick="cxJotformBackfill()">Backfill…</button></div></div>';}
+async function cxJotformRefresh(btn){if(!LIVE||!isCancelStaff())return;var b=btn||document.getElementById('cx-jf-btn');if(b){b.disabled=true;b.textContent='Syncing…';}try{const{data,error}=await sb.functions.invoke('jotform-sync',{body:{}});if(error||(data&&data.error)){var msg=(error&&error.message)||(data&&data.error)||'error';if(/not found|404|failed to send|Failed to fetch/i.test(msg))msg='sync isn’t reachable — check it’s deployed';toast('Sync failed: '+msg);}else{await cxReloadCancellations();var n=(data&&typeof data.inserted==='number')?data.inserted:0;toast(data&&data.initialized?'Connected to Jotform — new cancellations will flow in':(n>0?('Pulled '+n+' new cancellation'+(n===1?'':'s')):'Up to date — no new cancellations'));renderCancelHub();}}catch(e){toast('Sync failed: '+(e.message||e));}if(b){b.disabled=false;b.textContent='↻ Refresh from Jotform';}}
+async function cxJotformBackfill(){if(!LIVE||!isCancelStaff())return;var d=(prompt('Pull cancellations submitted on/after which date? (YYYY-MM-DD)\nThe form has years of history, so pick a recent date. Already-imported ones are skipped automatically.','')||'').trim();if(!d)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){alert('Use the format YYYY-MM-DD, e.g. 2026-06-01');return;}try{const{data,error}=await sb.functions.invoke('jotform-sync',{body:{since:d}});if(error||(data&&data.error)){toast('Backfill failed: '+((error&&error.message)||(data&&data.error)||'error'));return;}await cxReloadCancellations();var n=(data&&typeof data.inserted==='number')?data.inserted:0;toast(n>0?('Pulled '+n+' cancellation'+(n===1?'':'s')+' since '+cxDMY(d)):'No new cancellations since '+cxDMY(d));renderCancelHub();}catch(e){toast('Backfill failed: '+(e.message||e));}}
 function cxOpen(id){cxState.tab='cases';cxState.view='detail';cxState.id=id;renderCancelHub();}
 function cxBack(){cxState.view='list';cxState.id=null;renderCancelHub();}
 function cxFilter(f){cxState.filter=f;renderCancelHub();}
@@ -4288,8 +4298,8 @@ function cxListHTML(){
   if(f==='active')list.sort(function(a,b){var ca=cxCalc(a),cb=cxCalc(b);var da=ca?ca.finalAccess:'9999-12-31',db=cb?cb.finalAccess:'9999-12-31';return da<db?-1:da>db?1:0;});
   var counts={active:rows.filter(function(c){return c.status==='new'||c.status==='in_progress';}).length,processed:rows.filter(function(c){return c.status==='processed';}).length,reversed:rows.filter(function(c){return c.status==='reversed';}).length,all:rows.length};
   var FT=[['active','To action'],['processed','Processed'],['reversed','Stayed'],['all','All']];
-  var h='<div class="cx-wrap"><div class="cx-bar"><button class="btn-full cx-new" onclick="cxNew()">+ New cancellation</button></div>';
-  h+='<div class="cx-intro cx-muted">Log a cancellation → it works out the 30-day notice (less 12 days for a Google review), the pro-rata final payment and any $200 in-term fee, drafts the member email + ClubFit note, and tracks every step to processed. ClubFit + Jotform auto-fill will plug in here once your API access is live.</div>';
+  var h='<div class="cx-wrap"><div class="cx-bar"><button class="btn-full cx-new" onclick="cxNew()">+ New cancellation</button></div>'+cxJotformStatusHTML();
+  h+='<div class="cx-intro cx-muted">Log a cancellation → it works out the 30-day notice (less 12 days for a Google review), the pro-rata final payment and any $200 in-term fee, drafts the member email + ClubFit note, and tracks every step to processed. New submissions from your Jotform cancellation form arrive automatically (read-only, every few hours). ClubFit auto-fill plugs in here once that API access is live.</div>';
   h+='<div class="cx-filters">'+FT.map(function(x){return '<button class="cx-fp'+(f===x[0]?' on':'')+'" onclick="cxFilter(\''+x[0]+'\')">'+x[1]+' ('+counts[x[0]]+')</button>';}).join('')+'</div>';
   if(!list.length){h+='<div class="cx-empty">Nothing here yet.</div>';}
   else{h+='<div class="cx-list"><div class="cx-lh"><span>Member</span><span>Submitted</span><span>Final access</span><span>Term</span><span>Tasks</span><span>Status</span></div>';
