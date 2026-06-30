@@ -429,16 +429,24 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
 - **Cases list = leaderboard-style + tap-to-expand person dropdown (this pass).** The Cases list now mirrors The Wall's
   clean divided-row look (`cxListHTML`→`cxRowHTML`, `.cxr-*`): big bold name + inline meta (submitted / ends / term /
   tasks) + status pill. **Tapping a name** expands an inline dropdown (`cxRowDetailHTML`, accordion via
-  `cxState.openRow`/`cxRowToggle`, one open at a time, reset on filter/sign-out): summary chips (term + $fee / notice /
-  final access / total), contact links (email + `tel:`), a reason snippet, and smart actions — **Send email**, **Call**,
-  **ClubFit**, **Copy email**, **View all details** (→ `cxOpen` full detail). Send/Copy only show when billing exists.
+  `cxState.openRow`/`cxRowToggle`, one open at a time, reset on filter/sign-out): a **visual summary** (`cxCaseSummaryHTML`
+  — a "what's happening" line (term + $fee / notice / final access / total) plus a **tickable "what needs doing" checklist**
+  of the outstanding tasks, synced via `cxToggleTaskTodo`), contact links (email + `tel:`), a reason snippet, and smart
+  actions — **Email ▾** (a menu via `cxState.emailMenu`: Confirmation / Google review offer / Copy — `cxEmailMenu`/
+  `cxSendFromMenu`), **Call**, **ClubFit**, **View all details** (→ `cxOpen`). The Email button only shows when there's a
+  sendable email.
 - **Send email** (`cxSendEmail`) copies the rich+plain email to the clipboard (`cxCopyRich`) then opens the composer
-  pre-filled To+Subject — **Gmail web compose** by default or the **default mail app** (`settings.cx_email_client`,
-  `cxComposeUrl`); the body rides the clipboard (paste) to keep bold and dodge URL length limits. `cxTelHref` normalises
-  AU mobiles to `+61`; **ClubFit** (`cxProfile`) opens `settings.cx_clubfit_url` (optional `{n}` = member number, guarded
-  when absent). New tabs use `window.open` WITHOUT `noopener` (so a blocked pop-up is actually detectable) + `w.opener=null`.
+  pre-filled To+Subject — the **default mail app (Outlook classic on Windows)** by default, or **Gmail web compose**
+  (`settings.cx_email_client`, default `mailto`; `cxComposeUrl`); the body rides the clipboard (paste) to keep bold and
+  dodge URL length limits. `cxTelHref` normalises AU mobiles to `+61`; **ClubFit** (`cxProfile`) opens
+  `settings.cx_clubfit_url` (optional `{n}` = member number, toasts when absent). New tabs use `window.open` WITHOUT
+  `noopener` (so a blocked pop-up is actually detectable) + `w.opener=null`.
+- **Calendar tab + Clear-all (this pass).** A **Calendar** tab (`cxCalendarHTML`/`cxCalEvents`/`cxCalMove`, all cancel-staff)
+  plots every outstanding task across open cases on its due date (fee changes, pro-rata final payments, emails, archive days);
+  tap an item → `cxOpen`. Month nav via `cxState.calOffset`. The owner Settings tab has a **Clear ALL cases** button
+  (`cxClearAll`→`cxClearAllDo`, double-confirm, deletes every `cancellations` row — Jotform untouched, re-importable via Backfill).
 - **Fully editable email templates + Settings tab (owner-only, `cxSettingsHTML`).** All four emails are a token engine
-  (`cxRender`/`cxTokens`/`cxTpl`/`cxTplDefaults`): `{token}` substitution, `**bold**`→`<b>`, XSS-safe (` ` sentinels,
+  (`cxRender`/`cxTokens`/`cxTpl`/`cxTplDefaults`): `{token}` substitution, `**bold**`→`<b>`, XSS-safe (`\u0000` sentinels,
   escape-once). VALUE tokens (`{first_name}`…`{signature}`) + **smart clause tokens** (`{fee_clause}`/`{notice_clause}`/
   `{schedule_clause}`/`{notice_q_clause}`/`{schedule_q_clause}`/`{fee_detail_clause}`/`{notice_q_line}`) carry the
   conditional maths so the numbers/legals stay correct no matter how staff reword the prose. Owner edits subject+body per
