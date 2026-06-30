@@ -2376,15 +2376,17 @@ function wgStrength(want,len){
     {t:'For time: 40 wall balls, 30/24 cal row, 20 burpees.',rx:'big wall ball sets, steady row',sc:'30 wall balls, 22/18 cal, 15 burpees'},
     {t:'5 rounds: 40m sled pull, 12 wall balls.',rx:'heavy pull, unbroken wall balls',sc:'lighter sled, 8 wall balls'},
     {t:'EMOM 12: odd 12/10 cal ski, even 10 push-ups + 6 ring rows.',rx:'finish each minute with time to spare',sc:'9/7 cal, push-ups to a box'},
-    {t:'3 rounds: 15/12 cal row, 12 wall balls, 40m farmers carry.',rx:'heavy carry, no setting it down',sc:'lighter carry, 8 wall balls'}];
+    {t:'3 rounds: 15/12 cal row, 12 wall balls, 40m farmers carry.',rx:'heavy carry, no setting it down',sc:'lighter carry, 8 wall balls'},
+    {t:'4 rounds: '+wgRun(want,'200m')+', 12 wall balls, 10 ring rows.',rx:'steady run, unbroken wall balls, controlled rows',sc:wgScaleRun(want)+', 8 wall balls, more upright rows'}];
   // Upper main lift → lower-biased pieces (sled push, lunges, swings, box jumps, runs).
   const lowerBiasedStings=[
     {t:'5 rounds: 12 KB swings, 10 box jumps, '+wgRun(want,'200m')+'.',rx:'snappy swings, tall box, steady run',sc:'10 swings, step-ups, '+wgScaleRun(want)},
     {t:'10 min AMRAP: 10 walking lunges, 12 KB swings, 8 burpees.',rx:'add load to the lunge, powerful hips',sc:'bodyweight lunge, 8 swings'},
-    {t:'5 rounds: 25m sled push, 12 wall balls.',rx:'drive the sled hard and low, unbroken wall balls',sc:'lighter sled, 8 wall balls'},
+    {t:'5 rounds: 25m sled push, 10 box jumps.',rx:'drive the sled hard and low, soft tall landings',sc:'lighter sled, step-ups'},
     {t:'For time: 50 air squats, 40 KB swings, 30 box jumps, 20 burpees.',rx:'chip away in big sets',sc:'halve the reps, step-ups'},
     {t:'5 rounds: '+wgRun(want,'200m')+', 12 walking lunges, 10 KB swings.',rx:'steady run, controlled lunges',sc:wgScaleRun(want)+', 8 of each'},
-    {t:'EMOM 12: odd 12 KB swings, even 10 box jumps.',rx:'powerful hips, soft landings',sc:'9 swings, step-ups'}];
+    {t:'EMOM 12: odd 12 KB swings, even 10 box jumps.',rx:'powerful hips, soft landings',sc:'9 swings, step-ups'},
+    {t:'4 rounds: '+wgRun(want,'200m')+', 25m sled push, 12 KB swings.',rx:'steady run, drive the sled low, snappy swings',sc:wgScaleRun(want)+', lighter sled, 9 swings'}];
   let s;const sk=want.station;const stMulti=want.stations&&want.stations.length>=2;
   if(stMulti){const w=want.stations.filter(function(k){return k!=='run';}).map(function(k){return wgStationMove(k,want);});s={t:'4 rounds: '+wgRun(want,'200m')+(w.length?', '+w.join(', '):'')+'.',rx:'steady, smooth transitions, even pace',sc:'shorter run, lighter loads, '+wgScaleRun(want)};}
   else if(want.wallball||sk==='wallball')s={t:'For time, 12 min cap: 100 wall balls, every time you break do 5 burpees.',rx:'6/9 kg, big sets',sc:'4 kg, sets of 10'};
@@ -2404,26 +2406,29 @@ function wgStrength(want,len){
   const b='\n\nPART B - Engine sting (~'+partBmin+' min)\n'+s.t+'\nRX: '+s.rx+'.\nScaled: '+s.sc+'.';
   const titleMap={lower:'Lower-body strength',upper:'Upper-body & core strength',posterior:'Lower-body strength'};
   return {core:a+b,title:titleMap[pat],focus:'Strength',pattern:pat,
-    purpose:(pat==='upper'?'Upper-body and midline strength — press and pull heavy, lock in the core, then a leg-biased HYROX conditioning hit so the session stays balanced.':'Heavy lower-body strength — squat and hinge with real load and low reps, full rest, then an upper-biased HYROX conditioning hit so the whole body gets worked.'),
-    bonus:len==='45 min'?'':wgRand(['8 min easy bike or row at a nose-breathing pace, flush the legs.','3 rounds: 30s hollow hold, 30s side plank each side, 15 sit-ups.'])};
+    purpose:(pat==='upper'?'Upper-body and midline strength — press and pull heavy, lock in the core, then a leg-biased HYROX conditioning hit so the session stays balanced.':'Heavy lower-body strength — squat or hinge with real load and low reps, full rest, then an upper-biased HYROX conditioning hit so the whole body gets worked.'),
+    bonus:''};// buildWod replaces this with the wgOptional running finisher
 }
 function wgPower(want,len){
+  want.noRun=true; // Wed Power: SIT stays machine-based (Tue/Thu already cover running); wgOptional says "no extra running"
   const partAmin=len==='45 min'?'16':(len==='75 min'?'22':'18');
   const rest=len==='45 min'?'rest ~90s (full recovery)':'rest ~2 min (full recovery)';
   // explosive MAIN lift (push press or deadlift) contrasted with a ballistic / plyo — low volume, high quality
   const pairs=[
-    {t:'6 rounds: 2 speed deadlifts @ ~60% + 4 broad jumps',rx:'rip the bar fast and reset every rep, flat back; jump for distance, land soft',sc:'KB/trap-bar deadlift + 4 tuck jumps'},
-    {t:'6 rounds: 3 push press (building, sharp dip-drive) + 6 med-ball chest throws',rx:'aggressive drive, lock out tall; throw hard off the chest',sc:'DB push press + 6 wall-ball throws'},
-    {t:'5 rounds: 2 speed deadlifts @ ~60% + 5 tall box jumps (step down)',rx:'fast off the floor; jump tall, quiet landing, reset each rep',sc:'KB deadlift + 5 tall step-ups'},
-    {t:'6 rounds: 3 push press + 8 explosive KB swings to eye level',rx:'fast lockout overhead; snap the hips, float the bell',sc:'DB push press + Russian KB swings'},
-    {t:'5 rounds: 3 push press + 6 med-ball slams',rx:'drive tall, then slam with everything and reset',sc:'DB push press + 6 lighter slams'},
-    {t:'6 rounds: 2 deadlifts @ ~65% + 15m heavy sled push',rx:'fast pull; then drive the sled hard and low for 15m',sc:'KB deadlift + lighter sled, or 6 broad jumps'}];
+    {t:'6 rounds: 2 speed deadlifts @ ~60% + 4 broad jumps',rx:'rip the bar fast and reset every rep, flat back; jump for distance, land soft',sc:'KB/trap-bar deadlift + 4 short, controlled broad jumps (or fast squat-to-stands, no jump)'},
+    {t:'6 rounds: 3 push press @ ~70-75% (sharp dip-drive) + 6 med-ball chest throws',rx:'fast lockout, leave speed in the bar; throw hard off the chest. If it slows down, stop adding weight',sc:'DB push press + 6 wall-ball throws'},
+    {t:'5 rounds: 2 speed deadlifts @ ~60% + 5 box jumps (step down)',rx:'fast off the floor; box at a confident height you land soft and quiet on, reset each rep',sc:'KB deadlift + 5 step-ups'},
+    {t:'6 rounds: 3 push press @ ~70-75% + 8 explosive KB swings to eye level',rx:'fast lockout overhead, leave speed in the bar; snap the hips, float the bell. If it slows down, stop adding weight',sc:'DB push press + Russian KB swings'},
+    {t:'5 rounds: 3 push press @ ~70-75% + 6 med-ball slams',rx:'drive tall and fast, leave speed in the bar, then slam with everything. If it slows down, stop adding weight',sc:'DB push press + 6 lighter slams'},
+    {t:'6 rounds: 2 deadlifts @ ~65% + 15m heavy sled push',rx:'fast pull; then drive the sled hard and low for 15m',sc:'KB deadlift + lighter sled, or 6 broad jumps'},
+    {t:'6 rounds: 2 deadlifts @ ~60% + 6 explosive KB swings to eye level',rx:'rip the bar fast and reset; snap the hips, float the bell',sc:'KB deadlift + Russian KB swings'},
+    {t:'5 rounds: 3 push press @ ~70-75% + 5 box jumps (step down)',rx:'fast lockout, leave speed in the bar; soft tall landings, reset each rep. If it slows down, stop adding weight',sc:'DB push press + 5 step-ups'}];
   const bwPairs=[
-    {t:'6 rounds: 5 broad jumps + 6 explosive (plyo) push-ups',rx:'max distance, soft landing; push off the floor hard',sc:'5 tuck jumps + hands-on-box push-ups'},
-    {t:'6 rounds: 5 tall box jumps + 8 jump squats',rx:'jump tall, land soft and quiet, reset every rep',sc:'tall step-ups + 8 fast air squats'},
-    {t:'5 rounds: 6 broad jumps + 8 med-ball throws or slams',rx:'explode on every rep, full recovery between rounds',sc:'tuck jumps + lighter ball'}];
+    {t:'6 rounds: 5 broad jumps + 6 explosive (plyo) push-ups',rx:'max distance, soft landing; push off the floor hard',sc:'5 short, controlled broad jumps (or squat-to-stands) + hands-on-box push-ups'},
+    {t:'6 rounds: 5 box jumps + 8 jump squats',rx:'box at a confident height you land soft and quiet on, reset every rep',sc:'step-ups + 8 fast air squats'},
+    {t:'5 rounds: 6 broad jumps + 8 med-ball throws or slams',rx:'explode on every rep, full recovery between rounds',sc:'short broad jumps or squat-to-stands + lighter ball'}];
   const A=wgRand(want.bodyweight?bwPairs:pairs);
-  const a='PART A - Explosive power (~'+partAmin+' min)\n'+A.t+'.\n'+rest+' between rounds — low volume, high quality: every rep fast and powerful, stop well short of failure. Speed/CNS day, not a grinder.\nRX: '+A.rx+'.\nScaled: '+A.sc+'.';
+  const a='PART A - Explosive power (~'+partAmin+' min)\n'+A.t+'.\n'+rest+' between rounds — low volume, high quality: every rep fast and powerful, stop well short of failure. Speed/CNS day, not a grinder.\nRX: '+A.rx+'.\nScaled: '+A.sc+'.\nNote: no max? use a load you can move fast and snappy, never grind. If bar speed drops or you are beat up from racing, take 5–10% off and bank the quality.';
   const sits=[
     {t:'8 x 20s all-out machine sprint (assault bike, row, ski or runner — your pick), 100s easy spin between',rx:'truly maximal each rep, recover fully so every one is fast',sc:'8 x 15s hard, 105s easy'},
     {t:'10 x 15s max sprint, 75s easy between',rx:'all-out, hold the power across all ten',sc:'8 x 12s, 80s easy'},
@@ -2441,8 +2446,8 @@ function wgPower(want,len){
 }
 function wgOptional(F,pattern){
   if(F==='Power')return 'OPTIONAL — no extra running today; the sprint intervals already cover top-end speed.\n8–10 min easy flush (bike, row or walk), OR Roxzone / transition practice, then 5 min mobility.\nThe class is complete without this.';
-  if(F==='Strength'&&pattern==='upper')return 'OPTIONAL — add this if you are building toward a race. Legs are fresh today, so push run quality.\nQuality run: 4–6 x 400m at 5k / threshold effort, equal rest — OR a 15–20 min tempo run.\nRX: hold even, strong splits. Scaled: 4 x 300m, or a 12–15 min tempo.\nThe class is complete without this.';
-  if(F==='Strength')return 'OPTIONAL — add this if you are building toward a race. Easy aerobic base only.\nEasy run 15–25 min at Zone 2 (conversational, nose-breathing).\nNote: do NOT run hard on loaded legs — keep it genuinely easy, or skip it if today was heavy.\nThe class is complete without this.';
+  if(F==='Strength'&&pattern==='upper')return 'OPTIONAL — add this if you are building toward a race. Legs are fresh today, so push run quality.\nQuality run: 15–20 min tempo at a strong, steady effort — OR 4–6 x 400m at 5k / threshold, equal rest.\nRX: hold even, controlled splits. Scaled: 12–15 min tempo, or 4 x 300m.\nNote: Tuesday and Thursday already gave you hard running this week — only add this if you have the legs for it.\nThe class is complete without this.';
+  if(F==='Strength')return 'OPTIONAL — add this if you are building toward a race. Easy aerobic base only.\nEasy run 15–25 min at Zone 2 (conversational, nose-breathing).\nNote: do NOT run hard on loaded legs — keep it genuinely easy. This is your only easy-run slot, so skip it on a heavy week; your legs run tomorrow.\nThe class is complete without this.';
   return null;
 }
 function wgEngine(want,len){
@@ -2566,7 +2571,7 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
   if(stlist.indexOf('wallball')>=0)want.wallball=true;
   // Auto focus mirrors the day-focus shown on the WOD page (DAYFOCUS) so "Auto" never disagrees with the advertised focus.
   const DAY_IDX={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
-  const STR_PATTERN={1:wgRand(['lower','posterior']),5:'upper'}; // Mon = heavy lower (squat/hinge), Fri = upper + core
+  const STR_PATTERN={1:wgRand(['lower','lower','posterior']),5:'upper'}; // Mon = heavy lower (squat-biased), Fri = upper + core
   let F=focus;
   if(focus==='Auto'){const idx=DAY_IDX[dayName];F=(idx==null?'Engine':DAYFOCUS[idx]);if(F==='Strength')want.pattern=STR_PATTERN[idx]||wgRand(['lower','upper','posterior']);}
   if(focus==='HYROX sim'){F='Challenge';want.hyroxSim=true;}
@@ -2598,8 +2603,8 @@ function genWod(surprise){
       const recent=cache.wods.slice().filter(w=>(w.core&&String(w.core).trim())||w.title).sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,8).map(w=>({date:w.date,title:w.title,focus:w.focus,core:w.core}));
       const dayName=dateLabel(adminWodDate,{weekday:'long'});
       let wod=buildWod(focus,length,notes,dayName,recent,ctx),tries=0;
-      while(wgLastCore&&wod.core.split('\n')[0]===wgLastCore&&tries<6){wod=buildWod(focus,length,notes,dayName,recent,ctx);tries++;}
-      wgLastCore=wod.core.split('\n')[0];
+      while(wgLastCore&&wod.core===wgLastCore&&tries<6){wod=buildWod(focus,length,notes,dayName,recent,ctx);tries++;}
+      wgLastCore=wod.core;
       wodGenLast=wod;renderWodGenResult(wod);
       const rr=document.getElementById('wod-gen-result');if(rr)rr.scrollIntoView({behavior:'smooth',block:'start'});
     }catch(e){res.innerHTML='<div class="wg-err">Could not build a workout, try again.</div>';}
