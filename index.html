@@ -1586,7 +1586,7 @@ function uid(){return (crypto&&crypto.randomUUID)?crypto.randomUUID():'id'+Date.
 /* ---------- WEEK / FOCUS ---------- */
 const WEEK1=new Date(2026,4,18);
 const WEEKS=[{t:"Pre-launch — Announce It",d:"Reveal the build. First posts. Register interest live."},{t:"Pre-launch — Educate",d:"What HYROX is. Equipment arriving. Grow the interest list."},{t:"Pre-launch — The Sport",d:"Race format content. Two weeks out. Meet Jay."},{t:"Pre-launch — Final Countdown",d:"Last week before opening. Timetable drops."},{t:"🏆 Launch Week",d:"Grand opening. Free sessions. Community boards unveiled."},{t:"First Full Week",d:"Classes running. Inside the centre. First reactions."},{t:"Building Momentum",d:"Three weeks open. Member spotlights."},{t:"Community Focus",d:"One month in. Road to Melbourne ramps up."}];
-const DAYFOCUS=["Challenge","Strength","Engine","Strength","Endurance","Power","Partner"];
+const DAYFOCUS=["Challenge","Strength","Engine","Power","Endurance","Strength","Partner"];/* Sun..Sat: Mon Strength(lower), Tue Engine, Wed Power, Thu Endurance, Fri Strength(upper) */
 const DEFAULT_FOCUS={Strength:'#fdd663',Engine:'#8ab4f8',Endurance:'#bb86fc',Challenge:'#81c995',Partner:'#ff8a65',Power:'#ef5350',Custom:'#4dd0e1'};
 function hexToRgba(hex,a){hex=String(hex||'').replace('#','');if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');const n=parseInt(hex||'8ab4f8',16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
 function focusHex(f){const ap=(cache.state.settings&&cache.state.settings.appearance)||{};const fc=ap.focus||{};return fc[f]||DEFAULT_FOCUS[f]||fc.Custom||DEFAULT_FOCUS.Custom||'#8ab4f8';}
@@ -2368,15 +2368,23 @@ function wgStrength(want,len){
     a='PART A - Strength (~'+partAmin+' min)\n'+L.n+': '+scheme+', '+rest+' between sets.\nRX: '+L.rx+'.\nScaled: '+L.sc+'.';
   }
   if(pat==='upper')a+='\n\nMidline (3 rounds, slot between sets or straight after):\n30s hollow hold + 10 strict toes-to-bar, controlled.\nScaled: 30s dead-bug hold + 12 sit-ups.';
-  const stings=[
-    {t:'8 rounds: 30s machine sprint (ski, row, bike or runner, your pick), 90s easy.',rx:'hard, hold the same calories every round',sc:'20s on, 100s easy'},
-    {t:'10 min AMRAP: 12 KB swings, 10 burpees, '+wgRun(want,'200m')+'.',rx:'unbroken swings, steady run',sc:'8 swings, 6 burpees'},
-    {t:'5 rounds: 12 wall balls, 10 box jumps, 8 burpees.',rx:'6/9 kg wall ball, 60 cm box',sc:'4 kg wall ball, box step-ups'},
-    {t:'4 rounds: 250m row, 15 wall balls.',rx:'push the row, unbroken wall balls',sc:'200m row, 10 wall balls'},
-    {t:'Death by burpees: 1 in the first minute, 2 in the second, keep adding until you miss the number.',rx:'see how deep you get',sc:'aim for 8 clean rounds'},
-    {t:'For time: 50/40 cal ski, 40 wall balls, 30 burpees.',rx:'pace the ski, big wall ball sets',sc:'35/28 cal, 25 wall balls, 20 burpees'},
-    {t:'5 rounds: '+wgRun(want,'200m')+', 12 KB swings, 6 burpee broad jumps.',rx:'steady run, snappy swings',sc:'10 swings, 4 broad jumps'},
-    {t:'EMOM 12: odd minute 12/10 cal row, even minute 10 wall balls.',rx:'finish each minute with time to spare',sc:'9/7 cal, 8 wall balls'}];
+  // Balance the day: pair the heavy main lift with complementary HYROX conditioning.
+  // Lower main lift → upper-biased pieces (ski, wall balls, sled pull, push/pull, carries).
+  const upperBiasedStings=[
+    {t:'10 min AMRAP: 12 wall balls, 10 push-ups, 8 ring rows.',rx:'6/9 kg wall ball, chest to the floor on the push-ups',sc:'4 kg, push-ups to a box, ring rows more upright'},
+    {t:'5 rounds: 12/10 cal ski, 10 wall balls, 8 burpees.',rx:'steady ski, unbroken wall balls',sc:'9/7 cal, 8 wall balls, 6 burpees'},
+    {t:'For time: 40 wall balls, 30/24 cal row, 20 burpees.',rx:'big wall ball sets, steady row',sc:'30 wall balls, 22/18 cal, 15 burpees'},
+    {t:'5 rounds: 40m sled pull, 12 wall balls.',rx:'heavy pull, unbroken wall balls',sc:'lighter sled, 8 wall balls'},
+    {t:'EMOM 12: odd 12/10 cal ski, even 10 push-ups + 6 ring rows.',rx:'finish each minute with time to spare',sc:'9/7 cal, push-ups to a box'},
+    {t:'3 rounds: 15/12 cal row, 12 wall balls, 40m farmers carry.',rx:'heavy carry, no setting it down',sc:'lighter carry, 8 wall balls'}];
+  // Upper main lift → lower-biased pieces (sled push, lunges, swings, box jumps, runs).
+  const lowerBiasedStings=[
+    {t:'5 rounds: 12 KB swings, 10 box jumps, '+wgRun(want,'200m')+'.',rx:'snappy swings, tall box, steady run',sc:'10 swings, step-ups, '+wgScaleRun(want)},
+    {t:'10 min AMRAP: 10 walking lunges, 12 KB swings, 8 burpees.',rx:'add load to the lunge, powerful hips',sc:'bodyweight lunge, 8 swings'},
+    {t:'5 rounds: 25m sled push, 12 wall balls.',rx:'drive the sled hard and low, unbroken wall balls',sc:'lighter sled, 8 wall balls'},
+    {t:'For time: 50 air squats, 40 KB swings, 30 box jumps, 20 burpees.',rx:'chip away in big sets',sc:'halve the reps, step-ups'},
+    {t:'5 rounds: '+wgRun(want,'200m')+', 12 walking lunges, 10 KB swings.',rx:'steady run, controlled lunges',sc:wgScaleRun(want)+', 8 of each'},
+    {t:'EMOM 12: odd 12 KB swings, even 10 box jumps.',rx:'powerful hips, soft landings',sc:'9 swings, step-ups'}];
   let s;const sk=want.station;const stMulti=want.stations&&want.stations.length>=2;
   if(stMulti){const w=want.stations.filter(function(k){return k!=='run';}).map(function(k){return wgStationMove(k,want);});s={t:'4 rounds: '+wgRun(want,'200m')+(w.length?', '+w.join(', '):'')+'.',rx:'steady, smooth transitions, even pace',sc:'shorter run, lighter loads, '+wgScaleRun(want)};}
   else if(want.wallball||sk==='wallball')s={t:'For time, 12 min cap: 100 wall balls, every time you break do 5 burpees.',rx:'6/9 kg, big sets',sc:'4 kg, sets of 10'};
@@ -2387,7 +2395,7 @@ function wgStrength(want,len){
   else if(sk==='lunge')s={t:'4 rounds: 30m walking lunge, 15 KB swings, 10 burpees.',rx:'add load to the lunge',sc:'bodyweight lunge'};
   else if(sk==='burpee')s={t:'For time: 40 burpee broad jumps, '+wgRun(want,'800m')+', 40 burpee broad jumps.',rx:'smooth jumps, steady middle piece',sc:'25, shorter run, 25'};
   else if(sk==='run')s={t:'6 x '+wgRun(want,'200m')+', rest 60s. Hold your pace.',rx:'fast and even',sc:'5 reps, same effort'};
-  else s=wgRand(stings);
+  else s=wgRand(pat==='upper'?lowerBiasedStings:upperBiasedStings);
   if(want.bodyweight)s=wgRand([
     {t:'10 min AMRAP: 10 push-ups, 15 air squats, 20 mountain climbers, '+wgRun(want,'200m')+'.',rx:'steady, unbroken',sc:'7 push-ups, 12 squats'},
     {t:'For time: 100 air squats, 75 sit-ups, 50 push-ups, 25 burpees.',rx:'chip away in big sets',sc:'halve the reps'},
@@ -2396,29 +2404,26 @@ function wgStrength(want,len){
   const b='\n\nPART B - Engine sting (~'+partBmin+' min)\n'+s.t+'\nRX: '+s.rx+'.\nScaled: '+s.sc+'.';
   const titleMap={lower:'Lower-body strength',upper:'Upper-body & core strength',posterior:'Lower-body strength'};
   return {core:a+b,title:titleMap[pat],focus:'Strength',pattern:pat,
-    purpose:(pat==='upper'?'Upper-body and midline strength — press and pull heavy, then lock in the core, finished with a short engine sting.':'Heavy lower-body strength — squat and hinge with real load and low reps, full rest, then a short engine sting.'),
+    purpose:(pat==='upper'?'Upper-body and midline strength — press and pull heavy, lock in the core, then a leg-biased HYROX conditioning hit so the session stays balanced.':'Heavy lower-body strength — squat and hinge with real load and low reps, full rest, then an upper-biased HYROX conditioning hit so the whole body gets worked.'),
     bonus:len==='45 min'?'':wgRand(['8 min easy bike or row at a nose-breathing pace, flush the legs.','3 rounds: 30s hollow hold, 30s side plank each side, 15 sit-ups.'])};
 }
 function wgPower(want,len){
-  const partAmin=len==='45 min'?'16':(len==='75 min'?'24':'20');
-  const rest=len==='45 min'?'full recovery, ~90s between efforts':'full recovery, ~2 min between efforts';
-  const barLifts=[
-    {t:'Power clean: 6 x 2, building to a fast, crisp double',rx:'speed off the floor, catch tall, reset each rep — no slow grinders',sc:'hang power clean or fast, heavy KB swing'},
-    {t:'Dynamic-effort back squat: 8 x 3 @ ~55–65%, on a 60-second clock',rx:'explode out of the bottom, every rep fast',sc:'tempo-up goblet squat, drive hard'},
-    {t:'Speed deadlift: 8 x 2 @ ~60%, on a 60-second clock',rx:'rip it fast, reset every rep, flat back',sc:'KB or trap-bar deadlift, snappy'},
-    {t:'Push press: 6 x 3, building, sharp dip-drive',rx:'aggressive drive, lock out tall and fast',sc:'DB push press'},
-    {t:'Hang power snatch: 7 x 2, technical and fast',rx:'fast turnover, punch tall, reset each rep',sc:'DB snatch, alternate arms'}];
-  const contrast=[
-    {t:'Contrast pairs, 5 rounds: 3 heavy-ish squats then 5 box jumps (rest 90s)',rx:'jump tall and land soft, full recovery between rounds',sc:'5 goblet squats + 5 tuck jumps or tall step-ups'},
-    {t:'Contrast pairs, 5 rounds: 2 power cleans then 3 broad jumps (rest 90s)',rx:'reset every jump, max distance, soft landing',sc:'KB swings + tuck jumps'},
-    {t:'5 rounds: 4 trap-bar jumps then 6 med-ball slams, explosive (rest 75s)',rx:'jump for height, slam hard',sc:'KB swings + slams'}];
-  const bwExplosive=[
-    {t:'5 rounds: 5 broad jumps + 5 explosive push-ups + 6 tuck jumps (rest 75s)',rx:'max distance and height, land soft, full recovery',sc:'4 reps each, hands on a box for the push-ups'},
-    {t:'EMOM 16 (alternating): odd 5 tall box jumps, even 6 explosive push-ups',rx:'fast and powerful, never grind',sc:'tall step-ups + incline push-ups'},
-    {t:'6 rounds: 6 squat jumps + 8 med-ball throws (rest 75s)',rx:'jump high, throw hard',sc:'4 squat jumps, lighter ball'}];
-  const liftPool=want.bodyweight?bwExplosive:(wgRand([0,1])?barLifts:contrast);
-  const A=wgRand(liftPool);
-  const a='PART A - Explosive power (~'+partAmin+' min)\n'+A.t+'.\n'+rest+' — this is a power day: every rep fast and crisp, stop well short of failure.\nRX: '+A.rx+'.\nScaled: '+A.sc+'.';
+  const partAmin=len==='45 min'?'16':(len==='75 min'?'22':'18');
+  const rest=len==='45 min'?'rest ~90s (full recovery)':'rest ~2 min (full recovery)';
+  // explosive MAIN lift (push press or deadlift) contrasted with a ballistic / plyo — low volume, high quality
+  const pairs=[
+    {t:'6 rounds: 2 speed deadlifts @ ~60% + 4 broad jumps',rx:'rip the bar fast and reset every rep, flat back; jump for distance, land soft',sc:'KB/trap-bar deadlift + 4 tuck jumps'},
+    {t:'6 rounds: 3 push press (building, sharp dip-drive) + 6 med-ball chest throws',rx:'aggressive drive, lock out tall; throw hard off the chest',sc:'DB push press + 6 wall-ball throws'},
+    {t:'5 rounds: 2 speed deadlifts @ ~60% + 5 tall box jumps (step down)',rx:'fast off the floor; jump tall, quiet landing, reset each rep',sc:'KB deadlift + 5 tall step-ups'},
+    {t:'6 rounds: 3 push press + 8 explosive KB swings to eye level',rx:'fast lockout overhead; snap the hips, float the bell',sc:'DB push press + Russian KB swings'},
+    {t:'5 rounds: 3 push press + 6 med-ball slams',rx:'drive tall, then slam with everything and reset',sc:'DB push press + 6 lighter slams'},
+    {t:'6 rounds: 2 deadlifts @ ~65% + 15m heavy sled push',rx:'fast pull; then drive the sled hard and low for 15m',sc:'KB deadlift + lighter sled, or 6 broad jumps'}];
+  const bwPairs=[
+    {t:'6 rounds: 5 broad jumps + 6 explosive (plyo) push-ups',rx:'max distance, soft landing; push off the floor hard',sc:'5 tuck jumps + hands-on-box push-ups'},
+    {t:'6 rounds: 5 tall box jumps + 8 jump squats',rx:'jump tall, land soft and quiet, reset every rep',sc:'tall step-ups + 8 fast air squats'},
+    {t:'5 rounds: 6 broad jumps + 8 med-ball throws or slams',rx:'explode on every rep, full recovery between rounds',sc:'tuck jumps + lighter ball'}];
+  const A=wgRand(want.bodyweight?bwPairs:pairs);
+  const a='PART A - Explosive power (~'+partAmin+' min)\n'+A.t+'.\n'+rest+' between rounds — low volume, high quality: every rep fast and powerful, stop well short of failure. Speed/CNS day, not a grinder.\nRX: '+A.rx+'.\nScaled: '+A.sc+'.';
   const sits=[
     {t:'8 x 20s all-out machine sprint (assault bike, row, ski or runner — your pick), 100s easy spin between',rx:'truly maximal each rep, recover fully so every one is fast',sc:'8 x 15s hard, 105s easy'},
     {t:'10 x 15s max sprint, 75s easy between',rx:'all-out, hold the power across all ten',sc:'8 x 12s, 80s easy'},
@@ -2561,7 +2566,7 @@ function buildWod(focus,length,notes,dayName,recent,ctx){
   if(stlist.indexOf('wallball')>=0)want.wallball=true;
   // Auto focus mirrors the day-focus shown on the WOD page (DAYFOCUS) so "Auto" never disagrees with the advertised focus.
   const DAY_IDX={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
-  const STR_PATTERN={1:wgRand(['lower','posterior']),3:'upper'}; // Mon = heavy lower (squat/hinge), Wed = upper + core
+  const STR_PATTERN={1:wgRand(['lower','posterior']),5:'upper'}; // Mon = heavy lower (squat/hinge), Fri = upper + core
   let F=focus;
   if(focus==='Auto'){const idx=DAY_IDX[dayName];F=(idx==null?'Engine':DAYFOCUS[idx]);if(F==='Strength')want.pattern=STR_PATTERN[idx]||wgRand(['lower','upper','posterior']);}
   if(focus==='HYROX sim'){F='Challenge';want.hyroxSim=true;}
@@ -3033,8 +3038,8 @@ async function mesoSave(){const s=settings();s.mesocycle=mesoWork;await stateUpd
 
 /* ----- Generate WODs from the plan (phase-matched daily sessions) ----- */
 const MESO_PROG={
-  base:    ['Challenge','Strength','Engine','Engine','Endurance','Power','Partner'],
-  build:   ['Challenge','Strength','Engine','Strength','Endurance','Power','Partner'],
+  base:    ['Challenge','Strength','Engine','Power','Endurance','Strength','Partner'],
+  build:   ['Challenge','Strength','Engine','Power','Endurance','Strength','Partner'],
   specific:['Challenge','Strength','HYROX sim','Engine','Endurance','HYROX sim','Partner'],
   peak:    ['Challenge','HYROX sim','Engine','Strength','HYROX sim','Engine','Partner'],
   taper:   ['Engine','Engine','Strength','Engine','HYROX sim','Engine','Partner'],

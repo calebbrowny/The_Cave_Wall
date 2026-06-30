@@ -92,11 +92,16 @@ Fields: `date` (YYYY-MM-DD), `slot` ('a'/'b' for dual-WOD), `title`, `focus`
 No-API, built from The Cave's HYROX logic. Key pieces:
 - `DAYFOCUS` (by weekday) is the single source of truth for a day's focus; `buildWod`'s "Auto" derives
   from it so the generated focus never disagrees with the WOD page. **Default week (HTCx):** Mon = Strength
-  (`STR_PATTERN[1]` = heavy lower, squat/hinge → title "Lower-body strength"), Tue = Engine, Wed = Strength
-  (`STR_PATTERN[3]`='upper' + a midline/core block → "Upper-body & core strength"), Thu = Endurance,
-  **Fri = Power** (`wgPower`: explosive/contrast lifting + SIT sprint intervals → "Cave Power"), Sat = Partner,
-  Sun = Challenge. **Power** is a focus alongside Strength/Engine/Endurance/Challenge/Partner/Custom
-  (`DEFAULT_FOCUS.Power` red; in the focus dropdown, appearance colours, `defaultCool`, `wgWarmup` primer).
+  (`STR_PATTERN[1]` = heavy lower, squat/hinge → "Lower-body strength"), Tue = Engine, **Wed = Power**
+  (`wgPower`: explosive main lift [push press/deadlift] contrasted with ballistics/plyos → SIT sprint intervals,
+  low-volume CNS/speed day → "Cave Power"), Thu = Endurance, Fri = Strength (`STR_PATTERN[5]`='upper' + a
+  midline/core block → "Upper-body & core strength"), Sat = Partner, Sun = Challenge. **Power** is a focus
+  alongside Strength/Engine/Endurance/Challenge/Partner/Custom (`DEFAULT_FOCUS.Power` red; in the focus
+  dropdown, appearance colours, `defaultCool`, `wgWarmup` primer).
+- **Balanced strength days.** A heavy main lift is paired with *complementary* HYROX conditioning so every
+  session works the whole body: lower main → upper-biased Part B (`upperBiasedStings`: ski/wall ball/sled
+  pull/push-ups/ring rows/carry); upper main → lower-biased Part B (`lowerBiasedStings`: sled push/lunge/KB
+  swing/box jump/run). Explicit station picks still override.
 - **Optional running finisher** (`wgOptional(focus,pattern)`, set into `bonus` by `buildWod`): keyed to leg
   fatigue, framed as a race-building add-on (core class stays complete without it). Lower/hinge strength → easy
   Zone-2 run (don't run hard on loaded legs); upper strength (legs fresh) → quality run (4–6×400m / tempo);
