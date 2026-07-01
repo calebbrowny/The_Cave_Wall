@@ -72,6 +72,30 @@ Fields: `date` (YYYY-MM-DD), `slot` ('a'/'b' for dual-WOD), `title`, `focus`
 (Strength/Engine/Endurance/Challenge/Partner/custom), `purpose`, `warmup`, `core`, `cool`, `bonus`,
 `custom_label`, `custom_color`, `custom_body`.
 
+### Public WOD view — stunning-minimal redesign + McDonald toggle + export (this pass)
+The public `#wod` page (`renderWOD`→`wodBlocksHTML`, blocks Purpose/Warm-up/**Main**/Cool-down/Bonus) was
+restyled for a clean, premium look. **All new CSS is scoped to `#wod` (or `body.wod-min #wod`)** because the
+**TV kiosk reuses `wodBlocksHTML` under `#slides`/`.slide`** — the global `.wod-block` card rules are kept as the
+kiosk fallback and must never be removed. Verified: kiosk `.wod-block` computed styles are unchanged with the
+toggle on/off. **Layer A (new default, everyone):** thinner 3px accent, rounded cards, muted section labels each
+with a small **hue dot** (`::before`; the decorative WOD_BLOCKS emoji is wrapped in `.wb-ico` and hidden via
+`#wod .wb-ico{display:none}`), movements loud/white, and the Main block's rep-scheme `.wb-key` lines get the one
+**blue punch**. The **Main (core) block is force-expanded** (`blk` helper: `core` never gets `.collapsed`) so a
+member who previously collapsed it never lands on a hidden workout; other blocks keep persisted collapse.
+- **McDonald's-clean toggle** = `appearance.wod_min` (boolean, default false, owner Settings → "WOD page style" →
+  "Minimal (clean menu) mode" via `tog('wod_min',…)`) → `body.wod-min` (wired in `applyAppearance` next to `wod_fill`;
+  reuses `toggleAppearance`, no new persistence). The variant is flat — **no cards, hairline `border-top` dividers,
+  no dots/emoji, one blue accent, maximum air** — the same language the owner loved on The Wall. Kiosk-safe (no
+  `#slides` rule), theme-safe (var() only), reversible; `wod-min` beats `wod-fill` when both on.
+- **Export / share poster** (admin-gated via `isUnlocked()` — shows for owner + coaches, hidden for public/kiosk/
+  coming-soon/empty via `isUnlocked()&&dispIsMaster()&&wodLive(d)&&wodHasContent(w)`): a share icon on the hero
+  (`#wod-share-btn`) opens `openWodExport()` → a lazy fixed overlay `#wodx-export`. The poster is painted **purely on
+  a `<canvas>`** (`paintWodCanvas`, `ctx.fillText`, no libs, offline) in **Story 1080×1920 / Square 1080×1080 (Main-
+  only) / Print A4 1240×1754**, focus-coloured, with the logo drawn from the inline same-origin `data:` PNG (read off a
+  `.logo-img` probe → `_wodLogoImg`, taint-free) and a text-wordmark fallback. `wodExpLineKind` mirrors `wodBody`'s
+  key/scale regex; long workouts truncate with "…full workout in the app". Download = `toDataURL`+anchor; **Web Share**
+  (`navigator.canShare({files})`) with download fallback. All `wodx*` code lives after `pickPublicSlot`.
+
 ### Section text conventions (the `wodBody` parser styles lines by prefix)
 - **Bold "key" lines:** `Part A …`, `Finisher …`, rep-scheme lines (`4 rounds…`, `21-15-9…`, `AMRAP…`,
   `EMOM…`, `5 x 5`), and lines ending in `:`.

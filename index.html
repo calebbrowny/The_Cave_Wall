@@ -239,6 +239,7 @@ body.no-tab-emoji .te{display:none;}
 #ch-wrap{zoom:var(--board-scale,1);}
 .set-range{width:100%;margin-top:10px;accent-color:var(--blue);height:4px;}
 .set-pct{font-size:13px;font-weight:800;color:var(--blue);min-width:46px;text-align:right;}
+/* --- global fallback: the TV kiosk slide reuses .wod-block; keep the card look here --- */
 .wod-block{background:var(--bg-card);border:1px solid var(--border);border-radius:clamp(12px,1.2vw,22px);padding:clamp(18px,2vw,36px) clamp(20px,2.2vw,40px);margin-bottom:clamp(10px,1.2vw,20px);border-left:clamp(4px,.4vw,7px) solid var(--blue);}
 .wod-block.warmup{border-left-color:var(--green);}
 .wod-block.purpose{border-left-color:var(--amber);}
@@ -259,6 +260,32 @@ body.no-tab-emoji .te{display:none;}
 .wod-block-body .wb-gap{height:.5em;}
 .wod-block.core .wod-block-body{font-size:clamp(17px,1.8vw,32px);font-weight:600;}
 .wod-block.purpose .wod-block-body{font-size:clamp(14px,1.3vw,22px);color:var(--muted);font-style:italic;}
+/* ============ PUBLIC WOD — "stunning minimal" default (Layer A, #wod-scoped) ============ */
+#wod .wod-head{max-width:min(760px,94vw);margin:0 auto;}
+#wod .wod-hero-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:clamp(8px,1vw,18px);}
+#wod .wod-share{background:transparent;border:1px solid var(--border);color:var(--muted);width:38px;height:38px;min-width:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:color .15s,border-color .15s;flex-shrink:0;}
+#wod .wod-share:hover{color:var(--blue);border-color:var(--blue);}
+#wod .wod-focus-tag{margin-top:0;}
+#wod .wodv{max-width:min(760px,94vw);}
+#wod .wod-block{border-left-width:3px;border-radius:16px;padding:clamp(16px,1.8vw,30px) clamp(18px,2vw,34px);}
+#wod .wod-block-h{font-size:clamp(11px,1vw,15px);letter-spacing:1.8px;margin-bottom:clamp(10px,1.1vw,16px);color:var(--muted);}
+#wod .wod-block-h>span:first-child{display:inline-flex;align-items:center;gap:9px;}
+#wod .wb-ico{display:none;}
+#wod .wod-block-h>span:first-child::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;}
+#wod .wod-block.warmup .wod-block-h>span:first-child::before{background:var(--green);}
+#wod .wod-block.purpose .wod-block-h>span:first-child::before{background:var(--amber);}
+#wod .wod-block.core .wod-block-h>span:first-child::before{background:var(--red);}
+#wod .wod-block.cool .wod-block-h>span:first-child::before{background:var(--blue);}
+#wod .wod-block.bonus .wod-block-h>span:first-child::before{background:var(--purple);}
+#wod .wod-block.core .wod-block-h{color:var(--muted);}
+#wod .wod-block-body{font-size:clamp(16px,1.5vw,24px);line-height:1.6;}
+#wod .wod-block-body .wb-key{font-weight:800;color:var(--text);letter-spacing:-.2px;}
+#wod .wod-block-body .wb-scale{font-size:.82em;}
+#wod .wod-block.core .wod-block-body{font-size:clamp(18px,1.9vw,32px);font-weight:600;}
+#wod .wod-block.core .wb-key{color:var(--blue);}
+#wod .wod-block.purpose .wod-block-body{color:var(--muted);font-style:italic;}
+#wod .wd-strip-pub .wd-day.on{background:var(--blue-d);border-color:var(--blue);}
+#wod .wod-slot-pub .slot-btn{border-radius:999px;}
 .wod-empty{text-align:center;color:var(--muted);font-size:clamp(15px,1.4vw,22px);padding:clamp(50px,6vw,100px) 20px;}
 .wod-teaser{text-align:center;padding:clamp(36px,5vw,72px) 22px;display:flex;flex-direction:column;align-items:center;gap:10px;}
 .wod-teaser .teaser-ic{font-size:clamp(38px,5vw,60px);line-height:1;}
@@ -821,6 +848,56 @@ body.wod-fill .wod-block.warmup{background:rgba(129,201,149,.14);border-color:rg
 body.wod-fill .wod-block.core{background:rgba(242,139,130,.15);border-color:rgba(242,139,130,.55);}
 body.wod-fill .wod-block.cool{background:var(--blue-d);border-color:var(--blue);}
 body.wod-fill .wod-block.bonus{background:rgba(187,134,252,.14);border-color:rgba(187,134,252,.5);}
+/* ============ PUBLIC WOD — MINIMAL "clean menu" variant (owner opt-in: appearance.wod_min → body.wod-min). #wod-scoped only; kiosk-safe; var() colours only. ============ */
+body.wod-min #wod .wod-head{padding-top:clamp(20px,3vw,48px);}
+body.wod-min #wod .wod-title{letter-spacing:-2px;font-weight:800;line-height:1;}
+body.wod-min #wod .wod-focus-tag{background:transparent!important;border:1px solid var(--border);color:var(--muted)!important;font-weight:700;}
+body.wod-min #wod .wodv{max-width:min(680px,92vw);}
+body.wod-min #wod .wodv-cols{gap:0;}
+body.wod-min #wod .wodv-col{gap:0;}
+body.wod-min #wod .wod-block{background:transparent!important;border:0!important;border-left:0!important;border-radius:0!important;border-top:1px solid var(--border)!important;padding:clamp(22px,2.8vw,40px) 0!important;margin:0!important;}
+body.wod-min #wod .wodv-col>.wod-block:first-child{border-top:0!important;}
+body.wod-min #wod .wod-block-h{color:var(--muted)!important;letter-spacing:2.4px;}
+body.wod-min #wod .wod-block .wb-ico{display:none;}
+body.wod-min #wod .wod-block-h>span:first-child::before{display:none;}
+body.wod-min #wod .wod-chev{color:var(--blue);opacity:.5;}
+body.wod-min #wod .wod-block-body{font-size:clamp(17px,1.7vw,26px);line-height:1.7;}
+body.wod-min #wod .wod-block-body .wb-scale{border-left:0;padding-left:0;opacity:.85;}
+body.wod-min #wod .wod-block-body .wb-gap{height:.7em;}
+body.wod-min #wod .wod-block.core .wod-block-body{font-size:clamp(20px,2.1vw,34px);font-weight:650;line-height:1.55;}
+body.wod-min #wod .wod-block.core .wb-key{color:var(--blue);}
+body.wod-min #wod .wod-block.purpose .wod-block-body{color:var(--muted);font-style:italic;}
+body.wod-min #wod .wod-block.collapsed{border-top:1px solid var(--border)!important;}
+body.wod-min #wod .wd-strip-pub .wd-day{background:transparent;border-color:var(--border);}
+body.wod-min #wod .wd-strip-pub .wd-day.on{background:transparent;border-color:var(--blue);}
+body.wod-min #wod .slot-btn{background:transparent;}
+body.wod-min #wod .slot-btn.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
+body.wod-min.wod-fill #wod .wod-block{background:transparent!important;border:0!important;border-top:1px solid var(--border)!important;}
+body.wod-min #wod .wod-share{border-color:var(--border);}
+@media (orientation:landscape) and (min-width:1024px){
+  body.wod-min #wod .wodv{max-width:min(760px,92vw);}
+  body.wod-min #wod .wodv-cols{flex-direction:column;}
+  body.wod-min #wod .wodv-c1,body.wod-min #wod .wodv-c2,body.wod-min #wod .wodv-c3{flex:none;}
+  body.wod-min #wod .wod-block{padding:clamp(20px,2.4vw,36px) 0!important;border-left:0!important;border-top:1px solid var(--border)!important;}
+}
+@media(max-width:760px){
+  body.wod-min #wod .wodv{max-width:100%;}
+  body.wod-min #wod .wod-block{padding:18px 2px!important;}
+  body.wod-min #wod .wod-block-body{font-size:16px;line-height:1.6;}
+  body.wod-min #wod .wod-block.core .wod-block-body{font-size:18px;}
+}
+/* ---------- WOD EXPORT OVERLAY ---------- */
+.wodx-ex{display:none;position:fixed;inset:0;z-index:320;background:rgba(0,0,0,.72);align-items:center;justify-content:center;padding:18px;}
+.wodx-ex-card{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:18px;max-width:440px;width:100%;max-height:92vh;overflow:auto;}
+.wodx-ex-head{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:16px;margin-bottom:12px;}
+.wodx-ex-x{background:var(--bg-light);border:0;color:var(--muted);width:28px;height:28px;border-radius:50%;font-size:15px;cursor:pointer;}
+.wodx-ex-fmts{display:flex;gap:8px;margin-bottom:14px;}
+.wodx-ex-f{flex:1;background:var(--bg-light);border:1px solid var(--border);color:var(--muted);font-weight:700;font-size:13px;padding:9px 6px;border-radius:10px;cursor:pointer;font-family:inherit;}
+.wodx-ex-f.on{background:var(--blue);border-color:var(--blue);color:var(--dk);}
+.wodx-ex-preview{background:#000;border-radius:12px;padding:10px;display:flex;justify-content:center;}
+.wodx-ex-preview canvas{max-width:100%;max-height:56vh;height:auto;border-radius:6px;}
+.wodx-ex-acts{display:flex;gap:10px;align-items:center;margin-top:14px;}
+.wodx-ex-acts .btn-full{flex:1;}
 
 /* ---------- MODALS ---------- */
 .modal,.pw-gate{display:none;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;padding:20px;}
@@ -893,13 +970,21 @@ body.wod-fill .wod-block.bonus{background:rgba(187,134,252,.14);border-color:rgb
   .wod-title{font-size:clamp(23px,6.6vw,34px);letter-spacing:-1px;line-height:1.04;}
   .wod-focus-tag{margin-top:7px;padding:4px 14px;font-size:12px;}
   .wod-wrap{padding:10px 13px 30px;}
+  #wod .wod-head{max-width:100%;}
+  #wod .wodv{max-width:100%;}
   .wod-block{padding:12px 15px;margin-bottom:9px;border-radius:12px;border-left-width:4px;}
+  #wod .wod-block{padding:14px 15px;margin-bottom:9px;border-radius:14px;border-left-width:3px;}
   .wod-block-h{font-size:11px;margin-bottom:7px;letter-spacing:1px;}
+  #wod .wod-block-h{font-size:11px;margin-bottom:8px;letter-spacing:1.2px;}
   .wod-block.collapsed .wod-block-h{margin-bottom:0;}
   .wod-block-body{font-size:14px;line-height:1.42;}
+  #wod .wod-block-body{font-size:15px;line-height:1.46;}
   .wod-block.core .wod-block-body{font-size:15px;line-height:1.42;}
+  #wod .wod-block.core .wod-block-body{font-size:17px;line-height:1.44;font-weight:600;}
   .wod-block-body .wb-key{margin-top:.4em;}
+  #wod .wod-block-body .wb-key{margin-top:.45em;}
   .wod-block-body .wb-scale{font-size:.82em;line-height:1.3;margin:1px 0 4px;}
+  #wod .wod-block-body .wb-scale{font-size:.82em;line-height:1.34;margin:2px 0 5px;}
   .wod-block-body .wb-gap{height:.38em;}
 }
 @media (orientation: portrait) and (min-width:768px){
@@ -1656,7 +1741,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 <!-- WOD TAB -->
 <div class="wod active" id="wod">
   <div class="disp-head"><div class="disp-logo" onclick="logoTap()"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><div class="disp-clock" id="wod-clock"></div></div>
-  <div class="wod-head"><div class="wod-date" id="wod-disp-date"></div><div class="wod-title" id="wod-disp-title">Workout of the Day</div><div class="wod-focus-tag" id="wod-disp-focus"></div></div>
+  <div class="wod-head"><div class="wod-date" id="wod-disp-date"></div><div class="wod-title" id="wod-disp-title">Workout of the Day</div><div class="wod-hero-row"><div class="wod-focus-tag" id="wod-disp-focus"></div><button class="wod-share" id="wod-share-btn" style="display:none;" onclick="openWodExport()" aria-label="Share this workout" title="Share this workout"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v13"/><path d="M8 7l4-4 4 4"/></svg></button></div></div>
   <div class="wd-strip wd-strip-pub" id="wod-pub-strip"></div>
   <div class="wod-slot-pub" id="wod-slot-pub" style="display:none;"></div>
   <div class="wod-wrap" id="wod-disp-body"></div>
@@ -1757,6 +1842,7 @@ function applyAppearance(){
   document.body.classList.toggle('hide-gymname',a.show_gymname===false);
   document.body.classList.toggle('hide-clock',a.show_clock===false);
   document.body.classList.toggle('wod-fill',a.wod_fill===true);
+  document.body.classList.toggle('wod-min',a.wod_min===true);
   document.body.classList.toggle('no-tab-emoji',a.tab_emojis===false);
 }
 function toast(msg){let t=document.getElementById('cave-toast');if(!t){t=document.createElement('div');t.id='cave-toast';t.className='cave-toast';document.body.appendChild(t);}t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
@@ -2852,7 +2938,7 @@ function defaultCool(w){
 function wodBlocksHTML(w){
   const wc=wodCollapsedSet();
   const has=k=>w[k]&&String(w[k]).trim();
-  const blk=(k,fb)=>{const b=WOD_BLOCKS.find(x=>x.k===k);const content=has(k)?w[b.k]:(fb||'');if(!String(content).trim())return '';const cc=wc.has(b.k)?' collapsed':'';return `<div class="wod-block ${b.cls} wb-${b.k}${cc}"><div class="wod-block-h" onclick="toggleWodBlock('${b.k}',event)"><span>${b.i} ${b.l}</span><span class="wod-chev">\u25be</span></div><div class="wod-block-body">${wodBody(content)}</div></div>`;};
+  const blk=(k,fb)=>{const b=WOD_BLOCKS.find(x=>x.k===k);const content=has(k)?w[b.k]:(fb||'');if(!String(content).trim())return '';const cc=(k!=='core'&&wc.has(b.k))?' collapsed':'';return `<div class="wod-block ${b.cls} wb-${b.k}${cc}"><div class="wod-block-h" onclick="toggleWodBlock('${b.k}',event)"><span><span class="wb-ico">${b.i}</span> ${b.l}</span><span class="wod-chev">\u25be</span></div><div class="wod-block-body">${wodBody(content)}</div></div>`;};
   const col=(cls,content)=>content?`<div class="wodv-col ${cls}">${content}</div>`:'';
   const ccol=/^#[0-9a-fA-F]{6}$/.test(w.custom_color||'')?w.custom_color:'#4ecdc4';
   const ccl=wc.has('custom')?' collapsed':'';
@@ -2868,6 +2954,7 @@ function renderWOD(){
   renderWodMember();
   buildDateStrip('wod-pub-strip',6,publicWodDate,'pickPublicWod');
   const d=publicWodDate;
+  {var _sb=document.getElementById('wod-share-btn'); if(_sb)_sb.style.display='none';}
   const hasB=dualOn()&&wodHasContent(wodForDate(d,'b'));
   if(!hasB&&publicWodSlot==='b')publicWodSlot='a';
   const sw=document.getElementById('wod-slot-pub');
@@ -2885,9 +2972,161 @@ function renderWOD(){
   fe.textContent="Focus: "+f;fe.style.color=focusColor(f)[0];fe.style.background=focusColor(f)[1];
   if(!wodHasContent(w)){body.innerHTML='<div class="wod-empty">'+(d===todayKey()?'No WOD set for today yet.':'Nothing planned for this day yet.')+'</div>';return;}
   body.innerHTML=wodBlocksHTML(w);
+  var _sb2=document.getElementById('wod-share-btn'); if(_sb2)_sb2.style.display=(isUnlocked()&&dispIsMaster()&&wodLive(d)&&wodHasContent(w))?'':'none';
 }
 function pickPublicWod(d){publicWodDate=d;publicWodSlot='a';renderWOD();}
 function pickPublicSlot(slot){publicWodSlot=slot;renderWOD();}
+/* ============================================================
+   WOD EXPORT — pure-canvas shareable poster (offline, no libs)
+   Story 1080x1920 / Square 1080x1080 / Print A4 1240x1754.
+   Reuses the inline .logo-img data URI (taint-safe) + toDataURL.
+   ============================================================ */
+let wodExportFmt='story';
+let _wodLogoImg=null,_wodLogoTried=false;
+function wodLogoDataUri(){ // single source of truth: read the .logo-img background off a probe element
+  try{const p=document.createElement('span');p.className='logo-img';p.style.cssText='position:absolute;left:-9999px;display:block;';
+    document.body.appendChild(p);const bg=getComputedStyle(p).backgroundImage;p.remove();
+    const m=bg&&bg.match(/url\(["']?(data:image\/png;base64,[^"')]+)["']?\)/);return m?m[1]:'';
+  }catch(e){return '';}
+}
+function ensureWodLogo(cb){
+  if(_wodLogoImg&&_wodLogoImg.complete){cb&&cb();return;}
+  if(_wodLogoTried&&!_wodLogoImg){cb&&cb();return;}
+  _wodLogoTried=true;const uri=wodLogoDataUri();if(!uri){cb&&cb();return;}
+  _wodLogoImg=new Image();_wodLogoImg.onload=function(){cb&&cb();};_wodLogoImg.onerror=function(){_wodLogoImg=null;cb&&cb();};_wodLogoImg.src=uri;
+}
+function wodExportOverlay(){
+  let ov=document.getElementById('wodx-export');
+  if(ov)return ov;
+  ov=document.createElement('div');ov.id='wodx-export';ov.className='wodx-ex';
+  ov.innerHTML='<div class="wodx-ex-card" role="dialog" aria-label="Share the workout">'
+    +'<div class="wodx-ex-head"><span>Share the WOD</span><button class="wodx-ex-x" onclick="closeWodExport()" aria-label="Close">\u2715</button></div>'
+    +'<div class="wodx-ex-fmts">'
+    +'<button class="wodx-ex-f on" data-f="story" onclick="setWodExportFmt(\'story\')">Story 9:16</button>'
+    +'<button class="wodx-ex-f" data-f="square" onclick="setWodExportFmt(\'square\')">Square 1:1</button>'
+    +'<button class="wodx-ex-f" data-f="print" onclick="setWodExportFmt(\'print\')">Print A4</button>'
+    +'</div>'
+    +'<div class="wodx-ex-preview"><canvas id="wodx-canvas"></canvas></div>'
+    +'<div class="wodx-ex-acts"><button class="btn-full" onclick="downloadWodImage()">Download PNG</button>'
+    +'<button class="btn-sm" id="wodx-share-b" style="display:none;" onclick="shareWodImage()">Share\u2026</button></div>'
+    +'<div class="note" style="margin-top:8px;">Instagram-ready / printable. Works offline.</div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeWodExport();});
+  return ov;
+}
+function openWodExport(){
+  if(!isUnlocked())return; // hard gate (admins) (button is owner-only, belt+braces)
+  const ov=wodExportOverlay();ov.style.display='flex';
+  const sb=document.getElementById('wodx-share-b');
+  if(sb)sb.style.display=(navigator.canShare)?'':'none';
+  ensureWodLogo(function(){paintWodCanvas();});
+  paintWodCanvas(); // paint immediately (logo may fill in on its callback)
+}
+function closeWodExport(){const o=document.getElementById('wodx-export');if(o)o.style.display='none';}
+function setWodExportFmt(f){wodExportFmt=f;document.querySelectorAll('.wodx-ex-f').forEach(function(b){b.classList.toggle('on',b.dataset.f===f);});paintWodCanvas();}
+/* poster line classification — mirrors wodBody() exactly */
+function wodExpLineKind(s){
+  if(/^(rx|scaled?|scale up|scale down|knees|beginner|pro|open|note|notes|build|coach cue|cue|tip|target|sub|substitute)\s*:/i.test(s))return 'scale';
+  if(/^part\s+[a-z0-9]/i.test(s)||/^finisher\b/i.test(s)||/^\d+\s*(rounds|rds|sets|rft|amrap|emom|min|sec|for time|x\b)/i.test(s)||/^\d+\s*[-\u2013]\s*\d+/.test(s)||/:$/.test(s)||(/^[^a-z]+$/.test(s)&&s.length<=34))return 'key';
+  return 'line';
+}
+function wodExpWrap(g,str,x,y,maxW,lh){var words=String(str).split(/\s+/);var line='';for(var i=0;i<words.length;i++){var t=line?line+' '+words[i]:words[i];if(g.measureText(t).width>maxW&&line){g.fillText(line,x,y);y+=lh;line=words[i];}else line=t;}if(line){g.fillText(line,x,y);y+=lh;}return y;}
+function wodExpRound(g,X,Y,w,h,r){g.beginPath();g.moveTo(X+r,Y);g.arcTo(X+w,Y,X+w,Y+h,r);g.arcTo(X+w,Y+h,X,Y+h,r);g.arcTo(X,Y+h,X,Y,r);g.arcTo(X,Y,X+w,Y,r);g.closePath();}
+function paintWodCanvas(){
+  const c=document.getElementById('wodx-canvas');if(!c)return;
+  const DIMS={story:[1080,1920],square:[1080,1080],print:[1240,1754]};
+  const dm=DIMS[wodExportFmt]||DIMS.story,W=dm[0],H=dm[1];
+  c.width=W;c.height=H;const g=c.getContext('2d');
+  const printMode=(wodExportFmt==='print');
+  const cs=getComputedStyle(document.documentElement);
+  const vv=function(k,d){return (cs.getPropertyValue(k)||'').trim()||d;};
+  const bg=printMode?'#ffffff':vv('--bg','#202124');
+  const ink=printMode?'#111111':vv('--text','#e8eaed');
+  const sub=printMode?'#555555':vv('--muted','#9aa0a6');
+  const line=printMode?'#e2e2e2':vv('--border','#3c4043');
+  const d=publicWodDate||todayKey();
+  const w=wodForDate(d,publicWodSlot)||{};
+  const f=(w.focus||focusForDate(d));
+  const fc=focusColor(f)[0];
+  const FONT='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+  const font=function(px,wt){return (wt||400)+' '+Math.round(px)+'px '+FONT;};
+  g.textBaseline='top';
+  // background + top accent bar
+  g.fillStyle=bg;g.fillRect(0,0,W,H);
+  g.fillStyle=fc;g.fillRect(0,0,W,Math.max(6,Math.round(H*0.006)));
+  const PAD=Math.round(W*0.085);let y=Math.round(H*0.075);const CW=W-PAD*2;
+  // eyebrow: date (+ slot label when dual)
+  g.fillStyle=sub;g.font=font(W*0.026,700);
+  const slotTxt=(dualOn()&&publicWodSlot==='b')?('  \u00b7  '+wodLabel('b').toUpperCase()):'';
+  g.fillText(dateLabel(d,{weekday:'long',day:'numeric',month:'long'}).toUpperCase()+slotTxt,PAD,y);
+  y+=Math.round(W*0.05);
+  // title (wrap)
+  g.fillStyle=ink;const tS=Math.round(W*(wodExportFmt==='story'?0.082:0.072));
+  g.font=font(tS,800);y=wodExpWrap(g,(w.title||(f+' Day')),PAD,y,CW,tS*1.04);
+  y+=Math.round(W*0.02);
+  // focus pill
+  g.font=font(W*0.028,800);const pl=('Focus: '+f).toUpperCase();
+  const pw=g.measureText(pl).width+Math.round(W*0.06),ph=Math.round(W*0.062);
+  wodExpRound(g,PAD,y,pw,ph,ph/2);g.fillStyle=printMode?'#f0f0f0':hexToRgba(fc,0.16);g.fill();
+  g.fillStyle=fc;g.fillText(pl,PAD+Math.round(W*0.03),y+ph*0.28);
+  y+=ph+Math.round(W*0.05);
+  // sections: Main first (hero); square = Main only; story/print = Main + warmup + cool + bonus
+  const order=(wodExportFmt==='square')?['core']:['core','warmup','cool','bonus'];
+  const bodyFloor=H-Math.round(H*0.115);
+  for(var oi=0;oi<order.length;oi++){
+    var k=order[oi];var b=WOD_BLOCKS.find(function(x){return x.k===k;});
+    var content=(w[k]&&String(w[k]).trim())?w[k]:(k==='cool'?defaultCool(w):'');
+    if(!content||y>bodyFloor)continue;
+    var big=(k==='core');
+    // section label + colour tick
+    g.fillStyle=fc;g.fillRect(PAD,y+Math.round(W*0.004),Math.round(W*0.012),Math.round(W*0.042));
+    g.fillStyle=sub;g.font=font(W*0.026,800);
+    g.fillText(b.l.toUpperCase(),PAD+Math.round(W*0.03),y);
+    y+=Math.round(W*0.05);
+    var lines=String(content).split('\n');
+    for(var li=0;li<lines.length;li++){
+      var s=lines[li].trim();if(!s){y+=Math.round(W*0.012);continue;}
+      if(y>bodyFloor){g.fillStyle=sub;g.font=font(W*0.024,600);g.fillText('\u2026full workout in the app',PAD,y);y=bodyFloor+999;break;}
+      var kind=wodExpLineKind(s);var isScale=(kind==='scale'),isKey=(kind==='key');
+      var sz=Math.round(W*(isScale?0.026:(big?0.04:0.033)));
+      g.font=font(sz,isKey?800:(isScale?500:600));
+      g.fillStyle=isScale?sub:((isKey&&big)?fc:ink);
+      var indent=isScale?Math.round(W*0.02):0;
+      y=wodExpWrap(g,s,PAD+indent,y,CW-indent,sz*1.3);
+      y+=Math.round(W*0.006);
+    }
+    if(y>bodyFloor+900)break;
+    y+=Math.round(W*0.028);
+  }
+  // footer: logo (reused inline PNG) + handle
+  const fy=H-Math.round(H*0.075);
+  if(_wodLogoImg&&_wodLogoImg.complete&&_wodLogoImg.naturalWidth){
+    var lh2=Math.round(W*0.05),lw2=Math.round(lh2*559/360);
+    try{g.drawImage(_wodLogoImg,PAD,fy-Math.round(lh2*0.15),lw2,lh2);}catch(e){}
+    g.fillStyle=sub;g.font=font(W*0.024,700);g.fillText('thecavegym.com.au',PAD+lw2+Math.round(W*0.02),fy+lh2*0.28);
+  }else{
+    g.fillStyle=fc;g.font=font(W*0.03,800);g.fillText('THE CAVE',PAD,fy);
+    g.fillStyle=sub;g.font=font(W*0.024,700);g.fillText('thecavegym.com.au',PAD,fy+Math.round(W*0.04));
+  }
+}
+function downloadWodImage(){
+  const c=document.getElementById('wodx-canvas');if(!c)return;
+  try{const a=document.createElement('a');a.href=c.toDataURL('image/png');
+    a.download='cave-wod-'+(publicWodDate||todayKey())+'-'+wodExportFmt+'.png';
+    document.body.appendChild(a);a.click();a.remove();toast('Image saved \u2713');
+  }catch(e){toast('Couldn\u2019t save the image');}
+}
+function shareWodImage(){
+  const c=document.getElementById('wodx-canvas');if(!c)return;
+  if(!(navigator.canShare&&navigator.share)){downloadWodImage();return;}
+  try{c.toBlob(function(b){if(!b){downloadWodImage();return;}
+    const file=new File([b],'cave-wod.png',{type:'image/png'});
+    if(navigator.canShare({files:[file]}))navigator.share({files:[file],title:'The Cave WOD'}).catch(function(){});
+    else downloadWodImage();
+  },'image/png');}catch(e){downloadWodImage();}
+}
+
 
 /* ---------- ALL-TIME RECORDS (The Wall master board) ---------- */
 // The hall of fame: one best Male + best Female (or one overall) per feat, grouped by category.
@@ -3358,7 +3597,7 @@ function renderSettings(){
       `<div class="set-section">Focus highlight colours</div><div class="set-sub" style="margin-bottom:6px;">These colour the focus tags, WOD headers and day dots. Custom covers any one-off label you type (HYROX Sim, Chipper, etc).</div>`+focusRow('Strength')+focusRow('Engine')+focusRow('Endurance')+focusRow('Challenge')+focusRow('Partner')+focusRow('Power')+focusRow('Custom')+
       `<div class="set-section">Header</div>`+tog('show_gymname','Show Cave logo','In the WOD, Event & Display headers',true)+tog('show_clock','Show clock','Top-right time on WOD & Display',true)+
       `<div class="set-section">Navigation tabs</div>`+tog('tab_emojis','Emoji on tabs','Show the little icons (🔥 ✍️ 📊) on the nav tabs. Off = clean text-only tabs.',true)+
-      `<div class="set-section">WOD tiles</div>`+tog('wod_fill','Full-colour tiles','Fill each WOD tile with its colour instead of just a side bar',false)+
+      `<div class="set-section">WOD page style</div>`+tog('wod_fill','Full-colour tiles','Fill each WOD tile with its colour instead of just a side bar',false)+tog('wod_min','Minimal (clean menu) mode','Flatter, more spacious, hairline dividers and one accent — the premium clean look. Public WOD page only.',false)+
       `<div class="set-section">Advertising</div><div class="set-row" style="display:block;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div class="set-lbl">Ad size</div><div class="set-sub">Default 100% fills the screen. Adjust only if a screen needs it.</div></div><span class="set-pct" id="ad-scale-pct">${Math.round((s.ad_scale||1)*100)}%</span></div><input type="range" class="set-range" min="0.6" max="1.4" step="0.05" value="${s.ad_scale||1}" oninput="liveAdScale(this.value)" onchange="commitAdScale(this.value)"></div>`+
       `<button class="btn-sm" style="margin-top:14px;width:100%;text-align:center;padding:10px;" onclick="resetAppearance()">Reset appearance to default</button>`;
   } else if(settingsTab==='device'){
