@@ -80,8 +80,9 @@ kiosk fallback and must never be removed. Verified: kiosk `.wod-block` computed 
 toggle on/off. **Layer A (new default, everyone):** thinner 3px accent, rounded cards, muted section labels each
 with a small **hue dot** (`::before`; the decorative WOD_BLOCKS emoji is wrapped in `.wb-ico` and hidden via
 `#wod .wb-ico{display:none}`), movements loud/white, and the Main block's rep-scheme `.wb-key` lines get the one
-**blue punch**. The **Main (core) block is force-expanded** (`blk` helper: `core` never gets `.collapsed`) so a
-member who previously collapsed it never lands on a hidden workout; other blocks keep persisted collapse.
+**blue punch**. The **Main (core) block is non-collapsible** (`blk` force-expands it; `toggleWodBlock` early-returns for `core`;
+its chevron is hidden on `#wod`; a stale `core` entry in `cave_wod_collapsed` is self-healed on render) so a member
+can never hide the day's workout; other blocks keep persisted collapse.
 - **McDonald's-clean toggle** = `appearance.wod_min` (boolean, default false, owner Settings → "WOD page style" →
   "Minimal (clean menu) mode" via `tog('wod_min',…)`) → `body.wod-min` (wired in `applyAppearance` next to `wod_fill`;
   reuses `toggleAppearance`, no new persistence). The variant is flat — **no cards, hairline `border-top` dividers,

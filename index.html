@@ -271,6 +271,9 @@ body.no-tab-emoji .te{display:none;}
 #wod .wod-block-h{font-size:clamp(11px,1vw,15px);letter-spacing:1.8px;margin-bottom:clamp(10px,1.1vw,16px);color:var(--muted);}
 #wod .wod-block-h>span:first-child{display:inline-flex;align-items:center;gap:9px;}
 #wod .wb-ico{display:none;}
+#wod .wb-core .wod-chev{display:none;}
+#wod .wb-core .wod-block-h{cursor:default;}
+body.light #wod .wod-block.core .wod-block-body .wb-key{color:#1a56db;}
 #wod .wod-block-h>span:first-child::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;}
 #wod .wod-block.warmup .wod-block-h>span:first-child::before{background:var(--green);}
 #wod .wod-block.purpose .wod-block-h>span:first-child::before{background:var(--amber);}
@@ -856,7 +859,7 @@ body.wod-min #wod .wodv{max-width:min(680px,92vw);}
 body.wod-min #wod .wodv-cols{gap:0;}
 body.wod-min #wod .wodv-col{gap:0;}
 body.wod-min #wod .wod-block{background:transparent!important;border:0!important;border-left:0!important;border-radius:0!important;border-top:1px solid var(--border)!important;padding:clamp(22px,2.8vw,40px) 0!important;margin:0!important;}
-body.wod-min #wod .wodv-col>.wod-block:first-child{border-top:0!important;}
+body.wod-min #wod .wodv-cols>.wodv-col:first-child>.wod-block:first-child{border-top:0!important;}
 body.wod-min #wod .wod-block-h{color:var(--muted)!important;letter-spacing:2.4px;}
 body.wod-min #wod .wod-block .wb-ico{display:none;}
 body.wod-min #wod .wod-block-h>span:first-child::before{display:none;}
@@ -2922,7 +2925,7 @@ function renderArchiveList(){
 /* ===== PUBLIC WOD TAB (today + next 5 days) ===== */
 let publicWodDate=todayKey(),publicWodSlot='a';
 function wodCollapsedSet(){try{return new Set(JSON.parse(localStorage.getItem('cave_wod_collapsed')||'[]'));}catch(e){return new Set();}}
-function toggleWodBlock(k,ev){if(ev&&ev.stopPropagation)ev.stopPropagation();const set=wodCollapsedSet();if(set.has(k))set.delete(k);else set.add(k);try{localStorage.setItem('cave_wod_collapsed',JSON.stringify([...set]));}catch(e){}document.querySelectorAll('.wb-'+k).forEach(b=>b.classList.toggle('collapsed',set.has(k)));}
+function toggleWodBlock(k,ev){if(ev&&ev.stopPropagation)ev.stopPropagation();if(k==='core')return;const set=wodCollapsedSet();if(set.has(k))set.delete(k);else set.add(k);try{localStorage.setItem('cave_wod_collapsed',JSON.stringify([...set]));}catch(e){}document.querySelectorAll('.wb-'+k).forEach(b=>b.classList.toggle('collapsed',set.has(k)));}
 function wodBody(t){const lines=String(t==null?'':t).split('\n');let h='';for(const raw of lines){const s=raw.trim();if(!s){h+='<div class="wb-gap"></div>';continue;}const isScale=/^(rx|scaled?|scale up|scale down|knees|beginner|pro|open|note|notes|build|coach cue|cue|tip|target|sub|substitute)\s*:/i.test(s);const isKey=!isScale&&(/^part\s+[a-z0-9]/i.test(s)||/^finisher\b/i.test(s)||/^\d+\s*(rounds|rds|sets|rft|amrap|emom|min|sec|for time|x\b)/i.test(s)||/^\d+\s*[-\u2013]\s*\d+/.test(s)||/:$/.test(s)||(/^[^a-z]+$/.test(s)&&s.length<=34));const cls=isScale?'wb-line wb-scale':(isKey?'wb-line wb-key':'wb-line');h+='<div class="'+cls+'">'+esc(s)+'</div>';}return h;}
 function defaultCool(w){
   const f=(w&&w.focus)||(w&&w.date?focusForDate(w.date):'');
@@ -2937,6 +2940,7 @@ function defaultCool(w){
 }
 function wodBlocksHTML(w){
   const wc=wodCollapsedSet();
+  if(wc.has('core')){wc.delete('core');try{localStorage.setItem('cave_wod_collapsed',JSON.stringify([...wc]));}catch(e){}}
   const has=k=>w[k]&&String(w[k]).trim();
   const blk=(k,fb)=>{const b=WOD_BLOCKS.find(x=>x.k===k);const content=has(k)?w[b.k]:(fb||'');if(!String(content).trim())return '';const cc=(k!=='core'&&wc.has(b.k))?' collapsed':'';return `<div class="wod-block ${b.cls} wb-${b.k}${cc}"><div class="wod-block-h" onclick="toggleWodBlock('${b.k}',event)"><span><span class="wb-ico">${b.i}</span> ${b.l}</span><span class="wod-chev">\u25be</span></div><div class="wod-block-body">${wodBody(content)}</div></div>`;};
   const col=(cls,content)=>content?`<div class="wodv-col ${cls}">${content}</div>`:'';
