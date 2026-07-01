@@ -4392,7 +4392,7 @@ function cxRowToggle(id){cxState.openRow=(cxState.openRow===id)?null:id;cxState.
 function cxEmailClient(){return (settings().cx_email_client==='gmail')?'gmail':'mailto';}
 function cxClubfitUrl(){return ((settings().cx_clubfit_url||'')+'').trim();}
 function cxEmailFor(c,kind){if(kind==='notice')return cxEmailNoticeQ(c);if(kind==='fee')return cxEmailFeeQ(c);if(kind==='review')return cxEmailReviewOffer(c);return cxMemberEmail(c);}
-function cxComposeUrl(to,subject){var t=encodeURIComponent(to||''),s=encodeURIComponent(subject||'');if(cxEmailClient()==='gmail')return 'https://mail.google.com/mail/?view=cm&fs=1&tf=1&to='+t+'&su='+s;return 'mailto:'+t+'?subject='+s;}
+function cxComposeUrl(to,subject){var t=encodeURIComponent(to||''),s=encodeURIComponent(subject||'');if(cxEmailClient()==='gmail')return 'https://mail.google.com/mail/?view=cm&fs=1&tf=1&to='+t+(subject?('&su='+s):'');return 'mailto:'+t+(subject?('?subject='+s):'');}
 function cxSendEmail(id,kind){var c=cxFindCase(id);if(!c){toast('Open the case first');return;}if(kind==='review'&&!cxReviewUrl()){toast('Add the gym’s Google review link first (in the hub settings).');return;}var em=cxEmailFor(c,kind);if(!em){toast('Add the billing details first');return;}var to=(c.member_email||'').trim();if(!to){toast('No email on file — add the member’s email, then send.');return;}cxCopyRich(em.text,em.html||null,'Email copied — opening your composer, just paste (Ctrl/Cmd+V)');if(cxEmailClient()==='gmail'){var w=window.open(cxComposeUrl(to,em.subject),'_blank');if(w){try{w.opener=null;}catch(e){}}else{toast('Pop-up blocked — opening your default mail app. The email is on your clipboard to paste.');try{location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(em.subject);}catch(e){}}}else{try{location.href=cxComposeUrl(to,em.subject);}catch(e){}}}
 function cxTelHref(phone){var d=(phone||'').replace(/[^\d+]/g,'');if(/^\+/.test(d))return 'tel:'+d;if(/^0\d{8,9}$/.test(d))return 'tel:+61'+d.slice(1);if(/^\d{6,}$/.test(d))return 'tel:'+d;return '';}
 function cxCall(id){var c=cxFindCase(id);if(!c)return;var href=cxTelHref(c.member_phone);if(!href){toast('No valid phone number on file');return;}location.href=href;}
@@ -4491,17 +4491,18 @@ function cxRowDetailHTML(c,calc,inT){
   var snip=((c.cancellation_reason||'')+(c.feedback?(' — '+c.feedback):'')).trim();
   if(snip.length>200)snip=snip.slice(0,197)+'…';
   var snipLine=snip?('<div class="cxr-snip">'+esc(snip)+'</div>'):'';
-  var menu=cxState.emailMenu===c.id, canEmail=email&&(calc||cxReviewUrl()), acts;
+  var menu=cxState.emailMenu===c.id, canEmail=!!email, templated=!!(calc||cxReviewUrl()), acts;
   if(menu&&canEmail){
-    var mi='<span class="cxr-menu-lbl">Send</span>';
-    if(calc)mi+='<button class="cxr-act primary" onclick="cxSendFromMenu(\''+c.id+'\',\'member\')">Confirmation email</button>';
+    var mi='<span class="cxr-menu-lbl">Email</span>';
+    if(calc)mi+='<button class="cxr-act primary" onclick="cxSendFromMenu(\''+c.id+'\',\'member\')">Confirmation</button>';
     if(cxReviewUrl())mi+='<button class="cxr-act" onclick="cxSendFromMenu(\''+c.id+'\',\'review\')">Google review offer</button>';
+    mi+='<button class="cxr-act'+(templated?'':' primary')+'" onclick="cxSendFromMenu(\''+c.id+'\',\'blank\')">Write a blank email</button>';
     if(calc)mi+='<button class="cxr-act" onclick="cxCopyEmailMenu(\''+c.id+'\')">Copy to clipboard</button>';
     mi+='<button class="cxr-act cxr-x" onclick="cxEmailMenuClose()">Cancel</button>';
     acts='<div class="cxr-acts">'+mi+'</div>';
   }else{
     var a=[];
-    if(canEmail)a.push('<button class="cxr-act primary" onclick="cxEmailMenu(\''+c.id+'\')">Email ▾</button>');
+    if(canEmail){if(templated)a.push('<button class="cxr-act primary" onclick="cxEmailMenu(\''+c.id+'\')">Email ▾</button>');else a.push('<button class="cxr-act primary" onclick="cxEmailBlank(\''+c.id+'\')">Email</button>');}
     if(phone&&cxTelHref(phone))a.push('<a class="cxr-act" href="'+esc(cxTelHref(phone))+'">Call</a>');
     if(cxClubfitUrl())a.push('<button class="cxr-act" onclick="cxProfile(\''+c.id+'\')">ClubFit'+(cf?(' '+esc(cf)):'')+'</button>');
     else if(cf)a.push('<span class="cxr-act ghost">ClubFit '+esc(cf)+'</span>');
@@ -4530,7 +4531,8 @@ function cxCaseSummaryHTML(c,calc){
 }
 function cxEmailMenu(id){cxState.emailMenu=id;renderCancelHub();}
 function cxEmailMenuClose(){cxState.emailMenu=null;renderCancelHub();}
-function cxSendFromMenu(id,kind){cxSendEmail(id,kind);cxState.emailMenu=null;renderCancelHub();}
+function cxSendFromMenu(id,kind){if(kind==='blank')cxEmailBlank(id);else cxSendEmail(id,kind);cxState.emailMenu=null;renderCancelHub();}
+function cxEmailBlank(id){var c=cxFindCase(id);if(!c)return;var to=(c.member_email||'').trim();if(!to){toast('No email on file');return;}if(cxEmailClient()==='gmail'){var w=window.open(cxComposeUrl(to,''),'_blank');if(w){try{w.opener=null;}catch(e){}}else{try{location.href='mailto:'+encodeURIComponent(to);}catch(e){}}}else{try{location.href=cxComposeUrl(to,'');}catch(e){}}}
 function cxCopyEmailMenu(id){cxCopyEmail(id);cxState.emailMenu=null;renderCancelHub();}
 /* ---- Calendar view: outstanding tasks plotted on their due date ---- */
 function cxCalEvents(){var map={};cxAllTodos().forEach(function(t){if(!t.due||t.done)return;(map[t.due]=map[t.due]||[]).push(t);});return map;}
