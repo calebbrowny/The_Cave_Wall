@@ -462,6 +462,19 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   Overdue/Today/This week/Later/Anytime (`cxTodoHTML`) with a red overdue tab badge + an overdue banner on the Cases list; sending the
   **confirmation** email auto-nudges `new`→Contacted (`cxSendEmail`, `kind==='member'` only); a "Mark processed" button appears once every
   task is ticked (`cxCaseSummaryHTML`). Toowoomba is UTC+10 no-DST so all `YYYY-MM-DD` calendar-string compares stay calendar-correct.
+- **Glance-first detail, per-case notes + attachments, refresh-first list (this pass).** Cases are **only ever ingested from Jotform** —
+  the "+ New cancellation" button + the verbose intro paragraph were removed; the list top bar is **refresh-first** (`cxJotformStatusHTML`:
+  a primary **↻ Refresh list** [`cxJotformRefresh`] + a small **Backfill…** [`cxJotformBackfill`] + the auto-sync status line). **Detail view
+  is restructured for a glance** (`cxDetailHTML`, single-column top-down): `#cx-out` leads with a **glance card** (`cxOutHTML` → status badges +
+  the payment breakdown via extracted `cxScheduleHTML(calc)` + read-only **Reason for leaving** + **Google review** status), then the actionable
+  cards (email / review offer / internal note / tasks / processing notes), then **Notes & activity**, then the editable form tucked in a collapsed
+  `<details>` "Edit case & billing details" (`cxFormHTML`) — so Charley gets everything key at a glance and scrolls/expands for the rest. `cxNowLine(c,calc)`
+  extracted + shared with `cxCaseSummaryHTML`. **Per-case notes** = a timestamped activity log in `cancellations.notes_log` (jsonb array
+  `{id,at,by,text,files:[{path,name,type,size}]}`, loaded via `select('*')`): `cxNotesHTML`/`cxAddNote`/`cxDelNote`/`cxRefreshNotes`, author via
+  `cxNoteWho`, time via `cxNoteWhen`. **Attachments** live in a **private** Supabase Storage bucket **`cancellation-files`** (RLS: SELECT/INSERT/
+  UPDATE/DELETE all gated by `is_cancel_staff()`, perf-wrapped; never public) — uploaded on add (`sb.storage…upload`, path `<caseId>/<noteId>_<i>_<name>`),
+  opened via a short-lived **signed URL on click** (`cxOpenAttachment` → `createSignedUrl(path,300)`), and removed with the note (`cxDelNote` →
+  `storage…remove`). Deleting a case doesn't purge its files (low volume; bucket is staff-only). `cxNew` is retained but unwired.
 - **Fully editable email templates + Settings tab (owner-only, `cxSettingsHTML`).** All four emails are a token engine
   (`cxRender`/`cxTokens`/`cxTpl`/`cxTplDefaults`): `{token}` substitution, `**bold**`→`<b>`, XSS-safe (`\u0000` sentinels,
   escape-once). VALUE tokens (`{first_name}`…`{signature}`) + **smart clause tokens** (`{fee_clause}`/`{notice_clause}`/
