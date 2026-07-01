@@ -117,6 +117,29 @@ can never hide the day's workout; other blocks keep persisted collapse.
 - **Cool-down:** every workout should have one. If `cool` is blank, the display now shows a
   focus-matched **auto-cooldown** (`defaultCool(w)`), so it's optional in the data.
 
+## Season plan & workout roster (→ HYROX Melbourne, Dec 2026)
+The Cave programs toward one seasonal goal: **HYROX Melbourne, ~12 Dec 2026** (5-day event, 9–13 Dec, at MCEC). The plan is
+**four 6-week blocks**, each opening with a **benchmark** (a repeatable test) then 6 weeks of training that ramps toward
+race-specificity — periodised base→peak:
+- **Block 1 · Foundation** (6 Jul – 16 Aug) — strength base, aerobic base, groove the 8 stations · *season baseline*.
+- **Block 2 · Engine** (17 Aug – 27 Sep) — raise the aerobic ceiling + heavier strength · *re-test #1*.
+- **Block 3 · Race-Specific** (28 Sep – 8 Nov) — compromised running, station-to-station fatigue, race pace · *re-test #2*.
+- **Block 4 · Sharpen & Peak** (9 Nov – 13 Dec) — full race sims → taper into race week · *final tune-up, then Melbourne*.
+
+Encoded in `const CAVE_SEASON` (race/raceDate/venue + `blocks[]` + `roster[]`). `renderSeasonPlan()` draws a read-only,
+owner-only context card (`#season-plan`, collapsible `<details>`, `.season*` CSS) at the **top of the WOD admin**: a race
+countdown (weeks-to-go from `todayKey()`), the four blocks with the **current one auto-highlighted** by today's date, and the
+roster legend; called from `renderAll`. Purely informational — it does **not** drive generation (the Mesocycle planner does that);
+update `CAVE_SEASON` if the race date/blocks change.
+- **Workout roster (CrossFit-style: simple, repeatable, named benchmarks).** One simple name per weekday, run **I–IV** within a
+  block; every 6-week block the roster returns heavier/faster so members chase their numbers. **Mon ATLAS** (back-squat wave,
+  test on the final week) · **Tue DASH** (run/pace; the 6×400 is the tracked benchmark) · **Wed BOLT** (power/cleans, test) ·
+  **Thu DIESEL** (endurance grind) · **Fri TITAN** (push-press wave, test) · **Sat TANGO** (partner) · **Sun SUMMIT**
+  (challenge/benchmark, grows into the full 8-station race sim). Live `wods` titles follow `"{NAME} {I–IV} — {short descriptor}"`
+  (e.g. `ATLAS III — Back Squat`, `SUMMIT IV — 8-Station Race Sim`). Replaced the old mountain/quarry names
+  (QUARRY/IRON RIDGE/RIDGELINE/SUMMIT PRESS/DRAGLINE/AVALANCHE/…); in-body self-references were rewritten too. Backups:
+  `wods_backup_prerename` (world-class content with the old names), `wods_backup_prerewrite` (pre-content-rewrite fixed-weekly).
+
 ## WOD generator (admin → WOD → "Generate workout 💫")
 No-API, built from The Cave's HYROX logic. Key pieces:
 - `DAYFOCUS` (by weekday) is the single source of truth for a day's focus; `buildWod`'s "Auto" derives
@@ -461,9 +484,15 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   `cxState.openRow`/`cxRowToggle`, one open at a time, reset on filter/sign-out): a **visual summary** (`cxCaseSummaryHTML`
   — a "what's happening" line (term + $fee / notice / final access / total) plus a **tickable "what needs doing" checklist**
   of the outstanding tasks, synced via `cxToggleTaskTodo`), contact links (email + `tel:`), a reason snippet, and smart
-  actions — **Email ▾** (a menu via `cxState.emailMenu`: Confirmation / Google review offer / Copy — `cxEmailMenu`/
-  `cxSendFromMenu`), **Call**, **ClubFit**, **View all details** (→ `cxOpen`). The Email button only shows when there's a
+  actions — **Email ▾**, **Call**, **ClubFit**, **View all details** (→ `cxOpen`). The Email button only shows when there's a
   sendable email.
+- **Email style chooser (`cxEmailChoose`) — the single entry point for every email button** (the row **Email ▾** AND the
+  detail-view **Send email ▾** both call it). It opens a small popup overlay (`.cx-choose-ov`, appended to `#cancel-page`,
+  z-index 300, backdrop-dismiss) letting staff pick **which** email before the composer opens: **Cancellation confirmation**
+  (the tailored, fee-aware Template 1/2 — the subline states whether it includes the $200 fee, is out-of-term/no-fee, or
+  needs billing details), **Google review offer** (subline shows the −days, or prompts to add the review link), or a
+  **Blank email**. The pick routes to `cxChooseSend`→`cxSendEmail` (confirmation/review) or `cxEmailBlank` (blank), which
+  copy to clipboard **then** open the composer. Supersedes the old inline `cxEmailMenu`/`cxSendFromMenu` (left dormant).
 - **Send email** (`cxSendEmail`) copies the rich+plain email to the clipboard (`cxCopyRich`) then opens the composer
   pre-filled To+Subject — the **default mail app (Outlook classic on Windows)** by default, or **Gmail web compose**
   (`settings.cx_email_client`, default `mailto`; `cxComposeUrl`); the body rides the clipboard (paste) to keep bold and

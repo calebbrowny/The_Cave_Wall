@@ -1304,6 +1304,43 @@ a.btn-sm{text-decoration:none;display:inline-block;}
 .cxr-act.cxr-x{color:var(--muted);border-style:dashed;}
 .cxr-act.cxr-del-act{color:var(--red);}
 .cxr-act.cxr-del-act:hover{border-color:var(--red);color:var(--red);}
+/* email style chooser — pick confirmation / review / blank before opening the composer */
+.cx-choose-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+.cx-choose{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.cx-choose-h{font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;}
+.cx-choose-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:9px;cursor:pointer;font-family:inherit;}
+.cx-choose-opt:hover{border-color:var(--blue);}
+.cx-choose-opt:disabled{opacity:.5;cursor:not-allowed;}
+.cx-choose-opt.ghost .cx-choose-t{color:var(--muted);}
+.cx-choose-t{font-size:13.5px;font-weight:700;color:var(--text);}
+.cx-choose-opt:hover .cx-choose-t{color:var(--blue);}
+.cx-choose-s{font-size:11.5px;color:var(--muted);line-height:1.4;}
+.cx-choose-x{display:block;width:100%;text-align:center;background:transparent;border:1px dashed var(--border);color:var(--muted);border-radius:8px;padding:9px;margin-top:3px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;}
+.cx-choose-x:hover{color:var(--text);}
+/* season plan overview — programming context in the WOD admin, building to the race */
+.season-plan{margin-bottom:10px;}
+.season{background:var(--bg-light);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.season-sum{list-style:none;cursor:pointer;padding:11px 13px;font-size:12.5px;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.season-sum::-webkit-details-marker{display:none;}
+.season-badge{font-size:9px;font-weight:800;letter-spacing:.6px;background:var(--blue);color:var(--dk);padding:2px 6px;border-radius:4px;}
+.season-count{margin-left:auto;font-weight:800;color:var(--blue);}
+.season-body{padding:0 13px 13px;}
+.season-blocks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.season-blk{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:9px 10px;}
+.season-blk.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset;}
+.season-blk-n{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);}
+.season-blk.on .season-blk-n{color:var(--blue);}
+.season-blk-nm{font-size:13px;font-weight:800;color:var(--text);margin:2px 0;}
+.season-blk-dt{font-size:10.5px;color:var(--muted);margin-bottom:5px;}
+.season-blk-b{font-size:11px;color:var(--text);line-height:1.35;margin-bottom:5px;}
+.season-blk-bm{font-size:10.5px;color:var(--muted);}
+.season-roster{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:9px;}
+.season-lbl{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);width:100%;}
+.season-rn{font-size:11.5px;color:var(--text);background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:4px 8px;}
+.season-rn b{color:var(--blue);}
+.season-rd{color:var(--muted);}
+.season-hint{font-size:11px;color:var(--muted);font-style:italic;}
+@media(max-width:760px){.season-blocks{grid-template-columns:repeat(2,1fr);}}
 /* urgency dot — leaderboard rank slot, left edge of the row */
 .cxr-dot-pri{width:9px;height:9px;border-radius:50%;flex:0 0 auto;align-self:center;box-shadow:0 0 0 3px transparent;}
 .cxr-row.pri-urgent .cxr-dot-pri{animation:cxPulse 2.2s ease-in-out infinite;}
@@ -1567,6 +1604,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="planner-sec" data-sec="wod" data-size="full" draggable="true">
     <div class="panel">
       <div class="panel-h"><div class="panel-t"><span class="drag-handle">⋮⋮</span>🔥 Workout of the Day</div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-sm" onclick="openModal('meso')">🗓️ Mesocycles</button><button class="btn-sm" onclick="openModal('benchmark')">🏅 Benchmark</button><button class="btn-sm" onclick="openWodArchive()">📚 View Archive</button></div></div>
+      <div id="season-plan" class="season-plan"></div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Plan up to 12 weeks ahead. Page through with the arrows, pick a day, write the session, save. The dot marks planned days.</div>
       <div class="dual-bar">
         <div class="dual-toggle-row"><div><div class="set-lbl">WODs live</div><div class="set-sub">Master switch for all workouts. Off shows members a coming soon teaser instead.</div></div><div class="sw on" id="wods-live-sw" onclick="toggleWodsLive(this)"></div></div>
@@ -4813,7 +4851,7 @@ function cxOutHTML(c){var calc=cxCalc(c),h='';
   if(c.review_applied)h+='<div class="cx-glance-sec"><div class="cx-glance-lbl">Google review</div><div class="cx-glance-tx"><b class="cxr-ok">Applied — '+cxReviewDays()+' days off notice</b>'+(c.review_note?(' · '+esc(c.review_note)):'')+'</div></div>';
   h+='</div>';
   var em=cxMemberEmail(c);
-  h+='<div class="cx-card"><div class="cx-card-h"><span>Email to member</span><span class="cx-card-acts"><button class="btn-sm" onclick="cxSendEmail(\''+c.id+'\',\'member\')">Send email</button> <button class="btn-sm" onclick="cxCopyEmail(\''+c.id+'\')">Copy</button></span></div>';
+  h+='<div class="cx-card"><div class="cx-card-h"><span>Email to member</span><span class="cx-card-acts"><button class="btn-sm" onclick="cxEmailChoose(\''+c.id+'\')">Send email ▾</button> <button class="btn-sm" onclick="cxCopyEmail(\''+c.id+'\')">Copy</button></span></div>';
   if(!em){h+='<div class="cx-muted">Add the billing details to generate the confirmation email.</div>';}
   else{h+='<div class="cx-sub">Subject: '+esc(em.subject)+' <button class="cx-link" onclick="cxCopySubject(\''+c.id+'\')">copy</button></div><div class="cx-email">'+em.html+'</div><div class="cx-replies"><span class="cx-muted">If the member asks:</span> <button class="btn-sm" onclick="cxCopyReply(\''+c.id+'\',\'notice\')">Why pay during notice</button>'+(calc&&calc.inTerm?' <button class="btn-sm" onclick="cxCopyReply(\''+c.id+'\',\'fee\')">About the $'+cxCancelFee()+' fee</button>':'')+'</div>';}
   h+='</div>';
@@ -4949,7 +4987,7 @@ function cxRowDetailHTML(c,calc,inT){
     acts='<div class="cxr-acts">'+am+'</div>';
   }else{
     var a=[];
-    if(canEmail){if(templated)a.push('<button class="cxr-act primary" onclick="cxEmailMenu(\''+c.id+'\')">Email ▾</button>');else a.push('<button class="cxr-act primary" onclick="cxEmailBlank(\''+c.id+'\')">Email</button>');}
+    if(canEmail)a.push('<button class="cxr-act primary" onclick="cxEmailChoose(\''+c.id+'\')">Email ▾</button>');
     a.push('<button class="cxr-act" onclick="cxActMenu(\''+c.id+'\')">Actions ▾</button>');
     if(cxClubfitUrl())a.push('<button class="cxr-act" onclick="cxProfile(\''+c.id+'\')">ClubFit'+(cf?(' '+esc(cf)):'')+'</button>');
     else if(cf)a.push('<span class="cxr-act ghost">ClubFit '+esc(cf)+'</span>');
@@ -4993,6 +5031,27 @@ function cxEmailMenuClose(){cxState.emailMenu=null;renderCancelHub();}
 function cxSendFromMenu(id,kind){if(kind==='blank')cxEmailBlank(id);else cxSendEmail(id,kind);cxState.emailMenu=null;renderCancelHub();}
 function cxEmailBlank(id){var c=cxFindCase(id);if(!c)return;var to=(c.member_email||'').trim();if(!to){toast('No email on file');return;}if(cxEmailClient()==='gmail'){var w=window.open(cxComposeUrl(to,''),'_blank');if(w){try{w.opener=null;}catch(e){}}else{try{location.href='mailto:'+encodeURIComponent(to);}catch(e){}}}else{try{location.href=cxComposeUrl(to,'');}catch(e){}}}
 function cxCopyEmailMenu(id){cxCopyEmail(id);cxState.emailMenu=null;renderCancelHub();}
+/* email style chooser — one entry point for every email button: choose the fee-aware confirmation, the Google review offer, or a blank email; the pick copies to clipboard then opens the composer (cxSendEmail) */
+function cxEmailChoose(id){
+  var c=cxFindCase(id);if(!c){toast('Open the case first');return;}
+  var to=(c.member_email||'').trim();if(!to){toast('No email on file — add the member’s email, then send.');return;}
+  cxEmailChooseClose();
+  var calc=cxCalc(c),first=((c.member_name||'').trim().split(/\s+/)[0]||'the member');
+  var feeS=c.no_lock_in?'No cancellation fee':(calc?(calc.inTerm?('Tailored — includes the $'+cxCancelFee()+' cancellation fee'):'Tailored — out of minimum term, no fee'):'Add the billing details first for the tailored email');
+  var rev=cxReviewUrl();
+  var h='<div class="cx-choose" role="dialog" aria-label="Choose which email to send">';
+  h+='<div class="cx-choose-h">Send email to '+esc(first)+'</div>';
+  h+='<button class="cx-choose-opt" onclick="cxChooseSend(\''+c.id+'\',\'member\')"'+(calc?'':' disabled')+'><span class="cx-choose-t">Cancellation confirmation</span><span class="cx-choose-s">'+esc(feeS)+'</span></button>';
+  h+='<button class="cx-choose-opt" onclick="cxChooseSend(\''+c.id+'\',\'review\')"><span class="cx-choose-t">Google review offer</span><span class="cx-choose-s">'+(rev?('Offer '+cxReviewDays()+' days off the notice for a review'):'Add the Google review link first (Settings tab)')+'</span></button>';
+  h+='<button class="cx-choose-opt ghost" onclick="cxChooseSend(\''+c.id+'\',\'blank\')"><span class="cx-choose-t">Blank email</span><span class="cx-choose-s">Just open a new email to '+esc(to)+'</span></button>';
+  h+='<button class="cx-choose-x" onclick="cxEmailChooseClose()">Cancel</button>';
+  h+='</div>';
+  var ov=document.createElement('div');ov.className='cx-choose-ov';ov.id='cx-choose-ov';ov.innerHTML=h;
+  ov.onclick=function(e){if(e.target===ov)cxEmailChooseClose();};
+  (document.getElementById('cancel-page')||document.body).appendChild(ov);
+}
+function cxChooseSend(id,kind){cxEmailChooseClose();if(kind==='blank')cxEmailBlank(id);else cxSendEmail(id,kind);}
+function cxEmailChooseClose(){var o=document.getElementById('cx-choose-ov');if(o&&o.parentNode)o.parentNode.removeChild(o);}
 /* ---- Calendar view: outstanding tasks plotted on their due date ---- */
 function cxCalEvents(){var map={};cxAllTodos().forEach(function(t){if(!t.due||t.done)return;(map[t.due]=map[t.due]||[]).push(t);});return map;}
 function cxCalendarHTML(){
@@ -5102,7 +5161,42 @@ function cxChrome(){var cw=document.getElementById('cancel-wrap');if(cw)cw.style
   if(!isCancelStaff()){if(el.style.display==='block'){el.style.display='none';if(document.body)document.body.classList.remove('cx-open');}return;}
   if(!isOwner()||((location.hash||'').toLowerCase()==='#cancel'))openCancelPage();
   else if(el.style.display==='block'&&cxState.view!=='detail')renderCancelHub();}
-function renderAll(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();renderMemberChip();loadWODForm();renderWOD();buildAdminCategories();renderRecordsAdmin();renderUndoBar();cxChrome();}
+/* ---- Season plan: The Cave is programming toward HYROX Melbourne (Dec 2026). Six-week blocks, a benchmark every block, periodised base→peak. Shown as a read-only context card at the top of the WOD admin. ---- */
+const CAVE_SEASON={
+  race:'HYROX Melbourne', raceDate:'2026-12-12', venue:'Melbourne Convention & Exhibition Centre',
+  blocks:[
+    {n:1,name:'Foundation',start:'2026-07-06',end:'2026-08-16',builds:'Strength base, aerobic base, groove the 8 stations',bench:'Season baseline'},
+    {n:2,name:'Engine',start:'2026-08-17',end:'2026-09-27',builds:'Raise the aerobic ceiling + heavier strength',bench:'Re-test #1'},
+    {n:3,name:'Race-Specific',start:'2026-09-28',end:'2026-11-08',builds:'Compromised running, station-to-station fatigue, race pace',bench:'Re-test #2'},
+    {n:4,name:'Sharpen & Peak',start:'2026-11-09',end:'2026-12-13',builds:'Full race sims → taper into race week',bench:'Final tune-up, then Melbourne'}
+  ],
+  roster:[
+    {day:'Mon',name:'ATLAS',note:'Back squat'},
+    {day:'Tue',name:'DASH',note:'Run / pace'},
+    {day:'Wed',name:'BOLT',note:'Power / cleans'},
+    {day:'Thu',name:'DIESEL',note:'Endurance'},
+    {day:'Fri',name:'TITAN',note:'Push press'},
+    {day:'Sat',name:'TANGO',note:'Partner'},
+    {day:'Sun',name:'SUMMIT',note:'Benchmark / race sim'}
+  ]
+};
+function renderSeasonPlan(){
+  var el=document.getElementById('season-plan');if(!el)return;
+  if(!isUnlocked()){el.innerHTML='';return;}
+  var S=CAVE_SEASON,today=todayKey();
+  function sdate(s){var d=new Date(s+'T00:00:00'),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+M[d.getMonth()];}
+  var daysToRace=Math.round((new Date(S.raceDate+'T00:00:00')-new Date(today+'T00:00:00'))/86400000);
+  var wks=Math.max(0,Math.ceil(daysToRace/7));
+  var count=daysToRace>0?(wks+' week'+(wks===1?'':'s')+' to go'):(daysToRace===0?'Race day':'season complete');
+  var cur=-1;S.blocks.forEach(function(b,i){if(today>=b.start&&today<=b.end)cur=i;});
+  if(cur<0)cur=(today<S.blocks[0].start)?0:S.blocks.length-1;
+  var h='<details class="season" open><summary class="season-sum"><span class="season-badge">SEASON</span> Building to <b>'+esc(S.race)+'</b> · '+esc(sdate(S.raceDate))+' <span class="season-count">'+esc(count)+'</span></summary>';
+  h+='<div class="season-body"><div class="season-blocks">'+S.blocks.map(function(b,i){return '<div class="season-blk'+(i===cur?' on':'')+'"><div class="season-blk-n">Block '+b.n+(i===cur?' · now':'')+'</div><div class="season-blk-nm">'+esc(b.name)+'</div><div class="season-blk-dt">'+esc(sdate(b.start))+' – '+esc(sdate(b.end))+'</div><div class="season-blk-b">'+esc(b.builds)+'</div><div class="season-blk-bm">Benchmark: '+esc(b.bench)+'</div></div>';}).join('')+'</div>';
+  h+='<div class="season-roster"><span class="season-lbl">Weekly roster (benchmarks return every block)</span>'+S.roster.map(function(r){return '<span class="season-rn"><b>'+esc(r.name)+'</b> <span class="season-rd">'+esc(r.day)+' · '+esc(r.note)+'</span></span>';}).join('')+'</div>';
+  h+='<div class="season-hint">Every 6 weeks the roster returns as a benchmark — members chase their numbers all the way to Melbourne.</div></div></details>';
+  el.innerHTML=h;
+}
+function renderAll(){applyScales();applyAppearance();applyNavMode();renderFocusNote();renderEvents();manageLB('strength',document.querySelector('.planner-sec[data-sec="leaderboards"] .tabs button'));renderCustomBoards();renderChallengeMgmt();renderChallengeTab();renderSubmissions();renderAds();renderEventAdmin();renderScreens();refreshNav();renderMemberChip();loadWODForm();renderWOD();buildAdminCategories();renderRecordsAdmin();renderSeasonPlan();renderUndoBar();cxChrome();}
 
 /* ===================== TIMER (SmartWOD-style, off by default) ===================== */
 const TMR_COL={amrap:'#fda942',fortime:'#5b8cff',emom:'#b06bff',tabata:'#22c598',mix:'#8ab4f8',rest:'#9aa0a6',work:'#22c598',ready:'#8ab4f8'};
