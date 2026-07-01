@@ -79,8 +79,12 @@ restyled for a clean, premium look. **All new CSS is scoped to `#wod` (or `body.
 kiosk fallback and must never be removed. Verified: kiosk `.wod-block` computed styles are unchanged with the
 toggle on/off. **Layer A (new default, everyone):** thinner 3px accent, rounded cards, muted section labels each
 with a small **hue dot** (`::before`; the decorative WOD_BLOCKS emoji is wrapped in `.wb-ico` and hidden via
-`#wod .wb-ico{display:none}`), movements loud/white, and the Main block's rep-scheme `.wb-key` lines get the one
-**blue punch**. The **Main (core) block is non-collapsible** (`blk` force-expands it; `toggleWodBlock` early-returns for `core`;
+`#wod .wb-ico{display:none}`), movements loud/white. **Blue is spent only on section headers** — `wodBody` now tags
+`Part A/B`, `Finisher`, `Buy-in/Cash-out`, `Section/Block` lines as a distinct **`.wb-hd`** tier (a subset of the old
+key set, detected by plain `startsWith`) which gets the blue accent (`#wod .wod-block-body .wb-hd{color:var(--blue)}`),
+while rep-scheme/prescription `.wb-key` lines stay **bold white** (`--text`) and scaling notes stay muted. This fixes
+the earlier "wall of blue" where every prescription line was blue. Global `.wb-hd` = bold (kiosk-safe, unchanged look);
+light mode darkens `.wb-hd` to `#1558d6` for contrast. The **Main (core) block is non-collapsible** (`blk` force-expands it; `toggleWodBlock` early-returns for `core`;
 its chevron is hidden on `#wod`; a stale `core` entry in `cave_wod_collapsed` is self-healed on render) so a member
 can never hide the day's workout; other blocks keep persisted collapse.
 - **McDonald's-clean toggle** = `appearance.wod_min` (boolean, default false, owner Settings → "WOD page style" →
