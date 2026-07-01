@@ -4399,8 +4399,8 @@ function cxEffectiveReason(c){return c.archive_reason||cxSuggestReason((c.cancel
 function cxEffectiveComment(c){return (c.archive_comments!=null&&c.archive_comments!=='')?c.archive_comments:cxDraftComment(c);}
 function cxInternalNote(c){var calc=cxCalc(c);return {text:'Archive Reason: '+cxEffectiveReason(c)+'\nArchive Date: '+(calc?cxDMY(calc.finalAccess):'')+'\nComments: '+cxEffectiveComment(c),html:'Archive Reason: '+esc(cxEffectiveReason(c))+'<br>Archive Date: '+esc(calc?cxDMY(calc.finalAccess):'')+'<br>Comments: '+esc(cxEffectiveComment(c))};}
 function cxTasks(c){var calc=cxCalc(c);var t=[];if(!calc)return t;
-  var lead=cxLeadDays();
-  var remind=function(dateStr){return lead>0?cxYMD(cxAdd(cxParse(dateStr),-lead)):dateStr;};
+  var lead=cxLeadDays(),subMs=cxParse(c.submission_date);
+  var remind=function(dateStr){if(lead<=0)return dateStr;var r=cxAdd(cxParse(dateStr),-lead);if(subMs!=null&&r<subMs)r=subMs;return cxYMD(r);};
   var byHint=function(dateStr){return lead>0?(' — set it in ClubFit by '+cxDMY(remind(dateStr))):'';};
   var pr=calc.lines.filter(function(l){return l.prorata;})[0];
   var feeLine=calc.feeOnLine?calc.lines[0]:null;
@@ -4632,7 +4632,7 @@ function cxCaseSummaryHTML(c,calc){
   }
   var tasks=cxTasks(c),done=c.task_done||{},out=tasks.filter(function(t){return !done[t.key];}),today=todayKey(),doHtml;
   if(!calc){doHtml='<div class="cxr-todo-empty">Add billing to build the checklist.</div>';}
-  else if(!out.length){doHtml='<div class="cxr-todo-done">✓ All steps done'+(c.status==='processed'?'':' <button class="cxr-act primary cxr-mp" onclick="cxSetStatus(\''+c.id+'\',\'processed\')">Mark processed</button>')+'</div>';}
+  else if(!out.length){doHtml='<div class="cxr-todo-done">✓ All steps done'+((c.status==='new'||c.status==='in_progress')?' <button class="cxr-act primary cxr-mp" onclick="cxSetStatus(\''+c.id+'\',\'processed\')">Mark processed</button>':'')+'</div>';}
   else{doHtml='<div class="cxr-todo">'+out.map(function(t){var due=cxTaskDue(t),od=due&&due<today;return '<label class="cxr-todo-i'+(od?' over':'')+'"><input type="checkbox" onclick="cxToggleTaskTodo(\''+c.id+'\',\''+t.key+'\')"><span>'+esc(t.label)+(due?(' <span class="cxr-todo-due">'+(od?'overdue · ':'due ')+cxDMY(due)+'</span>'):'')+'</span></label>';}).join('')+'</div>';}
   return '<div class="cxr-sum"><div class="cxr-sum-now">'+now+'</div><div class="cxr-sum-do"><span class="cxr-sum-lbl">What needs doing</span>'+doHtml+'</div></div>';
 }
@@ -4712,7 +4712,7 @@ function cxSettingsHTML(){
   h+='<div class="fld"><label>Notice period (days) — default 30</label><input type="number" step="1" inputmode="numeric" value="'+esc(pol.notice_days!=null?pol.notice_days:'')+'" placeholder="30" onchange="cxSetPolicy(\'notice_days\',this.value)"></div>';
   h+='<div class="fld"><label>Google-review reduction (days) — default 12</label><input type="number" step="1" inputmode="numeric" value="'+esc(pol.review_days!=null?pol.review_days:'')+'" placeholder="12" onchange="cxSetPolicy(\'review_days\',this.value)"></div>';
   h+='<div class="fld"><label>Transaction fee ($ per payment) — default 0.77</label><input type="number" step="0.01" inputmode="decimal" value="'+esc(pol.txn_fee!=null?pol.txn_fee:'')+'" placeholder="0.77" onchange="cxSetPolicy(\'txn_fee\',this.value)"></div>';
-  h+='<div class="fld"><label>Surface payment-adjustment reminders this many days early — default 3</label><input type="number" step="1" min="0" inputmode="numeric" value="'+esc(pol.adjust_lead_days!=null?pol.adjust_lead_days:'')+'" placeholder="3" onchange="cxSetPolicy(\'adjust_lead_days\',this.value)"></div><div class="cx-hint">The pro-rata and fee tasks appear this many days before the payment date, so Charley can change the amount in ClubFit before it runs. Set to 0 to surface them on the day.</div></div>';
+  h+='<div class="fld"><label>Surface payment-adjustment reminders this many days early — default 3</label><input type="number" step="1" min="0" max="60" inputmode="numeric" value="'+esc(pol.adjust_lead_days!=null?pol.adjust_lead_days:'')+'" placeholder="3" onchange="cxSetPolicy(\'adjust_lead_days\',this.value)"></div><div class="cx-hint">The pro-rata and fee tasks appear this many days before the payment date, so Charley can change the amount in ClubFit before it runs. Set to 0 to surface them on the day.</div></div>';
   h+='<div class="cx-card"><div class="cx-card-h">Case colours &amp; priority</div>'
    +'<div class="fld"><label>Show urgency as…</label><select onchange="cxSetPolicyStr(\'pri_paint\',this.value)">'
      +'<option value="dot"'+((pol.pri_paint||'dot')==='dot'?' selected':'')+'>A small colour dot (clean)</option>'
