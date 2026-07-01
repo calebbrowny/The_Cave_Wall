@@ -445,12 +445,30 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   plots every outstanding task across open cases on its due date (fee changes, pro-rata final payments, emails, archive days);
   tap an item → `cxOpen`. Month nav via `cxState.calOffset`. The owner Settings tab has a **Clear ALL cases** button
   (`cxClearAll`→`cxClearAllDo`, double-confirm, deletes every `cancellations` row — Jotform untouched, re-importable via Backfill).
+  `cxClearAllDo` uses `.delete().select('id')` and toasts the **real** deleted count (or "Nothing was cleared" + reload if RLS returns 0).
+- **Priority, colour-coding, sort + pro-rata lead-time reminder (this pass).** One urgency function `cxPriority(c)` →
+  `{tier:'urgent'|'soon'|'ontrack'|'done',color,score,dot,reason}` is the single source of truth for the row dot, the whole-row
+  tint, AND the priority sort (lower `score` = more urgent). It reads the **undone dated** tasks via `cxTaskDue(t)` (=`t.remind||t.due`),
+  so priority, calendar, to-do and the reminder stay in lockstep. Order: overdue (score −1000−daysLate) → all-steps-done "ready to
+  process" (800) → un-costed `new` aged by submission date → days-to-next-action (in-term shifts one band via `eff=days−1`) →
+  ontrack backstops → done (1e9). **Colour = red urgent / amber soon / blue ontrack** (`CX_TIER_VAR`→CSS vars); `cxPriChip` adds a
+  colourblind-safe word ("2 days overdue"/"next action in 3d") so tier is never colour-only. **Sort control** = a segmented pill row
+  (Priority/Oldest first/Access ends/Name, `CX_SORTS`/`cxSetSort`/`cxCmp`); choice persists per-device in `localStorage.cx_sort`
+  (priority tie-breaks by oldest submission). **Lead-time reminder:** `cxTasks` gives the money-changing tasks (feepro/fee/prorata) a
+  `remind` date = payment date − `cxLeadDays()` (`cx_policy.adjust_lead_days`, default 3) and appends "— set it in ClubFit by <date>";
+  `cxTaskDue` prefers it, so a pro-rata a few days out automatically glows amber/red, lands on the calendar's lead-in day and rises in
+  the To-do list — **no scheduler, no new table**. Settings (owner, under `cx_policy`): `pri_paint` (`dot`|`row`|`off`, `cxSetPolicyStr`),
+  `pri_urgent` (default 2), `pri_soon` (default 7), `adjust_lead_days` (default 3). **Automations:** the To-do tab groups tasks into
+  Overdue/Today/This week/Later/Anytime (`cxTodoHTML`) with a red overdue tab badge + an overdue banner on the Cases list; sending the
+  **confirmation** email auto-nudges `new`→Contacted (`cxSendEmail`, `kind==='member'` only); a "Mark processed" button appears once every
+  task is ticked (`cxCaseSummaryHTML`). Toowoomba is UTC+10 no-DST so all `YYYY-MM-DD` calendar-string compares stay calendar-correct.
 - **Fully editable email templates + Settings tab (owner-only, `cxSettingsHTML`).** All four emails are a token engine
   (`cxRender`/`cxTokens`/`cxTpl`/`cxTplDefaults`): `{token}` substitution, `**bold**`→`<b>`, XSS-safe (`\u0000` sentinels,
   escape-once). VALUE tokens (`{first_name}`…`{signature}`) + **smart clause tokens** (`{fee_clause}`/`{notice_clause}`/
   `{schedule_clause}`/`{notice_q_clause}`/`{schedule_q_clause}`/`{fee_detail_clause}`/`{notice_q_line}`) carry the
   conditional maths so the numbers/legals stay correct no matter how staff reword the prose. Owner edits subject+body per
-  template with a **live preview** (`cxTplLive`, draft stash restored in `finally`), per-template **Reset to default**, and
+  template with a **live preview** (`cxTplLive` renders via `cxRenderWith(key,c,{subject,body})` from the live textareas — no cache
+  mutation; `cxRender(k,c)`=`cxRenderWith(k,c,cxTpl(k))`), per-template **Reset to default**, and
   a missing-token warning; only deviations are stored in `settings.cx_templates`. **Defaults reproduce the prior emails
   byte-for-byte** (regression-tested). The tab also holds the **email signature** (`cx_email_sig`), the Google-review +
   ClubFit links, the composer choice, and **editable policy values** (`settings.cx_policy`: cancellation fee / notice days /

@@ -1173,6 +1173,41 @@ a.btn-sm{text-decoration:none;display:inline-block;}
 .cxr-act.cxr-x{color:var(--muted);border-style:dashed;}
 .cxr-act.cxr-del-act{color:var(--red);}
 .cxr-act.cxr-del-act:hover{border-color:var(--red);color:var(--red);}
+/* urgency dot — leaderboard rank slot, left edge of the row */
+.cxr-dot-pri{width:9px;height:9px;border-radius:50%;flex:0 0 auto;align-self:center;box-shadow:0 0 0 3px transparent;}
+.cxr-row.pri-urgent .cxr-dot-pri{animation:cxPulse 2.2s ease-in-out infinite;}
+@keyframes cxPulse{0%,100%{box-shadow:0 0 0 0 var(--red-d);}50%{box-shadow:0 0 0 4px transparent;}}
+body.reduce-motion .cxr-dot-pri{animation:none;}
+/* colourblind-safe urgency word in the meta line */
+.cxr-m.urg.over{color:var(--red);font-weight:800;}
+.cxr-m.urg.soon{color:var(--amber);font-weight:700;}
+/* whole-row tint mode (paint==='row') */
+.cxr-row.cxr-tint{border-left:3px solid var(--cxu,transparent);padding-left:9px;}
+.cxr-row.cxr-tint.pri-urgent{background:color-mix(in srgb,var(--red) 9%,transparent);}
+.cxr-row.cxr-tint.pri-soon{background:color-mix(in srgb,var(--amber) 9%,transparent);}
+.cxr-row.cxr-tint.open{background:var(--blue-d);}
+.cxr-mp{margin-left:8px;padding:4px 12px;font-size:11.5px;}
+/* sort control */
+.cx-listctl{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+.cx-sort{display:flex;align-items:center;gap:8px;}
+.cx-sort-lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
+.cx-seg{border:1px solid var(--border);border-right:none;background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;padding:7px 13px;cursor:pointer;font-family:inherit;}
+.cx-seg:first-of-type{border-radius:999px 0 0 999px;}
+.cx-seg:last-of-type{border-radius:0 999px 999px 0;border-right:1px solid var(--border);}
+.cx-seg:hover{color:var(--text);}
+.cx-seg.on{background:var(--blue);border-color:var(--blue);color:var(--dk);}
+.cx-seg.on+.cx-seg{border-left-color:var(--blue);}
+/* overdue banner */
+.cx-odbanner{background:var(--red-d);color:var(--red);border:1px solid transparent;border-radius:10px;padding:11px 15px;font-weight:800;font-size:13px;margin-bottom:14px;cursor:pointer;}
+.cx-odbanner:hover{filter:brightness(1.08);}
+/* to-do digest groups */
+.cx-tdgrp{margin-bottom:18px;}
+.cx-tdgrp-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.cx-tdgrp.over .cx-tdgrp-h{color:var(--red);}
+.cx-tdgrp-n{background:var(--bg-light);color:var(--muted);border-radius:999px;padding:1px 8px;font-size:10.5px;}
+.cx-tdgrp.over .cx-tdgrp-n{background:var(--red-d);color:var(--red);}
+.cx-tabn.over{background:var(--red);color:var(--dk);}
+@media(max-width:820px){.cx-listctl{flex-direction:column;align-items:stretch;gap:10px;}.cx-sort .cx-seg{flex:1;text-align:center;}}
 .cxcal-head{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 14px;}
 .cxcal-title{font-size:16px;font-weight:800;min-width:160px;text-align:center;}
 .cxcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
@@ -4211,7 +4246,7 @@ function renderLive(){applyScales();applyAppearance();applyNavMode();renderFocus
 /* ===================== CANCELLATION HUB (Caleb + Charley only) ===================== */
 const CX_TXN_FEE=0.77, CX_NOTICE_DAYS=30, CX_CANCEL_FEE=200, CX_REVIEW_DAYS=12;
 const CX_REVIEW_URL=''; // set the gym's Google review link to bake it into the offer email
-let cxState={tab:'cases',view:'list',id:null,filter:'active',openRow:null,emailMenu:null,actMenu:null,calOffset:0};
+let cxState={tab:'cases',view:'list',id:null,filter:'active',openRow:null,emailMenu:null,actMenu:null,calOffset:0,sort:(function(){try{return localStorage.getItem('cx_sort')||'priority';}catch(e){return 'priority';}})()};
 const CX_ARCHIVE_REASONS=['No Time = Life/Work Commitments','Do Not Use Gym','No Motivation','Cost of Living/Financial Difficulties/Too Expensive','Moving/Moved/Travelling','Medical Reasons','Joined Another Gym/Home Gym','Not Happy with Gym','Change of Membership','Fitness Passport Expired','Contract Expired','Sessions Expired','Visits Expired','Max Sessions Used','Max Visits Used','Excessive Dishonours','Bad Debt - Sent to Debt Collector','Breach of Gym Rules','Other','ClubFit Archived'];
 const CX_REASON_KW=[
  ['Medical Reasons',['injur','illness','sick','surgery','pregnan','medical','health','rehab','operation']],
@@ -4254,7 +4289,7 @@ function cxCalc(c){
   while(d<=finalMs&&guard<80){guard++;
     var rem=cxIncl(d,finalMs),line;
     if(rem>=period){line={date:cxYMD(d),amount:amt,prorata:false};}
-    else{var daily=cxRound2((amt-cxTxnFee())/period);var mem=cxRound2(daily*rem);line={date:cxYMD(d),amount:cxRound2(mem+cxTxnFee()),prorata:true,days:rem,daily:daily};}
+    else{var daily=Math.max(0,cxRound2((amt-cxTxnFee())/period));var mem=cxRound2(daily*rem);line={date:cxYMD(d),amount:cxRound2(mem+cxTxnFee()),prorata:true,days:rem,daily:daily};}
     lines.push(line);d=cxAdd(d,period);
   }
   var inTerm=cxInMinTerm(c),fee=inTerm?cxCancelFee():0;
@@ -4339,8 +4374,9 @@ function cxTokens(c){
   clause.notice_q_line=P('Your membership will also continue through the notice period'+((calc&&calc.reviewApplied)?(' (reduced by '+rd+' days for your Google review)'):'')+', and your final day of access will be '+(calc?cxLong(calc.finalAccess):'')+'.','Your membership will also continue through the notice period'+((calc&&calc.reviewApplied)?(' (reduced by '+rd+' days for your Google review)'):'')+', and your final day of access will be <b>'+esc(calc?cxLong(calc.finalAccess):'')+'</b>.');
   return {plain:plain,clause:clause,calc:calc};
 }
-function cxRender(tplKey,c){
-  var t=cxTpl(tplKey),tok=cxTokens(c),NUL='\u0000';
+function cxRender(tplKey,c){return cxRenderWith(tplKey,c,cxTpl(tplKey));}
+function cxRenderWith(tplKey,c,t){
+  var tok=cxTokens(c),NUL='\u0000';
   var subject=t.subject.replace(/\{(\w+)\}/g,function(m,k){return (tok.plain[k]!=null)?tok.plain[k]:m;});
   var bodyTpl=t.body;
   var text=bodyTpl.replace(/\{(\w+)\}/g,function(m,k){if(tok.clause[k])return tok.clause[k].plain;if(tok.plain[k]!=null)return tok.plain[k];return m;});
@@ -4363,19 +4399,63 @@ function cxEffectiveReason(c){return c.archive_reason||cxSuggestReason((c.cancel
 function cxEffectiveComment(c){return (c.archive_comments!=null&&c.archive_comments!=='')?c.archive_comments:cxDraftComment(c);}
 function cxInternalNote(c){var calc=cxCalc(c);return {text:'Archive Reason: '+cxEffectiveReason(c)+'\nArchive Date: '+(calc?cxDMY(calc.finalAccess):'')+'\nComments: '+cxEffectiveComment(c),html:'Archive Reason: '+esc(cxEffectiveReason(c))+'<br>Archive Date: '+esc(calc?cxDMY(calc.finalAccess):'')+'<br>Comments: '+esc(cxEffectiveComment(c))};}
 function cxTasks(c){var calc=cxCalc(c);var t=[];if(!calc)return t;
+  var lead=cxLeadDays();
+  var remind=function(dateStr){return lead>0?cxYMD(cxAdd(cxParse(dateStr),-lead)):dateStr;};
+  var byHint=function(dateStr){return lead>0?(' — set it in ClubFit by '+cxDMY(remind(dateStr))):'';};
   var pr=calc.lines.filter(function(l){return l.prorata;})[0];
   var feeLine=calc.feeOnLine?calc.lines[0]:null;
   if(feeLine&&feeLine.prorata){
-    t.push({key:'feepro',due:feeLine.date,label:'Set the final payment on '+cxDMY(feeLine.date)+' to '+cxMoney(feeLine.amount)+' — pro-rata '+feeLine.days+' day'+(feeLine.days===1?'':'s')+' ('+cxMoney(cxRound2(feeLine.amount-cxCancelFee()))+') plus the $'+cxCancelFee()+' cancellation fee'});
+    t.push({key:'feepro',due:feeLine.date,remind:remind(feeLine.date),label:'Set the final payment on '+cxDMY(feeLine.date)+' to '+cxMoney(feeLine.amount)+' — pro-rata '+feeLine.days+' day'+(feeLine.days===1?'':'s')+' ('+cxMoney(cxRound2(feeLine.amount-cxCancelFee()))+') plus the $'+cxCancelFee()+' cancellation fee'+byHint(feeLine.date)});
   }else{
-    if(feeLine)t.push({key:'fee',due:feeLine.date,label:'Add the $'+cxCancelFee()+' cancellation fee to the payment on '+cxDMY(feeLine.date)+' (new amount '+cxMoney(feeLine.amount)+')'});
+    if(feeLine)t.push({key:'fee',due:feeLine.date,remind:remind(feeLine.date),label:'Add the $'+cxCancelFee()+' cancellation fee to the payment on '+cxDMY(feeLine.date)+' (new amount '+cxMoney(feeLine.amount)+')'+byHint(feeLine.date)});
     if(calc.feeCounter)t.push({key:'feecounter',due:null,label:'Collect the $'+cxCancelFee()+' cancellation fee over the counter'});
-    if(pr)t.push({key:'prorata',due:pr.date,label:'Set the final payment on '+cxDMY(pr.date)+' to '+cxMoney(pr.amount)+' (pro-rata, '+pr.days+' day'+(pr.days===1?'':'s')+')'});
+    if(pr)t.push({key:'prorata',due:pr.date,remind:remind(pr.date),label:'Set the final payment on '+cxDMY(pr.date)+' to '+cxMoney(pr.amount)+' (pro-rata, '+pr.days+' day'+(pr.days===1?'':'s')+')'+byHint(pr.date)});
   }
   t.push({key:'email',due:null,label:'Send the cancellation confirmation email to the member'});
   t.push({key:'archive',due:calc.finalAccess,label:'Archive the member in ClubFit on '+cxDMY(calc.finalAccess)+' — reason: '+cxEffectiveReason(c)});
   t.push({key:'confirm',due:calc.finalAccess,label:'Confirm the cancellation is set in ClubFit'});return t;}
-function cxAllTodos(){var out=[];(cache.cancellations||[]).forEach(function(c){if(c.status==='reversed'||c.status==='processed')return;var done=c.task_done||{};cxTasks(c).forEach(function(t){out.push({caseId:c.id,member:c.member_name||'(no name)',key:t.key,label:t.label,due:t.due||null,done:!!done[t.key],status:c.status});});});return out;}
+/* ---- priority / urgency: one source of truth for the dot, the row tint and the priority sort ---- */
+function cxTaskDue(t){return t?(t.remind||t.due||null):null;}
+var CX_PRI_DEF={urgent:2,soon:7,paint:'dot',lead:3};
+var CX_TIER_VAR={urgent:'--red',soon:'--amber',ontrack:'--blue',done:'--muted'};
+function cxPriColor(tier){return 'var('+(CX_TIER_VAR[tier]||'--muted')+')';}
+function cxPriCfg(){var p=cxPolicy();
+  function n(f,d,min){var v=+p[f];return (p[f]==null||p[f]===''||isNaN(v)||v<min)?d:v;}
+  var urgent=n('pri_urgent',CX_PRI_DEF.urgent,0),soon=n('pri_soon',CX_PRI_DEF.soon,0);
+  if(soon<urgent)soon=urgent;
+  return {urgent:urgent,soon:soon,paint:(p.pri_paint==='row'||p.pri_paint==='off')?p.pri_paint:'dot'};}
+function cxLeadDays(){return Math.round(cxPolNum('adjust_lead_days',CX_PRI_DEF.lead,0));}
+function cxPriority(c){
+  var cfg=cxPriCfg(),today=todayKey();
+  if(c.status==='reversed'||c.status==='processed')
+    return {tier:'done',color:cxPriColor('done'),score:1e9,dot:false,reason:cxStatusLabel(c.status)};
+  var calc=cxCalc(c),done=c.task_done||{};
+  if(calc){var undone=cxTasks(c).filter(function(t){return !done[t.key];});
+    if(!undone.length)return {tier:'ontrack',color:cxPriColor('ontrack'),score:800,dot:false,reason:'ready to process'};}
+  var dated=(calc?cxTasks(c):[]).map(function(t){return {t:t,due:cxTaskDue(t)};})
+    .filter(function(x){return x.due&&!done[x.t.key];});
+  var over=dated.filter(function(x){return x.due<today;});
+  if(over.length){var worst=over.reduce(function(m,x){return x.due<m?x.due:m;},over[0].due);
+    var late=cxIncl(cxParse(worst),cxParse(today))-1;
+    return {tier:'urgent',color:cxPriColor('urgent'),score:-1000-late,dot:true,reason:late+' day'+(late===1?'':'s')+' overdue'};}
+  var nextDue=null;dated.forEach(function(x){if(nextDue==null||x.due<nextDue)nextDue=x.due;});
+  if(nextDue==null&&calc)nextDue=calc.finalAccess;
+  var days=nextDue?cxIncl(cxParse(today),cxParse(nextDue))-1:null;
+  if(c.status==='new'&&!calc){
+    var subAge=c.submission_date?cxIncl(cxParse(c.submission_date),cxParse(today))-1:0;
+    var t0=subAge>=cfg.soon?'urgent':subAge>=cfg.urgent?'soon':'ontrack';
+    return {tier:t0,color:cxPriColor(t0),score:100-subAge,dot:t0!=='ontrack',
+      reason:t0==='ontrack'?'awaiting billing':('new '+subAge+'d — needs billing')};}
+  if(days==null)return {tier:'ontrack',color:cxPriColor('ontrack'),score:900,dot:false,reason:'no dates yet'};
+  var eff=days-(cxInMinTerm(c)?1:0);
+  var tier=eff<=cfg.urgent?'urgent':eff<=cfg.soon?'soon':'ontrack';
+  var reason=days===0?'due today':('next action in '+days+'d');
+  return {tier:tier,color:cxPriColor(tier),score:days,dot:tier!=='ontrack',reason:reason};}
+function cxPriChip(pr){
+  if(pr.tier==='urgent')return '<span class="cxr-dot">·</span><span class="cxr-m urg over">'+esc(pr.reason)+'</span>';
+  if(pr.tier==='soon')return '<span class="cxr-dot">·</span><span class="cxr-m urg soon">'+esc(pr.reason)+'</span>';
+  return '';}
+function cxAllTodos(){var out=[];(cache.cancellations||[]).forEach(function(c){if(c.status==='reversed'||c.status==='processed')return;var done=c.task_done||{};cxTasks(c).forEach(function(t){out.push({caseId:c.id,member:c.member_name||'(no name)',key:t.key,label:t.label,due:cxTaskDue(t),done:!!done[t.key],status:c.status});});});return out;}
 /* CRUD */
 function cxFindCase(id){return (cache.cancellations||[]).find(function(x){return x.id===id;});}
 async function cxSet(id,field,val){var c=cxFindCase(id);if(!c)return;if(val==='')val=null;c[field]=val;var patch={updated_at:new Date().toISOString()};patch[field]=val;if(field==='member_name'){var t=document.getElementById('cx-title');if(t)t.textContent=val||'New cancellation';}await rowUpdate('cancellations',id,patch);cxRefreshOut(id);}
@@ -4390,12 +4470,25 @@ function cxOpen(id){cxState.tab='cases';cxState.view='detail';cxState.id=id;rend
 function cxBack(){cxState.view='list';cxState.id=null;renderCancelHub();}
 function cxFilter(f){cxState.filter=f;cxState.openRow=null;cxState.emailMenu=null;cxState.actMenu=null;renderCancelHub();}
 function cxRowToggle(id){cxState.openRow=(cxState.openRow===id)?null:id;cxState.emailMenu=null;cxState.actMenu=null;renderCancelHub();if(cxState.openRow){var el=document.querySelector('.cxr-row.open');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'nearest'});}catch(e){}}}}
+var CX_SORTS=[['priority','Priority'],['oldest','Oldest first'],['ends','Access ends'],['name','Name']];
+function cxSetSort(v){cxState.sort=v;cxState.openRow=null;cxState.emailMenu=null;cxState.actMenu=null;try{localStorage.setItem('cx_sort',v);}catch(e){}renderCancelHub();}
+function cxCmp(sort){
+  function fa(c){var k=cxCalc(c);return k?k.finalAccess:'9999-12-31';}
+  function sub(c){return c.submission_date||'9999-12-31';}
+  function nm(c){return (c.member_name||'~').toLowerCase();}
+  var by={
+    priority:function(a,b){var d=cxPriority(a).score-cxPriority(b).score;return d||(sub(a)<sub(b)?-1:sub(a)>sub(b)?1:0);},
+    oldest:function(a,b){return sub(a)<sub(b)?-1:sub(a)>sub(b)?1:0;},
+    ends:function(a,b){return fa(a)<fa(b)?-1:fa(a)>fa(b)?1:0;},
+    name:function(a,b){return nm(a)<nm(b)?-1:nm(a)>nm(b)?1:0;}};
+  return by[sort]||by.priority;}
 /* ---- contact actions: send email (clipboard + composer), call, ClubFit profile ---- */
 function cxEmailClient(){return (settings().cx_email_client==='gmail')?'gmail':'mailto';}
 function cxClubfitUrl(){return ((settings().cx_clubfit_url||'')+'').trim();}
 function cxEmailFor(c,kind){if(kind==='notice')return cxEmailNoticeQ(c);if(kind==='fee')return cxEmailFeeQ(c);if(kind==='review')return cxEmailReviewOffer(c);return cxMemberEmail(c);}
 function cxComposeUrl(to,subject){var t=encodeURIComponent(to||''),s=encodeURIComponent(subject||'');if(cxEmailClient()==='gmail')return 'https://mail.google.com/mail/?view=cm&fs=1&tf=1&to='+t+(subject?('&su='+s):'');return 'mailto:'+t+(subject?('?subject='+s):'');}
-function cxSendEmail(id,kind){var c=cxFindCase(id);if(!c){toast('Open the case first');return;}if(kind==='review'&&!cxReviewUrl()){toast('Add the gym’s Google review link first (in the hub settings).');return;}var em=cxEmailFor(c,kind);if(!em){toast('Add the billing details first');return;}var to=(c.member_email||'').trim();if(!to){toast('No email on file — add the member’s email, then send.');return;}cxCopyRich(em.text,em.html||null,'Email copied — opening your composer, just paste (Ctrl/Cmd+V)');if(cxEmailClient()==='gmail'){var w=window.open(cxComposeUrl(to,em.subject),'_blank');if(w){try{w.opener=null;}catch(e){}}else{toast('Pop-up blocked — opening your default mail app. The email is on your clipboard to paste.');try{location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(em.subject);}catch(e){}}}else{try{location.href=cxComposeUrl(to,em.subject);}catch(e){}}}
+function cxMailto(to,subject){var a=document.createElement('a');a.href='mailto:'+encodeURIComponent(to||'')+(subject?('?subject='+encodeURIComponent(subject)):'');a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){try{a.remove();}catch(e){}},0);}
+function cxSendEmail(id,kind){var c=cxFindCase(id);if(!c){toast('Open the case first');return;}if(kind==='review'&&!cxReviewUrl()){toast('Add the gym’s Google review link first (in the hub settings).');return;}var em=cxEmailFor(c,kind);if(!em){toast('Add the billing details first');return;}var to=(c.member_email||'').trim();if(!to){toast('No email on file — add the member’s email, then send.');return;}cxCopyRich(em.text,em.html||null,'Email copied — opening your composer, just paste (Ctrl/Cmd+V)');if(cxEmailClient()==='gmail'){var w=window.open(cxComposeUrl(to,em.subject),'_blank');if(w){try{w.opener=null;}catch(e){}}else{toast('Pop-up blocked — opening your default mail app. The email is on your clipboard to paste.');cxMailto(to,em.subject);}}else{cxMailto(to,em.subject);}if(kind==='member'&&c.status==='new')cxSetStatus(id,'in_progress');}
 function cxTelHref(phone){var d=(phone||'').replace(/[^\d+]/g,'');if(/^\+/.test(d))return 'tel:'+d;if(/^0\d{8,9}$/.test(d))return 'tel:+61'+d.slice(1);if(/^\d{6,}$/.test(d))return 'tel:'+d;return '';}
 function cxCall(id){var c=cxFindCase(id);if(!c)return;var href=cxTelHref(c.member_phone);if(!href){toast('No valid phone number on file');return;}location.href=href;}
 function cxProfile(id){var base=cxClubfitUrl();if(!base){toast('No ClubFit link set yet — add it in the hub settings.');return;}var c=cxFindCase(id),url=base;if(/\{n\}/.test(base)){if(!(c&&c.clubfit_number)){toast('No ClubFit member number on this case yet');return;}url=base.replace('{n}',encodeURIComponent(c.clubfit_number));}var w=window.open(url,'_blank');if(w){try{w.opener=null;}catch(e){}}else{toast('Allow pop-ups for this site to open ClubFit');}}
@@ -4463,12 +4556,14 @@ function cxListHTML(){
   var rows=(cache.cancellations||[]).slice(),f=cxState.filter||'active';
   var match=function(c){if(f==='active')return c.status==='new'||c.status==='in_progress';if(f==='all')return true;return c.status===f;};
   var list=rows.filter(match);
-  if(f==='active')list.sort(function(a,b){var ca=cxCalc(a),cb=cxCalc(b);var da=ca?ca.finalAccess:'9999-12-31',db=cb?cb.finalAccess:'9999-12-31';return da<db?-1:da>db?1:0;});
+  list.sort(cxCmp(cxState.sort||'priority'));
   var counts={active:rows.filter(function(c){return c.status==='new'||c.status==='in_progress';}).length,processed:rows.filter(function(c){return c.status==='processed';}).length,reversed:rows.filter(function(c){return c.status==='reversed';}).length,all:rows.length};
-  var FT=[['active','To action'],['processed','Processed'],['reversed','Stayed'],['all','All']];
+  var FT=[['active','To action'],['processed','Processed'],['reversed','Stayed'],['all','All']],ST=CX_SORTS;
+  var today=todayKey(),overN=cxAllTodos().filter(function(t){return !t.done&&t.due&&t.due<today;}).length;
   var h='<div class="cx-wrap"><div class="cx-bar"><button class="btn-full cx-new" onclick="cxNew()">+ New cancellation</button></div>'+cxJotformStatusHTML();
+  if(overN)h+='<div class="cx-odbanner" onclick="cxTab(\'todo\')">'+overN+' payment adjustment'+(overN===1?'':'s')+' overdue — tap to review</div>';
   h+='<div class="cx-intro cx-muted">Log a cancellation → it works out the 30-day notice (less 12 days for a Google review), the pro-rata final payment and any $200 in-term fee, drafts the member email + ClubFit note, and tracks every step to processed. New submissions from your Jotform cancellation form arrive automatically (read-only, every few hours). ClubFit auto-fill plugs in here once that API access is live.</div>';
-  h+='<div class="cx-filters">'+FT.map(function(x){return '<button class="cx-fp'+(f===x[0]?' on':'')+'" onclick="cxFilter(\''+x[0]+'\')">'+x[1]+' ('+counts[x[0]]+')</button>';}).join('')+'</div>';
+  h+='<div class="cx-listctl"><div class="cx-filters">'+FT.map(function(x){return '<button class="cx-fp'+(f===x[0]?' on':'')+'" onclick="cxFilter(\''+x[0]+'\')">'+x[1]+' ('+counts[x[0]]+')</button>';}).join('')+'</div><div class="cx-sort"><span class="cx-sort-lbl">Sort</span>'+ST.map(function(x){return '<button class="cx-seg'+((cxState.sort||'priority')===x[0]?' on':'')+'" onclick="cxSetSort(\''+x[0]+'\')">'+x[1]+'</button>';}).join('')+'</div></div>';
   if(!list.length){h+='<div class="cx-empty">Nothing here yet.</div>';}
   else{h+='<div class="cxr-list">'+list.map(cxRowHTML).join('')+'</div>';}
   h+='</div>';return h;}
@@ -4478,10 +4573,13 @@ function cxRowHTML(c){
   var inT=cxInMinTerm(c),open=cxState.openRow===c.id;
   var fa=calc?cxDMY(calc.finalAccess):'—';
   var term=c.no_lock_in?'No lock-in':(inT?'In term':'Out of term');
+  var pr=cxPriority(c),paint=cxPriCfg().paint;
+  var dot=(paint==='dot'&&pr.dot)?'<span class="cxr-dot-pri" style="background:'+pr.color+'" title="'+esc(pr.reason)+'" aria-hidden="true"></span>':'';
   var nm=esc(c.member_name||'(no name)')+(c.review_applied?' <span class="cxr-star">★</span>':'');
-  var meta='<span class="cxr-meta"><span class="cxr-m">Submitted '+(c.submission_date?cxDMY(c.submission_date):'—')+'</span><span class="cxr-dot">·</span><span class="cxr-m">Ends '+fa+'</span><span class="cxr-dot">·</span><span class="cxr-m'+(inT?' warn':'')+'">'+term+'</span>'+(tn?('<span class="cxr-dot">·</span><span class="cxr-m'+(dn>=tn?' ok':'')+'">'+dn+'/'+tn+' tasks</span>'):'')+'</span>';
-  var top='<button class="cxr-main" onclick="cxRowToggle(\''+c.id+'\')"><span class="cxr-l"><span class="cxr-name">'+nm+'</span>'+meta+'</span><span class="cxr-r"><span class="cxr-pill st-'+c.status+'">'+cxStatusLabel(c.status)+'</span><span class="cxr-chev'+(open?' open':'')+'">▾</span></span></button>';
-  return '<div class="cxr-row'+(open?' open':'')+'">'+top+(open?cxRowDetailHTML(c,calc,inT):'')+'</div>';
+  var meta='<span class="cxr-meta"><span class="cxr-m">Submitted '+(c.submission_date?cxDMY(c.submission_date):'—')+'</span><span class="cxr-dot">·</span><span class="cxr-m">Ends '+fa+'</span><span class="cxr-dot">·</span><span class="cxr-m'+(inT?' warn':'')+'">'+term+'</span>'+(tn?('<span class="cxr-dot">·</span><span class="cxr-m'+(dn>=tn?' ok':'')+'">'+dn+'/'+tn+' tasks</span>'):'')+cxPriChip(pr)+'</span>';
+  var top='<button class="cxr-main" onclick="cxRowToggle(\''+c.id+'\')">'+dot+'<span class="cxr-l"><span class="cxr-name">'+nm+'</span>'+meta+'</span><span class="cxr-r"><span class="cxr-pill st-'+c.status+'">'+cxStatusLabel(c.status)+'</span><span class="cxr-chev'+(open?' open':'')+'">▾</span></span></button>';
+  var rowTint=(paint==='row'&&pr.dot)?' style="--cxu:'+pr.color+'"':'';
+  return '<div class="cxr-row pri-'+pr.tier+(paint==='row'&&pr.dot?' cxr-tint':'')+(open?' open':'')+'"'+rowTint+'>'+top+(open?cxRowDetailHTML(c,calc,inT):'')+'</div>';
 }
 function cxRowDetailHTML(c,calc,inT){
   var email=(c.member_email||'').trim(),phone=(c.member_phone||'').trim(),cf=(c.clubfit_number||'').trim();
@@ -4534,8 +4632,8 @@ function cxCaseSummaryHTML(c,calc){
   }
   var tasks=cxTasks(c),done=c.task_done||{},out=tasks.filter(function(t){return !done[t.key];}),today=todayKey(),doHtml;
   if(!calc){doHtml='<div class="cxr-todo-empty">Add billing to build the checklist.</div>';}
-  else if(!out.length){doHtml='<div class="cxr-todo-done">✓ All steps done'+(c.status==='processed'?'':' — you can mark this case Processed')+'</div>';}
-  else{doHtml='<div class="cxr-todo">'+out.map(function(t){var od=t.due&&t.due<today;return '<label class="cxr-todo-i'+(od?' over':'')+'"><input type="checkbox" onclick="cxToggleTaskTodo(\''+c.id+'\',\''+t.key+'\')"><span>'+esc(t.label)+(t.due?(' <span class="cxr-todo-due">'+(od?'overdue · ':'due ')+cxDMY(t.due)+'</span>'):'')+'</span></label>';}).join('')+'</div>';}
+  else if(!out.length){doHtml='<div class="cxr-todo-done">✓ All steps done'+(c.status==='processed'?'':' <button class="cxr-act primary cxr-mp" onclick="cxSetStatus(\''+c.id+'\',\'processed\')">Mark processed</button>')+'</div>';}
+  else{doHtml='<div class="cxr-todo">'+out.map(function(t){var due=cxTaskDue(t),od=due&&due<today;return '<label class="cxr-todo-i'+(od?' over':'')+'"><input type="checkbox" onclick="cxToggleTaskTodo(\''+c.id+'\',\''+t.key+'\')"><span>'+esc(t.label)+(due?(' <span class="cxr-todo-due">'+(od?'overdue · ':'due ')+cxDMY(due)+'</span>'):'')+'</span></label>';}).join('')+'</div>';}
   return '<div class="cxr-sum"><div class="cxr-sum-now">'+now+'</div><div class="cxr-sum-do"><span class="cxr-sum-lbl">What needs doing</span>'+doHtml+'</div></div>';
 }
 function cxEmailMenu(id){cxState.actMenu=null;cxState.emailMenu=id;renderCancelHub();}
@@ -4572,24 +4670,33 @@ function cxCalendarHTML(){
 function cxCalMove(d){cxState.calOffset=(cxState.calOffset||0)+d;renderCancelHub();}
 function cxCalToday(){cxState.calOffset=0;renderCancelHub();}
 function cxClearAll(){if(!isOwner())return;var n=(cache.cancellations||[]).length;if(!n){toast('No cases to clear');return;}if(!confirm('Delete ALL '+n+' cancellation case'+(n===1?'':'s')+' from the hub?\nYour Jotform form is NOT affected — anything cleared can be re-imported with Backfill.\n\nThis cannot be undone.'))return;if(!confirm('Final check: permanently remove all '+n+' case'+(n===1?'':'s')+'?'))return;cxClearAllDo();}
-async function cxClearAllDo(){if(!isOwner()||!LIVE)return;try{var r=await sb.from('cancellations').delete().not('id','is',null);if(r&&r.error)throw r.error;}catch(e){toast('Clear failed: '+(e.message||e));return;}cache.cancellations=[];cxState.openRow=null;cxState.emailMenu=null;cxState.view='list';cxState.id=null;renderCancelHub();toast('All cases cleared');}
+async function cxClearAllDo(){if(!isOwner()||!LIVE)return;var del;
+  try{var r=await sb.from('cancellations').delete().not('id','is',null).select('id');if(r&&r.error)throw r.error;del=(r&&r.data)?r.data.length:0;}
+  catch(e){toast('Clear failed: '+(e.message||e));return;}
+  if(!del){toast('Nothing was cleared — check your access');await cxReloadCancellations();renderCancelHub();return;}
+  cache.cancellations=[];cxState.openRow=null;cxState.emailMenu=null;cxState.actMenu=null;cxState.view='list';cxState.id=null;renderCancelHub();toast('Cleared '+del+' case'+(del===1?'':'s'));}
+function cxTodoItemHTML(t,today){var overdue=t.due&&t.due<today;
+  return '<div class="cx-td'+(overdue?' overdue':'')+'"><input type="checkbox" onclick="cxToggleTaskTodo(\''+t.caseId+'\',\''+t.key+'\')"><div class="cx-td-main"><div class="cx-td-label">'+esc(t.label)+'</div><div class="cx-td-sub">'+esc(t.member)+(t.due?(' · due '+cxDMY(t.due)+(overdue?' · OVERDUE':'')):' · anytime')+'</div></div><button class="cx-link" onclick="cxOpenFromTodo(\''+t.caseId+'\')">Open</button></div>';}
 function cxTodoHTML(){
   var todos=cxAllTodos().filter(function(t){return !t.done;});
-  todos.sort(function(a,b){var da=a.due||'9999-12-31',db=b.due||'9999-12-31';return da<db?-1:da>db?1:0;});
   var today=todayKey();
-  var h='<div class="cx-wrap"><div class="cx-intro cx-muted">Everything still to action across your open cancellations, soonest first. Tick items off here or inside a case — they stay in sync. Dated items are the manual ClubFit changes (add the fee, set the pro-rata payment, archive on the day).</div>';
+  var h='<div class="cx-wrap"><div class="cx-intro cx-muted">Everything still to action across your open cancellations, grouped by when it is due. Tick items off here or inside a case — they stay in sync. Dated items are the manual ClubFit changes (add the fee, set the pro-rata payment, archive on the day) and surface a few days early so you can adjust the payment in time.</div>';
   if(!todos.length){h+='<div class="cx-empty">All caught up — nothing outstanding.</div></div>';return h;}
-  h+='<div class="cx-tdlist">';
-  todos.forEach(function(t){var overdue=t.due&&t.due<today;
-    h+='<div class="cx-td'+(overdue?' overdue':'')+'"><input type="checkbox" onclick="cxToggleTaskTodo(\''+t.caseId+'\',\''+t.key+'\')"><div class="cx-td-main"><div class="cx-td-label">'+esc(t.label)+'</div><div class="cx-td-sub">'+esc(t.member)+(t.due?(' · due '+cxDMY(t.due)+(overdue?' · OVERDUE':'')):' · anytime')+'</div></div><button class="cx-link" onclick="cxOpenFromTodo(\''+t.caseId+'\')">Open</button></div>';});
-  h+='</div></div>';return h;}
-function cxCasesHTML(){var c=(cxState.view==='detail'&&cxState.id)?cxFindCase(cxState.id):null;if(cxState.view==='detail'&&!c)cxState.view='list';return (cxState.view==='detail'&&c)?cxDetailHTML(c):cxListHTML();}
+  var week=cxYMD(cxAdd(cxParse(today),7));
+  var buckets={overdue:[],today:[],week:[],later:[],anytime:[]};
+  todos.forEach(function(t){if(!t.due)buckets.anytime.push(t);else if(t.due<today)buckets.overdue.push(t);else if(t.due===today)buckets.today.push(t);else if(t.due<=week)buckets.week.push(t);else buckets.later.push(t);});
+  var cmp=function(a,b){var da=a.due||'9999-12-31',db=b.due||'9999-12-31';return da<db?-1:da>db?1:0;};
+  [['overdue','Overdue'],['today','Today'],['week','This week'],['later','Later'],['anytime','Anytime']].forEach(function(g){var list=buckets[g[0]];if(!list.length)return;list.sort(cmp);
+    h+='<div class="cx-tdgrp'+(g[0]==='overdue'?' over':'')+'"><div class="cx-tdgrp-h">'+g[1]+' <span class="cx-tdgrp-n">'+list.length+'</span></div><div class="cx-tdlist">'+list.map(function(t){return cxTodoItemHTML(t,today);}).join('')+'</div></div>';});
+  h+='</div>';return h;}
+function cxCasesHTML(){var c=(cxState.view==='detail'&&cxState.id)?cxFindCase(cxState.id):null;if(cxState.view==='detail'&&!c){cxState.view='list';cxState.id=null;cxState.openRow=null;cxState.emailMenu=null;cxState.actMenu=null;}return (cxState.view==='detail'&&c)?cxDetailHTML(c):cxListHTML();}
 function renderCancelHub(){if(!isCancelStaff())return;var el=document.getElementById('cancel-page');if(!el)return;
-  var todoN=cxAllTodos().filter(function(t){return !t.done;}).length;
-  var h='<div class="cx-pagehead"><div class="cx-ph-l"><div class="cx-ph-title">Cancellations</div><div class="cx-tabs"><button class="cx-tab'+(cxState.tab!=='todo'?' on':'')+'" onclick="cxTab(\'cases\')">Cases</button><button class="cx-tab'+(cxState.tab==='todo'?' on':'')+'" onclick="cxTab(\'todo\')">To-do'+(todoN?(' <span class="cx-tabn">'+todoN+'</span>'):'')+'</button><button class="cx-tab'+(cxState.tab==='cal'?' on':'')+'" onclick="cxTab(\'cal\')">Calendar</button>'+(isOwner()?'<button class="cx-tab'+(cxState.tab==='settings'?' on':'')+'" onclick="cxTab(\'settings\')">Settings</button>':'')+'</div></div><button class="cx-close" onclick="cxClose()">'+(isOwner()?'← Back to admin':'Sign out')+'</button></div>';
+  var todos=cxAllTodos().filter(function(t){return !t.done;}),todoN=todos.length,cxToday=todayKey();
+  var overN=todos.filter(function(t){return t.due&&t.due<cxToday;}).length;
+  var h='<div class="cx-pagehead"><div class="cx-ph-l"><div class="cx-ph-title">Cancellations</div><div class="cx-tabs"><button class="cx-tab'+(cxState.tab!=='todo'&&cxState.tab!=='cal'&&cxState.tab!=='settings'?' on':'')+'" onclick="cxTab(\'cases\')">Cases</button><button class="cx-tab'+(cxState.tab==='todo'?' on':'')+'" onclick="cxTab(\'todo\')">To-do'+(todoN?(' <span class="cx-tabn'+(overN?' over':'')+'">'+todoN+'</span>'):'')+'</button><button class="cx-tab'+(cxState.tab==='cal'?' on':'')+'" onclick="cxTab(\'cal\')">Calendar</button>'+(isOwner()?'<button class="cx-tab'+(cxState.tab==='settings'?' on':'')+'" onclick="cxTab(\'settings\')">Settings</button>':'')+'</div></div><button class="cx-close" onclick="cxClose()">'+(isOwner()?'← Back to admin':'Sign out')+'</button></div>';
   h+='<div class="cx-pagebody">'+(cxState.tab==='todo'?cxTodoHTML():(cxState.tab==='cal'?cxCalendarHTML():(cxState.tab==='settings'?cxSettingsHTML():cxCasesHTML())))+'</div>';
   el.innerHTML=h;}
-function cxTab(t){if(t==='settings'&&!isOwner())t='cases';cxState.tab=t;renderCancelHub();}
+function cxTab(t){if(t==='settings'&&!isOwner())t='cases';cxState.tab=t;cxState.openRow=null;cxState.emailMenu=null;cxState.actMenu=null;renderCancelHub();}
 /* ---- Settings tab (owner only): templates, links, policy values ---- */
 function cxSettingsHTML(){
   if(!isOwner())return '<div class="cx-wrap"><div class="cx-empty">Settings are owner-only.</div></div>';
@@ -4604,7 +4711,16 @@ function cxSettingsHTML(){
   h+='<div class="fld"><label>Cancellation fee ($, in minimum term) — default 200</label><input type="number" step="0.01" inputmode="decimal" value="'+esc(pol.cancel_fee!=null?pol.cancel_fee:'')+'" placeholder="200" onchange="cxSetPolicy(\'cancel_fee\',this.value)"></div>';
   h+='<div class="fld"><label>Notice period (days) — default 30</label><input type="number" step="1" inputmode="numeric" value="'+esc(pol.notice_days!=null?pol.notice_days:'')+'" placeholder="30" onchange="cxSetPolicy(\'notice_days\',this.value)"></div>';
   h+='<div class="fld"><label>Google-review reduction (days) — default 12</label><input type="number" step="1" inputmode="numeric" value="'+esc(pol.review_days!=null?pol.review_days:'')+'" placeholder="12" onchange="cxSetPolicy(\'review_days\',this.value)"></div>';
-  h+='<div class="fld"><label>Transaction fee ($ per payment) — default 0.77</label><input type="number" step="0.01" inputmode="decimal" value="'+esc(pol.txn_fee!=null?pol.txn_fee:'')+'" placeholder="0.77" onchange="cxSetPolicy(\'txn_fee\',this.value)"></div></div>';
+  h+='<div class="fld"><label>Transaction fee ($ per payment) — default 0.77</label><input type="number" step="0.01" inputmode="decimal" value="'+esc(pol.txn_fee!=null?pol.txn_fee:'')+'" placeholder="0.77" onchange="cxSetPolicy(\'txn_fee\',this.value)"></div>';
+  h+='<div class="fld"><label>Surface payment-adjustment reminders this many days early — default 3</label><input type="number" step="1" min="0" inputmode="numeric" value="'+esc(pol.adjust_lead_days!=null?pol.adjust_lead_days:'')+'" placeholder="3" onchange="cxSetPolicy(\'adjust_lead_days\',this.value)"></div><div class="cx-hint">The pro-rata and fee tasks appear this many days before the payment date, so Charley can change the amount in ClubFit before it runs. Set to 0 to surface them on the day.</div></div>';
+  h+='<div class="cx-card"><div class="cx-card-h">Case colours &amp; priority</div>'
+   +'<div class="fld"><label>Show urgency as…</label><select onchange="cxSetPolicyStr(\'pri_paint\',this.value)">'
+     +'<option value="dot"'+((pol.pri_paint||'dot')==='dot'?' selected':'')+'>A small colour dot (clean)</option>'
+     +'<option value="row"'+(pol.pri_paint==='row'?' selected':'')+'>Tint the whole row</option>'
+     +'<option value="off"'+(pol.pri_paint==='off'?' selected':'')+'>Off</option></select></div>'
+   +'<div class="fld"><label>“Urgent” (red) — next action due within N days — default 2</label><input type="number" step="1" min="0" inputmode="numeric" value="'+esc(pol.pri_urgent!=null?pol.pri_urgent:'')+'" placeholder="2" onchange="cxSetPolicy(\'pri_urgent\',this.value)"></div>'
+   +'<div class="fld"><label>“Soon” (amber) — next action due within N days — default 7</label><input type="number" step="1" min="0" inputmode="numeric" value="'+esc(pol.pri_soon!=null?pol.pri_soon:'')+'" placeholder="7" onchange="cxSetPolicy(\'pri_soon\',this.value)"></div>'
+   +'<div class="cx-hint">Colour is based on the soonest outstanding step (usually the next pro-rata payment or archive day). Overdue is always red.</div></div>';
   h+='<div class="cx-card"><div class="cx-card-h">Manage cases</div><div class="cx-hint" style="margin-bottom:10px;">Removes cancellation cases from the hub only — your Jotform form is untouched, so anything cleared can be re-imported with Backfill.</div><button class="btn-sm" onclick="cxClearAll()">Clear ALL cases</button></div>';
   h+='<div class="cx-card"><div class="cx-card-h">Template tokens</div><div class="cx-tokref"><b>Member:</b> {first_name} {full_name} {membership_type}<br><b>Dates &amp; numbers:</b> {submission_date} {final_access} {final_access_long} {notice_days} {notice_base} {review_days} {fee_amount} {fee_date} {total} {next_payment_date} {review_link} {signature}<br><b>Smart paragraphs</b> (auto — keep the maths correct): {fee_clause} {notice_clause} {schedule_clause} {schedule} {notice_q_clause} {schedule_q_clause} {fee_detail_clause} {notice_q_line}<br>Wrap text in **double asterisks** to make it bold.</div></div>';
   [['confirm','Confirmation email'],['notice_q','Reply · notice period'],['fee_q','Reply · cancellation fee'],['review_offer','Google review offer']].forEach(function(t){h+=cxTplCardHTML(t[0],t[1],s);});
@@ -4626,10 +4742,11 @@ async function cxSetSig(v){if(!isOwner())return;var s=settings();s.cx_email_sig=
 async function cxSetEmailClient(v){if(!isOwner())return;var s=settings();s.cx_email_client=(v==='mailto'?'mailto':'gmail');await stateUpdate({settings:s});toast('Composer set to '+(s.cx_email_client==='mailto'?'your default mail app':'Gmail'));}
 async function cxSetClubfitUrl(v){if(!isOwner())return;var s=settings();s.cx_clubfit_url=(v||'').trim();await stateUpdate({settings:s});toast('ClubFit link saved');}
 async function cxSetPolicy(field,val){if(!isOwner())return;var s=settings();var p=Object.assign({},s.cx_policy||{});var n=parseFloat(val);if(val===''||val==null||isNaN(n))delete p[field];else p[field]=n;s.cx_policy=p;await stateUpdate({settings:s});cxRefreshPreviews();}
+async function cxSetPolicyStr(field,val){if(!isOwner())return;var s=settings();var p=Object.assign({},s.cx_policy||{});if(!val)delete p[field];else p[field]=val;s.cx_policy=p;await stateUpdate({settings:s});cxRefreshPreviews();}
 async function cxTplSave(key,field,val){if(!isOwner())return;var s=settings();var t=Object.assign({},s.cx_templates||{});var e=Object.assign({},t[key]||{});var def=cxTplDefaults()[key]||{};if((val||'')===''||val===def[field])delete e[field];else e[field]=val;if(Object.keys(e).length)t[key]=e;else delete t[key];s.cx_templates=t;await stateUpdate({settings:s});if(cxState.id)cxRefreshOut(cxState.id);}
 async function cxTplReset(key){if(!isOwner())return;if(!confirm('Reset this template to the default wording?'))return;var s=settings();var t=Object.assign({},s.cx_templates||{});delete t[key];s.cx_templates=t;await stateUpdate({settings:s});renderCancelHub();toast('Reset to default');}
 function cxSampleCase(){if(cxState.id){var c=cxFindCase(cxState.id);if(c&&cxCalc(c))return c;}return {member_name:'Sam Taylor',member_email:'sam@example.com',membership_type:'18 Month Membership',submission_date:'2026-06-08',min_term_end:'2027-01-01',no_lock_in:false,payment_amount:24.14,payment_frequency:'weekly',next_payment_date:'2026-06-17',fee_pref:'next'};}
-function cxTplLive(key){var subEl=document.getElementById('cxtpl-'+key+'-subject'),bodyEl=document.getElementById('cxtpl-'+key+'-body');if(!subEl||!bodyEl)return;if(!cache.state.settings)cache.state.settings={};var stash=cache.state.settings.cx_templates;try{var tmp=Object.assign({},stash||{});tmp[key]={subject:subEl.value,body:bodyEl.value};cache.state.settings.cx_templates=tmp;var pv=cxRender(key,cxSampleCase());var ps=document.getElementById('cxprev-'+key+'-subj');if(ps)ps.textContent=pv.subject;var pb=document.getElementById('cxprev-'+key);if(pb)pb.innerHTML=pv.html;}catch(e){}finally{cache.state.settings.cx_templates=stash;}}
+function cxTplLive(key){var subEl=document.getElementById('cxtpl-'+key+'-subject'),bodyEl=document.getElementById('cxtpl-'+key+'-body');if(!subEl||!bodyEl)return;try{var pv=cxRenderWith(key,cxSampleCase(),{subject:subEl.value,body:bodyEl.value});var ps=document.getElementById('cxprev-'+key+'-subj');if(ps)ps.textContent=pv.subject;var pb=document.getElementById('cxprev-'+key);if(pb)pb.innerHTML=pv.html;}catch(e){}}
 function openCancelPage(){if(!isCancelStaff())return;var el=document.getElementById('cancel-page');if(!el)return;var wasOpen=el.style.display==='block';el.style.display='block';if(document.body)document.body.classList.add('cx-open');if(!wasOpen||cxState.view!=='detail')renderCancelHub();}
 function cxClose(){var ae=document.activeElement;if(ae&&typeof ae.blur==='function')ae.blur();if(!isOwner()&&!confirm('Sign out of the cancellation hub?'))return;var el=document.getElementById('cancel-page');if(el){el.style.display='none';el.innerHTML='';}if(document.body)document.body.classList.remove('cx-open');cxState.view='list';cxState.id=null;cxState.tab='cases';try{if((location.hash||'').toLowerCase()==='#cancel')history.replaceState(null,'',location.pathname+location.search);}catch(e){}if(!isOwner())signOut();}
 function cxChrome(){var cw=document.getElementById('cancel-wrap');if(cw)cw.style.display=isCancelStaff()?'':'none';if(document.body)document.body.classList.toggle('cancel-only',isCancelStaff()&&!isOwner());
