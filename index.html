@@ -1412,6 +1412,28 @@ textarea.cmty-in2{resize:none;}
 .cmty-adm-thumb{width:46px;height:46px;border-radius:8px;object-fit:cover;background:var(--bg-light);flex:0 0 auto;display:inline-block;}
 .cmty-adm-meta{flex:1;min-width:0;font-size:13px;}
 .cmty-tag-ok{color:var(--green);font-size:11px;font-weight:700;}
+.cmty-cfg{margin:0 0 12px;}
+/* responsive: portrait boards (1080×1920) + mobile stack the wall vertically, sizes adapt to the smaller dimension */
+@media (max-aspect-ratio: 1/1){
+  .ctv-wrap{flex-direction:column;}
+  .ctv-left{flex:1 1 auto;width:100%;min-height:0;}
+  .ctv-right{flex:0 0 auto;width:100%;box-sizing:border-box;border-left:none;border-top:1px solid rgba(255,255,255,.08);padding:3vh 5vw 4vh;gap:1.4vh;}
+  .ctv-photo{width:min(66vw,40vh);height:min(66vw,40vh);}
+  .ctv-cap{max-width:min(66vw,40vh);padding:1.3vh 1vh 1.8vh;}
+  .ctv-name{font-size:min(7.4vw,4.2vh);}
+  .ctv-note{font-size:min(4.6vw,2.8vh);}
+  .ctv-logo{height:min(7vw,5.5vh);margin-bottom:.4vh;}
+  .ctv-logo .logo-img{height:min(7vw,5.5vh);width:min(22vw,17vh);}
+  .ctv-title{font-size:min(8vw,5.2vh);}
+  .ctv-tag{font-size:min(3.6vw,2.4vh);}
+  .ctv-qr{padding:1.8vw;}
+  .ctv-qr img{width:min(28vw,20vh);height:min(28vw,20vh);}
+  .ctv-tag2{font-size:min(3vw,2vh);}
+  .ctv-count{bottom:1.4vh;font-size:min(3vw,1.8vh);}
+  .ctv-empty-ico{font-size:min(20vw,12vh);}
+  .ctv-empty-t{font-size:min(7vw,4vh);}
+  .ctv-empty-s{font-size:min(4.6vw,2.6vh);}
+}
 /* urgency dot — leaderboard rank slot, left edge of the row */
 .cxr-dot-pri{width:9px;height:9px;border-radius:50%;flex:0 0 auto;align-self:center;box-shadow:0 0 0 3px transparent;}
 .cxr-row.pri-urgent .cxr-dot-pri{animation:cxPulse 2.2s ease-in-out infinite;}
@@ -1926,7 +1948,7 @@ const LIVE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = LIVE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}) : null;
 
 const cache = {leaderboard:[],achievements:[],events:[],todos:[],kpis:[],challenges:[],submissions:[],wods:[],ads:[],boards:[],history:[],row500:[],benchmarks:[],benchmark_phones:[],workout_logs:[],body_metrics:[],daily_results:[],my_results:[],records:[],cancellations:[],jotform_sync:null,state:{wod:{},settings:{},focus_override:null,challenge_title:'Monthly Challenge',event_page:{enabled:false,title:'Event',subtitle:'',sections:[]}}};
-const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_records:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'header',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true,whatson_note:'',cx_templates:{},cx_policy:{},cx_email_sig:'',cx_email_client:'mailto',cx_clubfit_url:'',community_on:false,community_style:'stack'};
+const DEFAULT_SETTINGS = {show_wod:true,show_strength:true,show_hyrox:true,show_challenge:true,show_achievements:true,show_records:true,show_events:true,show_photos:true,show_ads:true,rotate_seconds:8,wod_scale:1,board_scale:1,ad_scale:1,dual_wod:false,wod_label_a:"Caleb's WOD",wod_label_b:"Tim's WOD",wods_live:true,programming_start:'',challenges_live:true,challenge_start:'',customboards_live:false,customboard_submit_label:'Leaderboard',show_timer:false,submissions_open:true,analytics_on:true,row500_on:false,maintenance_on:false,row500_tab:false,row500_draw:'wheel',nav_mode:'header',nav_wrap:true,members_on:true,member_metrics_on:true,member_complete_on:true,whatson_note:'',cx_templates:{},cx_policy:{},cx_email_sig:'',cx_email_client:'mailto',cx_clubfit_url:'',community_on:false,community_style:'stack',community_drama:false,community_mode:'openday',community_openday_title:'Our Community',community_openday_prompt:'What are you most looking forward to with the new training space?',community_wins_title:'Community Wins',community_wins_prompt:'Share a win you\'re proud of — a PB, a milestone, a moment'};
 function settings(){return Object.assign({},DEFAULT_SETTINGS,cache.state.settings||{});}
 function applyScales(){const s=settings();const d=deviceSettings();const wod=(s.wod_scale||1)*(d.wod||1),board=(s.board_scale||1)*(d.board||1);const R=document.documentElement.style;R.setProperty('--wod-scale',wod);R.setProperty('--board-scale',board);R.setProperty('--board-scale-inv',1/board);R.setProperty('--ad-zoom',(s.ad_scale||1)/(s.board_scale||1));R.setProperty('--device-zoom',d.zoom||1);document.body.classList.toggle('hc',!!d.hc);}
 function deviceSettings(){try{return Object.assign({zoom:1,board:1,wod:1,hc:false},JSON.parse(localStorage.getItem('cave_device')||'{}'));}catch(e){return {zoom:1,board:1,wod:1,hc:false};}}
@@ -5239,6 +5261,9 @@ function cxChrome(){var cw=document.getElementById('cancel-wrap');if(cw)cw.style
   else if(el.style.display==='block'&&cxState.view!=='detail')renderCancelHub();}
 /* ============ OUR COMMUNITY — open-day selfie wall (QR -> phone form -> live TV) ============ */
 function communityOn(){return settings().community_on===true;}
+function communityMode(){return settings().community_mode==='wins'?'wins':'openday';}
+function communityKind(){return communityMode();}
+function cmtyCopy(){var s=settings();if(communityMode()==='wins')return {title:(s.community_wins_title||'Community Wins'),prompt:(s.community_wins_prompt||'Share a win you\'re proud of — a PB, a milestone, a moment'),formTitle:'Share your win',formSub:'Snap a photo, add your name, and tell us your win — it goes straight up on the wall.',tagline:'Scan to share your win',done:'Your win is on the wall!'};return {title:(s.community_openday_title||'Our Community'),prompt:(s.community_openday_prompt||'What are you most looking forward to with the new training space?'),formTitle:'Join our wall',formSub:'Snap a selfie in the space, add your name, and tell us what you\'re looking forward to — it pops straight up on the big screen.',tagline:'Scan to join the wall',done:'You\'re on the wall!'};}
 function cmtyFormUrl(){return location.origin+location.pathname+'#community';}
 function cmtyPhotoUrl(path){if(!path||!sb)return '';try{return sb.storage.from('community-selfies').getPublicUrl(path).data.publicUrl;}catch(e){return '';}}
 function cmtyOpenForm(){var el=document.getElementById('community-form');if(!el)return;el.style.display='flex';if(document.body)document.body.classList.add('cmty-open');renderCommunityForm();}
@@ -5246,53 +5271,55 @@ function cmtyCloseForm(){var el=document.getElementById('community-form');if(el&
 function cmtyOpenTV(){var el=document.getElementById('community-tv');if(!el)return;el.style.display='block';if(document.body)document.body.classList.add('cmty-tv-open');startCommunityTV();}
 function cmtyCloseTV(){var el=document.getElementById('community-tv');if(el&&el.style.display!=='none'){el.style.display='none';stopCommunityTV();}if(document.body)document.body.classList.remove('cmty-tv-open');}
 var cmtyPhotoBlob=null;
-function renderCommunityForm(){var el=document.getElementById('community-form');if(!el)return;
-  if(!communityOn()){el.innerHTML='<div class="cmty-card"><div class="cmty-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><h1 class="cmty-h">Our Community</h1><p class="cmty-sub">The community wall isn\'t live right now — see you at the open day!</p></div>';return;}
+function renderCommunityForm(){var el=document.getElementById('community-form');if(!el)return;var c=cmtyCopy(),wins=communityMode()==='wins';
+  if(!communityOn()){el.innerHTML='<div class="cmty-card"><div class="cmty-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><h1 class="cmty-h">'+esc(c.title)+'</h1><p class="cmty-sub">This wall isn\'t live right now — check back soon!</p></div>';return;}
   cmtyPhotoBlob=null;
   el.innerHTML='<div class="cmty-card">'
    +'<div class="cmty-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div>'
-   +'<h1 class="cmty-h">Join our wall</h1>'
-   +'<p class="cmty-sub">Snap a selfie in the space, add your name, and tell us what you\'re looking forward to — it pops straight up on the big screen.</p>'
-   +'<label class="cmty-photo"><input type="file" accept="image/*" capture="user" id="cmty-file" onchange="cmtyPick(this)"><span class="cmty-photo-inner" id="cmty-photo-inner"><span class="cmty-photo-ico">📸</span><span>Take your selfie</span></span></label>'
+   +'<h1 class="cmty-h">'+esc(c.formTitle)+'</h1>'
+   +'<p class="cmty-sub">'+esc(c.formSub)+'</p>'
+   +'<label class="cmty-photo"><input type="file" accept="image/*" capture="user" id="cmty-file" onchange="cmtyPick(this)"><span class="cmty-photo-inner" id="cmty-photo-inner"><span class="cmty-photo-ico">📸</span><span>'+(wins?'Add a photo':'Take your selfie')+'</span></span></label>'
    +'<input class="cmty-in" id="cmty-name" maxlength="40" placeholder="Your name" autocomplete="name">'
-   +'<textarea class="cmty-in" id="cmty-msg" maxlength="160" rows="2" placeholder="What are you most looking forward to with the new training space?"></textarea>'
+   +'<textarea class="cmty-in" id="cmty-msg" maxlength="160" rows="2" placeholder="'+esc(c.prompt)+'"></textarea>'
    +'<label class="cmty-consent"><input type="checkbox" id="cmty-consent"><span>I\'m happy for The Cave to use my photo in future marketing.</span></label>'
-   +'<button class="cmty-btn" id="cmty-send" onclick="cmtySubmit()">Add me to the wall</button>'
+   +'<button class="cmty-btn" id="cmty-send" onclick="cmtySubmit()">'+(wins?'Share my win':'Add me to the wall')+'</button>'
    +'<div class="cmty-result" id="cmty-result"></div>'
    +'</div>';
 }
 function cmtyPick(input){var f=input.files&&input.files[0];if(!f)return;var inner=document.getElementById('cmty-photo-inner');if(inner)inner.innerHTML='<span>Getting your photo ready…</span>';cmtyResize(f).then(function(blob){cmtyPhotoBlob=blob||f;var url=URL.createObjectURL(cmtyPhotoBlob);if(inner)inner.innerHTML='<img class="cmty-preview" src="'+url+'" alt="your selfie"><span class="cmty-retake">Tap to retake</span>';}).catch(function(){cmtyPhotoBlob=f;if(inner)inner.innerHTML='<span>Photo ready ✓ — tap to retake</span>';});}
 function cmtyResize(file){return new Promise(function(resolve){try{createImageBitmap(file,{imageOrientation:'from-image'}).then(function(bmp){var max=1280,w=bmp.width,h=bmp.height,scale=Math.min(1,max/Math.max(w,h));var cw=Math.round(w*scale),ch=Math.round(h*scale);var cv=document.createElement('canvas');cv.width=cw;cv.height=ch;cv.getContext('2d').drawImage(bmp,0,0,cw,ch);cv.toBlob(function(b){resolve(b);},'image/jpeg',0.85);}).catch(function(){resolve(null);});}catch(e){resolve(null);}});}
-function cmtySubmit(){if(!communityOn()){toast('The wall isn\'t live right now');return;}
+function cmtySubmit(){if(!communityOn()){toast('This wall isn\'t live right now');return;}
+  var c=cmtyCopy(),btnLabel=communityMode()==='wins'?'Share my win':'Add me to the wall';
   var name=(document.getElementById('cmty-name').value||'').trim(),msg=(document.getElementById('cmty-msg').value||'').trim(),consent=!!(document.getElementById('cmty-consent')||{}).checked,res=document.getElementById('cmty-result'),btn=document.getElementById('cmty-send');
-  if(!cmtyPhotoBlob){if(res)res.textContent='Add a selfie first 📸';return;}
+  if(!cmtyPhotoBlob){if(res)res.textContent='Add a photo first 📸';return;}
   if(!name){if(res)res.textContent='Pop your name in';return;}
   if(!sb){if(res)res.textContent='No connection — try again';return;}
   btn.disabled=true;btn.textContent='Adding…';if(res)res.textContent='';
   var path=Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
-  sb.storage.from('community-selfies').upload(path,cmtyPhotoBlob,{contentType:'image/jpeg',upsert:false}).then(function(up){if(up.error)throw up.error;return sb.from('community_posts').insert({name:name,message:msg,photo_path:path,marketing_ok:consent,approved:true});}).then(function(ins){if(ins.error)throw ins.error;var el=document.getElementById('community-form');if(el)el.innerHTML='<div class="cmty-card cmty-done"><div class="cmty-tick">✓</div><h1 class="cmty-h">You\'re on the wall!</h1><p class="cmty-sub">Look up at the big screen 👀</p><button class="cmty-btn ghost" onclick="renderCommunityForm()">Add another</button></div>';}).catch(function(e){btn.disabled=false;btn.textContent='Add me to the wall';if(res)res.textContent='Hmm, that didn\'t send — give it another go';});}
+  sb.storage.from('community-selfies').upload(path,cmtyPhotoBlob,{contentType:'image/jpeg',upsert:false}).then(function(up){if(up.error)throw up.error;return sb.from('community_posts').insert({name:name,message:msg,photo_path:path,marketing_ok:consent,approved:true,kind:communityKind()});}).then(function(ins){if(ins.error)throw ins.error;var el=document.getElementById('community-form');if(el)el.innerHTML='<div class="cmty-card cmty-done"><div class="cmty-tick">✓</div><h1 class="cmty-h">'+esc(c.done)+'</h1><p class="cmty-sub">Look up at the big screen 👀</p><button class="cmty-btn ghost" onclick="renderCommunityForm()">Add another</button></div>';}).catch(function(e){btn.disabled=false;btn.textContent=btnLabel;if(res)res.textContent='Hmm, that didn\'t send — give it another go';});}
 var cmtyPosts=[],cmtyIdx=0,cmtyRotT=null,cmtyChan=null,cmtyPollT=null;
-function loadCommunityPosts(){if(!sb)return Promise.resolve();return sb.from('community_posts').select('*').eq('approved',true).order('created_at',{ascending:false}).limit(60).then(function(r){if(!r.error&&r.data)cmtyPosts=r.data;}).catch(function(){});}
+function loadCommunityPosts(){if(!sb)return Promise.resolve();return sb.from('community_posts').select('*').eq('approved',true).eq('kind',communityKind()).order('created_at',{ascending:false}).limit(60).then(function(r){if(!r.error&&r.data)cmtyPosts=r.data;}).catch(function(){});}
 function startCommunityTV(){loadCommunityPosts().then(function(){cmtyIdx=0;renderCommunityTV();});
   if(cmtyRotT)clearInterval(cmtyRotT);cmtyRotT=setInterval(cmtyRotate,6500);
-  try{if(cmtyChan)sb.removeChannel(cmtyChan);if(sb)cmtyChan=sb.channel('community-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'community_posts'},function(p){if(p&&p.new){cmtyPosts.unshift(p.new);cmtyIdx=0;renderCommunityCurrent();}}).subscribe();}catch(e){}
+  try{if(cmtyChan)sb.removeChannel(cmtyChan);if(sb)cmtyChan=sb.channel('community-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'community_posts'},function(p){if(p&&p.new&&p.new.kind===communityKind()){cmtyPosts.unshift(p.new);cmtyIdx=0;renderCommunityCurrent();}}).subscribe();}catch(e){}
   if(cmtyPollT)clearInterval(cmtyPollT);cmtyPollT=setInterval(function(){loadCommunityPosts().then(renderCommunityCurrent);},30000);}
 function stopCommunityTV(){if(cmtyRotT){clearInterval(cmtyRotT);cmtyRotT=null;}if(cmtyPollT){clearInterval(cmtyPollT);cmtyPollT=null;}try{if(cmtyChan){sb.removeChannel(cmtyChan);cmtyChan=null;}}catch(e){}}
 function cmtyRotate(){if(cmtyPosts.length<2)return;cmtyIdx=(cmtyIdx+1)%cmtyPosts.length;renderCommunityCurrent();}
 function cmtyQRImg(){try{var c=qrCanvas(cmtyFormUrl(),320);return c?c.toDataURL('image/png'):'';}catch(e){return '';}}
-function renderCommunityTV(){var el=document.getElementById('community-tv');if(!el)return;var qr=cmtyQRImg();
-  el.innerHTML='<div class="ctv-wrap"><div class="ctv-left"><div class="ctv-stage" id="ctv-stage"></div></div><div class="ctv-right"><div class="ctv-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><h1 class="ctv-title">Our Community</h1><p class="ctv-tag">Scan to join the wall</p><div class="ctv-qr">'+(qr?'<img src="'+qr+'" alt="Scan to join our community wall">':'')+'</div><p class="ctv-tag2">Selfie · your name · what you love</p></div></div>';
+function renderCommunityTV(){var el=document.getElementById('community-tv');if(!el)return;var qr=cmtyQRImg(),c=cmtyCopy(),wins=communityMode()==='wins';
+  el.innerHTML='<div class="ctv-wrap"><div class="ctv-left"><div class="ctv-stage" id="ctv-stage"></div></div><div class="ctv-right"><div class="ctv-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><h1 class="ctv-title">'+esc(c.title)+'</h1><p class="ctv-tag">'+esc(c.tagline)+'</p><div class="ctv-qr">'+(qr?'<img src="'+qr+'" alt="'+esc(c.tagline)+'">':'')+'</div><p class="ctv-tag2">'+(wins?'Photo · your name · your win':'Selfie · your name · what you love')+'</p></div></div>';
   renderCommunityCurrent();}
 function communityStyle(){return settings().community_style==='single'?'single':'stack';}
 function cmtyPolaroidInner(p){var url=cmtyPhotoUrl(p.photo_path);return '<div class="ctv-polaroid"><div class="ctv-photo">'+(url?'<img src="'+esc(url)+'" alt="">':'')+'</div><div class="ctv-cap"><div class="ctv-name">'+esc(p.name||'')+'</div>'+(p.message?'<div class="ctv-note">"'+esc(p.message)+'"</div>':'')+'</div></div>';}
 function renderCommunityCurrent(){var stage=document.getElementById('ctv-stage');if(!stage)return;
-  if(!cmtyPosts.length){stage.innerHTML='<div class="ctv-empty"><div class="ctv-empty-ico">📸</div><div class="ctv-empty-t">Be the first on the wall</div><div class="ctv-empty-s">Scan the code and say hi</div></div>';return;}
+  if(!cmtyPosts.length){var we=communityMode()==='wins';stage.innerHTML='<div class="ctv-empty"><div class="ctv-empty-ico">📸</div><div class="ctv-empty-t">'+(we?'Be the first to share a win':'Be the first on the wall')+'</div><div class="ctv-empty-s">'+(we?'Scan the code and add yours':'Scan the code and say hi')+'</div></div>';return;}
   if(cmtyIdx>=cmtyPosts.length)cmtyIdx=0;var total=cmtyPosts.length;
   if(communityStyle()==='stack'&&total>1){
-    var K=Math.min(5,total),html='';
+    var drama=settings().community_drama===true;
+    var K=Math.min(drama?7:5,total),SX=drama?68:22,SY=drama?44:14,RB=drama?13:7,SS=drama?0.055:0.045,html='';
     for(var d=K-1;d>=0;d--){var idx=(cmtyIdx+d)%total,pp=cmtyPosts[idx],top=(d===0);
-      var rot=top?(((idx*37)%7)-3):(((idx*53)%15)-7),tx=top?0:(((idx*29)%44)-22),ty=top?0:(((idx*17)%28)-14),sc=top?1:(1-0.045*d);
-      html+='<div class="ctv-frame ctv-stacked" style="transform:translate(calc(-50% + '+tx+'px), calc(-50% + '+ty+'px)) rotate('+rot+'deg) scale('+sc.toFixed(3)+');z-index:'+(20-d)+';'+(top?'':'opacity:.94;')+'">'+cmtyPolaroidInner(pp)+'</div>';}
+      var rot=top?(((idx*37)%7)-3):(((idx*53)%(RB*2+1))-RB),tx=top?0:(((idx*29)%(SX*2+1))-SX),ty=top?0:(((idx*17)%(SY*2+1))-SY),sc=top?1:(1-SS*d);
+      html+='<div class="ctv-frame ctv-stacked" style="transform:translate(calc(-50% + '+tx+'px), calc(-50% + '+ty+'px)) rotate('+rot+'deg) scale('+sc.toFixed(3)+');z-index:'+(20-d)+';'+(top?'':'opacity:'+(drama?'.9':'.94')+';')+'">'+cmtyPolaroidInner(pp)+'</div>';}
     stage.innerHTML=html+'<div class="ctv-count">'+total+' on the wall</div>';
   } else {
     var p=cmtyPosts[cmtyIdx],rot=((cmtyIdx*37)%7)-3;
@@ -5301,17 +5328,23 @@ function renderCommunityCurrent(){var stage=document.getElementById('ctv-stage')
 }
 function toggleCommunityOn(){var s=settings();s.community_on=!(s.community_on===true);stateUpdate({settings:s}).then(function(){renderCommunityAdmin();toast(s.community_on?'Community wall ON':'Community wall OFF');});}
 function setCommunityStyle(v){var s=settings();s.community_style=(v==='single')?'single':'stack';stateUpdate({settings:s}).then(function(){renderCommunityAdmin();});}
+function setCommunityMode(v){var s=settings();s.community_mode=(v==='wins')?'wins':'openday';stateUpdate({settings:s}).then(function(){cmtyAdmEditId=null;renderCommunityAdmin();});}
+function toggleCommunityDrama(){var s=settings();s.community_drama=!(s.community_drama===true);stateUpdate({settings:s}).then(function(){renderCommunityAdmin();});}
+function setCommunityText(field,val){var s=settings(),m=communityMode();val=(val||'').trim();if(field==='title')s[m==='wins'?'community_wins_title':'community_openday_title']=val;else s[m==='wins'?'community_wins_prompt':'community_openday_prompt']=val;stateUpdate({settings:s}).then(function(){toast('Saved');});}
 var cmtyAdmPosts=[],cmtyAdmEditId=null;
 function renderCommunityAdmin(){var el=document.getElementById('community-admin');if(!el)return;if(!isUnlocked()){el.innerHTML='<div class="ot-sub">Admin only.</div>';return;}
-  var on=communityOn(),qr=cmtyQRImg(),st=communityStyle();
-  var h='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Community wall live</div><div class="ot-sub">Turns on the open-day selfie form. The TV wall shows submissions as they land.</div></div><span class="sw'+(on?' on':'')+'" onclick="toggleCommunityOn()"></span></div>';
-  h+='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">TV display style</div><div class="ot-sub">Stacked = polaroids pile on top of each other; Single = one big polaroid at a time.</div></div><div class="cmty-seg"><button class="cmty-seg-b'+(st==='stack'?' on':'')+'" onclick="setCommunityStyle(\'stack\')">Stacked</button><button class="cmty-seg-b'+(st==='single'?' on':'')+'" onclick="setCommunityStyle(\'single\')">Single</button></div></div>';
+  var s=settings(),on=communityOn(),qr=cmtyQRImg(),st=communityStyle(),mode=communityMode(),drama=s.community_drama===true,wins=mode==='wins';
+  var h='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Community wall live</div><div class="ot-sub">Turns on the form + TV wall for the mode selected below.</div></div><span class="sw'+(on?' on':'')+'" onclick="toggleCommunityOn()"></span></div>';
+  h+='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Wall mode</div><div class="ot-sub">Open day = the event selfie wall. Wins = an ongoing/monthly board where members share wins & moments (kept separate).</div></div><div class="cmty-seg"><button class="cmty-seg-b'+(!wins?' on':'')+'" onclick="setCommunityMode(\'openday\')">Open day</button><button class="cmty-seg-b'+(wins?' on':'')+'" onclick="setCommunityMode(\'wins\')">Wins</button></div></div>';
+  h+='<div class="cmty-cfg"><div class="fld"><label>Wall title (shown on the TV)</label><input value="'+esc(wins?(s.community_wins_title||'Community Wins'):(s.community_openday_title||'Our Community'))+'" onchange="setCommunityText(\'title\',this.value)"></div><div class="fld"><label>Question on the form</label><input value="'+esc(wins?(s.community_wins_prompt||''):(s.community_openday_prompt||''))+'" onchange="setCommunityText(\'prompt\',this.value)"></div></div>';
+  h+='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">TV display style</div><div class="ot-sub">Stacked = polaroids pile on top of each other; Single = one big polaroid at a time. Adapts automatically to landscape, portrait (1080×1920) and mobile.</div></div><div class="cmty-seg"><button class="cmty-seg-b'+(st==='stack'?' on':'')+'" onclick="setCommunityStyle(\'stack\')">Stacked</button><button class="cmty-seg-b'+(st==='single'?' on':'')+'" onclick="setCommunityStyle(\'single\')">Single</button></div></div>';
+  h+='<div class="ot-row" style="padding:0 0 12px;"><div><div class="ot-lbl">Dramatic pile</div><div class="ot-sub">A messier, bigger, more scattered stack (only affects Stacked mode).</div></div><span class="sw'+(drama?' on':'')+'" onclick="toggleCommunityDrama()"></span></div>';
   h+='<div class="cmty-adm-links"><a class="btn-sm" href="#communitytv" target="_blank" rel="noopener">Open TV wall ↗</a> <a class="btn-sm" href="#community" target="_blank" rel="noopener">Open the form ↗</a></div>';
-  if(qr)h+='<div class="cmty-adm-qr"><img src="'+qr+'" width="130" height="130" alt="QR to the form"><div class="ot-sub">Scan to open the form — print or display this for the open day.</div></div>';
+  if(qr)h+='<div class="cmty-adm-qr"><img src="'+qr+'" width="130" height="130" alt="QR to the form"><div class="ot-sub">Scan to open the form — print or display this for members.</div></div>';
   h+='<div id="cmty-adm-list"></div>';
   el.innerHTML=h;
   if(!admCatOpen('screens')||!sb){var l0=document.getElementById('cmty-adm-list');if(l0)l0.innerHTML='';return;}
-  sb.from('community_posts').select('*').order('created_at',{ascending:false}).limit(200).then(function(r){cmtyAdmPosts=(r&&r.data)||[];cmtyRenderAdmList();}).catch(function(){var lst=document.getElementById('cmty-adm-list');if(lst)lst.innerHTML='<div class="ot-sub">Couldn\'t load posts.</div>';});}
+  sb.from('community_posts').select('*').eq('kind',communityKind()).order('created_at',{ascending:false}).limit(200).then(function(r){cmtyAdmPosts=(r&&r.data)||[];cmtyRenderAdmList();}).catch(function(){var lst=document.getElementById('cmty-adm-list');if(lst)lst.innerHTML='<div class="ot-sub">Couldn\'t load posts.</div>';});}
 function cmtyRenderAdmList(){var lst=document.getElementById('cmty-adm-list');if(!lst)return;var list=cmtyAdmPosts||[];
   lst.innerHTML='<div class="set-section" style="margin:12px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:8px;">Posts ('+list.length+')'+(list.length?' <button class="btn-sm" onclick="cmtyDownloadAll()">Download all ↓</button>':'')+'</div>'+(list.length?list.map(cmtyAdmRow).join(''):'<div class="ot-sub">No posts yet.</div>');}
 function cmtyAdmRow(p){var u=cmtyPhotoUrl(p.photo_path),thumb=u?'<img class="cmty-adm-thumb" src="'+esc(u)+'" alt="">':'<span class="cmty-adm-thumb"></span>';

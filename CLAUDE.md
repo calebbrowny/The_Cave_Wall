@@ -602,6 +602,13 @@ appear on the TV **live** (Supabase realtime `community-live` channel + 30s poll
   storage blob via `download()` — avoids cross-origin taint — plus a **Download all** loop), and **delete** (`cmtyAdminDel`,
   also removes the storage file). Posts show **instantly** (open-day energy) with admin remove; the `approved` column is left
   in for optional future pre-moderation.
+- **Modes + responsive + dramatic (this pass).** `settings.community_mode` (`openday` | `wins`, default `openday`) re-themes the
+  form + TV (editable title/prompt per mode — `community_openday_title/prompt`, `community_wins_title/prompt`, via `cmtyCopy()`)
+  and tags each post's **`kind`** column so open-day selfies and the ongoing/monthly **Wins & moments** board never mix
+  (`loadCommunityPosts` / realtime / admin all filter `.eq('kind',communityKind())`). The TV **adapts to the display**: landscape
+  = two-column; `@media (max-aspect-ratio:1/1)` (portrait 1080×1920 + mobile) restacks to a vertical column sized with
+  `min(vw,vh)`. `settings.community_drama` = a bigger, more scattered pile (7 cards, larger offsets/rotation). The admin adds
+  a **Wall-mode** toggle (Open day / Wins), a **Dramatic pile** toggle, and the editable title + question for the active mode.
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
