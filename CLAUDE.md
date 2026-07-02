@@ -576,6 +576,28 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   debounced) for when an operator needs a case's data refreshed immediately. Cache the OAuth token (1h) and reuse it;
   one re-token-and-retry on 401. Stay on the Basic plan.
 
+## Our Community — open-day selfie wall (QR → phone form → live TV)
+A public **selfie wall** for gym open days. A TV kiosk shows member selfies flicking through polaroid-style; scanning its
+QR opens a tiny phone form (selfie + name + what you're loving/looking-forward-to + a marketing-consent tick); submissions
+appear on the TV **live** (Supabase realtime `community-live` channel + 30s poll fallback) and are kept for future marketing.
+- **Data:** table `community_posts` (name, message, photo_path, marketing_ok, approved default true, created_at) — RLS:
+  public SELECT + public INSERT (open-day, anonymous), admin UPDATE/DELETE (`is_cave_admin()`, perf-wrapped); in the realtime
+  publication. Selfies in a **public** Storage bucket `community-selfies` (public read for the anonymous TV kiosk; public
+  INSERT; admin DELETE). Photos are downscaled client-side to ~1280px JPEG before upload (`cmtyResize`, EXIF-aware).
+- **Routes (hash → standalone full-screen overlays, no nav):** `#community` = the phone form (`renderCommunityForm`→
+  `cmtySubmit`: `sb.storage…upload` then insert); `#communitytv` = the TV wall (`startCommunityTV`/`renderCommunityTV`/
+  `renderCommunityCurrent`, rotates every 6.5s, `stopCommunityTV` clears timers + channel). Handled in `applyHashRoute`
+  (opens the overlay, closes both for any other route); overlay divs `#community-form`/`#community-tv` sit near `#maint`.
+- **TV layout (optimised 1920×1080, sizes in vh):** left = one big **polaroid** (`.ctv-polaroid`, white frame, cover photo,
+  handwritten-style name + "message" caption, slight per-index rotation, fade-in) flicking through; right = logo +
+  **"Our Community"** title + **QR** (reuses the existing `qrCanvas()` → CDN `qrcode` global) + tagline. Empty state prompts
+  "Be the first". All new CSS scoped `.ctv-*` / `.cmty-*`.
+- **Toggle + admin:** `settings.community_on` (default false) → `communityOn()` gates the form; a `📸 Our Community wall`
+  panel injected into the **Screens & display** admin category (`renderCommunityAdmin` → the toggle, open-TV / open-form
+  links, a printable QR, and the post list with per-post delete `cmtyAdminDel` which also removes the storage file; the list
+  loads only when the category is open). Posts show **instantly** (open-day energy) with admin remove; the `approved` column
+  is left in for optional future pre-moderation.
+
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
   mirrored in the `is_cave_admin()` Postgres function) **plus** extra emails managed in the UI
