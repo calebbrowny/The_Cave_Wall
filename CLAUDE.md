@@ -588,15 +588,20 @@ appear on the TV **live** (Supabase realtime `community-live` channel + 30s poll
   `cmtySubmit`: `sb.storage…upload` then insert); `#communitytv` = the TV wall (`startCommunityTV`/`renderCommunityTV`/
   `renderCommunityCurrent`, rotates every 6.5s, `stopCommunityTV` clears timers + channel). Handled in `applyHashRoute`
   (opens the overlay, closes both for any other route); overlay divs `#community-form`/`#community-tv` sit near `#maint`.
-- **TV layout (optimised 1920×1080, sizes in vh):** left = one big **polaroid** (`.ctv-polaroid`, white frame, cover photo,
-  handwritten-style name + "message" caption, slight per-index rotation, fade-in) flicking through; right = logo +
-  **"Our Community"** title + **QR** (reuses the existing `qrCanvas()` → CDN `qrcode` global) + tagline. Empty state prompts
+- **TV layout (optimised 1920×1080, sizes in vh):** left = big **polaroids** (`.ctv-polaroid`, white frame, cover photo,
+  handwritten-style name + "message" caption); right = logo + **"Our Community"** title + **QR** (reuses the existing
+  `qrCanvas()` → CDN `qrcode` global) + tagline. Two display modes (`settings.community_style`, default **`stack`**):
+  **stacked pile** (`.ctv-stacked`, up to 5 polaroids piled/rotated/offset, newest on top, absolute-positioned in the
+  `position:relative` `.ctv-stage`) or **single** (one at a time); both flick on the 6.5s rotator. Empty state prompts
   "Be the first". All new CSS scoped `.ctv-*` / `.cmty-*`.
 - **Toggle + admin:** `settings.community_on` (default false) → `communityOn()` gates the form; a `📸 Our Community wall`
   panel injected into the **Screens & display** admin category (`renderCommunityAdmin` → the toggle, open-TV / open-form
-  links, a printable QR, and the post list with per-post delete `cmtyAdminDel` which also removes the storage file; the list
-  loads only when the category is open). Posts show **instantly** (open-day energy) with admin remove; the `approved` column
-  is left in for optional future pre-moderation.
+  links, a printable QR, a **Stacked / Single** TV display-style toggle (`setCommunityStyle` → `settings.community_style`),
+  and the post list; the list loads only when the category is open). Per-post admin actions: **edit** name/message/marketing
+  (`cmtyAdminEdit`/`cmtyAdminSave`), **download** as a framed polaroid PNG (`cmtyDownloadPolaroid` paints a canvas from the
+  storage blob via `download()` — avoids cross-origin taint — plus a **Download all** loop), and **delete** (`cmtyAdminDel`,
+  also removes the storage file). Posts show **instantly** (open-day energy) with admin remove; the `approved` column is left
+  in for optional future pre-moderation.
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
