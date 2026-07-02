@@ -209,7 +209,11 @@ No-API, built from The Cave's HYROX logic. Key pieces:
   `renderHome()` → 3-tile grid (`.ho-tile`): **Today's WOD**, **Your training** (streak or login CTA), **This month**.
 - **Nav = top bar + bottom tab bar (app-style).** Top bar (`#nav`, `.nav-i`): logo + clock on the left,
   `.nav-top-acts` on the right (the `#member-chip` login/"Hey {name}" chip + the **⚙️ admin cog `#m-plan`** +
-  hidden `#lock-btn`). **No hamburger.** Page navigation lives in a **fixed bottom tab bar** (`#tabbar`, `.tb`
+  hidden `#lock-btn`). **No hamburger.** **Staff entry lives inside the member login modal** — a
+  "The Cave staff? **Cave staff login**" link (`.mauth-staff` → `staffLogin()` → `showPwGate()`, gate titled
+  "Cave Staff Sign In"); the ⚙️ cog is **hidden for the public** and only shows when staff are signed in
+  (`isUnlocked()`) or member logins are off (`!membersOn()`, the fallback staff door) — gated in
+  `renderMemberChip` + `setUnlocked`. Page navigation lives in a **fixed bottom tab bar** (`#tabbar`, `.tb`
   buttons with minimalist inline-SVG line icons + `.tl` labels): **WOD / Challenge / The Wall / Submit** (+
   Event/Row/Timer when enabled). The buttons keep their original `#m-*` ids so `_setMode` toggles `.on` (active =
   blue). `_setMode` hides the tab bar + drops `body.tabbar-on` padding **only when `activeScreenSlug`** is set (a
@@ -478,9 +482,12 @@ later (Caleb has API access requested) — for now it's **manual entry** and is 
   only `#cx-out` and is **focus-guarded** (skips while a text input/textarea in it is focused, re-runs on blur) so
   edits/focus are never clobbered. On sign-out, `cache.cancellations` + the overlay DOM + `cancel-only`/`cx-open`
   classes are cleared (no PII residue). All emoji-free, dark theme + blue accents, desktop-optimised.
-- **Cases list = leaderboard-style + tap-to-expand person dropdown (this pass).** The Cases list now mirrors The Wall's
-  clean divided-row look (`cxListHTML`→`cxRowHTML`, `.cxr-*`): big bold name + inline meta (submitted / ends / term /
-  tasks) + status pill. **Tapping a name** expands an inline dropdown (`cxRowDetailHTML`, accordion via
+- **Cases list = leaderboard-style + tap-to-expand person dropdown (this pass).** The Cases list
+  (`cxListHTML`→`cxRowHTML`, `.cxr-*`): big bold name + inline meta (submitted / ends / term / tasks) + status pill.
+  **Each case is a separated CARD row** (not a divided list — the divided look blended names together): `.cxr-row` =
+  bg-card + border + radius + 10px gap, hover accent, `.open` gets a blue border, and every row leads with a **38px
+  initials avatar** (`.cxr-av`, first letters of the first two name words) so people scan apart at a glance; the
+  urgency tint keeps its 3px left edge. **Tapping a name** expands an inline dropdown (`cxRowDetailHTML`, accordion via
   `cxState.openRow`/`cxRowToggle`, one open at a time, reset on filter/sign-out): a **visual summary** (`cxCaseSummaryHTML`
   — a "what's happening" line (term + $fee / notice / final access / total) plus a **tickable "what needs doing" checklist**
   of the outstanding tasks, synced via `cxToggleTaskTodo`), contact links (email + `tel:`), a reason snippet, and smart
@@ -611,7 +618,13 @@ appear on the TV **live** (Supabase realtime `community-live` channel + 30s poll
   a **Wall-mode** toggle (Open day / Wins), a **Dramatic pile** toggle, and the editable title + question for the active mode.
   The TV **sub-line** (under the QR) is per-mode: an editable field, quick-pick **preset chips** (`CMTY_OPENDAY_TAGS` /
   `CMTY_WINS_TAGS`, `cmtyPickTag`), or a **Rotate hourly** toggle (`community_*_tag_rotate` → `cmtyBlurb()` picks
-  `list[hour % list.length]`; the TV poll re-renders the header when the hour changes via `cmtyRenderedHour`). The old
+  `list[hour % list.length]`; the TV poll re-renders the header whenever the computed header changes via `cmtyRenderedSig`).
+  **Members can browse the wall on their phones**: a "Community wall" group at the top of The Wall's **Community tab**
+  (`REC_GROUPS` `cmtywall` `special:'cmty'`, shown only when `communityOn()` via `recGroupsForCat`) renders a polaroid
+  **gallery grid** (`masterCmtyHTML`/`loadMasterCmty` — lazy 24-post fetch filtered by `kind`, `.mcw-*` CSS, tilted white
+  polaroid cards) + an "Add yours" CTA to `#community`. `cmtyGoWall()` deep-links to it (sets `recTabKey='community'`,
+  opens the group, routes `#display`) — wired from the **form success screen** ("See the wall on your phone") and a
+  **Community card in My Hub** (`.md-wall`, shown when `communityOn()`). The old
   **Strength/HYROX display path was retired** (the `show_strength`/`show_hyrox` toggles, the legacy `buildSlides` strength/
   HYROX slides, and their `SCREEN_KEYS` entries) — The Wall's records system owns those leaderboards now; the event-page
   board options + stats (which read the `leaderboard` table directly) are untouched.

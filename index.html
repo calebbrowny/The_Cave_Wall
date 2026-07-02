@@ -528,6 +528,7 @@ body.light #wod .wod-block-body .wb-hd{color:#1558d6;}
 .mauth-tab.on{background:var(--blue);color:var(--dk);border-color:var(--blue);}
 .mauth-note{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
 .mauth-alt{font-size:13px;color:var(--muted);margin-top:14px;text-align:center;}
+.mauth-staff{font-size:12px;color:var(--muted);margin-top:18px;padding-top:14px;border-top:1px solid var(--border);text-align:center;}
 .mauth-link{background:none;border:none;color:var(--blue);font-weight:800;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;}
 .wm-card{max-width:680px;margin:14px auto 30px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:left;}
 .wm-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
@@ -618,6 +619,11 @@ body.light #wod .wod-block-body .wb-hd{color:#1558d6;}
 .md-badge-c{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.3;}
 .md-badge.on .md-badge-c{color:var(--green);font-weight:700;}
 .md-howto{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.7;color:var(--text);}
+.md-wall{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;text-align:left;cursor:pointer;font-family:inherit;line-height:1.45;}
+.md-wall b{font-size:14.5px;color:var(--text);}
+.md-wall span{font-size:12.5px;color:var(--muted);}
+.md-wall .md-wall-go{color:var(--blue);font-weight:700;margin-top:3px;}
+.md-wall:hover{border-color:var(--blue);}
 .md-empty{max-width:420px;margin:60px auto;text-align:center;padding:0 20px;}
 .md-empty-h{font-size:24px;font-weight:900;margin-bottom:8px;}
 .md-empty p{color:var(--muted);font-size:14px;}
@@ -1154,7 +1160,7 @@ body.cancel-only #cancel-wrap{margin-top:0;border-top:none;padding-top:0;}
 .cx-fp{border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;padding:7px 14px;border-radius:999px;cursor:pointer;}
 .cx-fp.on{background:var(--blue);border-color:var(--blue);color:#0e1116;}
 .cx-empty{color:var(--muted);font-size:13px;padding:22px 4px;text-align:center;}
-.cx-list{border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.cx-list{border:none;border-radius:0;overflow:visible;}
 .cx-lh,.cx-li{display:grid;grid-template-columns:1.6fr 1fr 1fr .9fr .7fr .9fr;gap:12px;align-items:center;padding:11px 16px;text-align:left;}
 .cx-lh{background:var(--bg-light);color:var(--muted);font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;}
 .cx-li{width:100%;background:transparent;border:none;border-top:1px solid var(--border);color:var(--text);font-size:13.5px;cursor:pointer;font-family:inherit;}
@@ -1245,9 +1251,12 @@ body.cancel-only #cancel-wrap{margin-top:0;border-top:none;padding-top:0;}
 @media(max-width:820px){.cx-cols{grid-template-columns:1fr;}.cx-lh,.cx-li{grid-template-columns:1.4fr 1fr .8fr .8fr;}.cx-lh span:nth-child(3),.cx-li>span:nth-child(3){display:none;}.cx-lh span:nth-child(5),.cx-li>span:nth-child(5){display:none;}}
 /* Cases list — leaderboard look */
 .cxr-list{display:block;border-top:1px solid var(--border);}
-.cxr-row{border-bottom:1px solid var(--border);}
-.cxr-row.open{background:var(--blue-d);}
-.cxr-main{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:none;border:none;padding:15px 4px;cursor:pointer;color:inherit;font:inherit;}
+.cxr-row{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .15s;}
+.cxr-row:hover{border-color:color-mix(in srgb,var(--blue) 40%,var(--border));}
+.cxr-row.open{background:var(--blue-d);border-color:var(--blue);}
+.cxr-av{width:38px;height:38px;border-radius:50%;background:var(--bg-light);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;letter-spacing:.5px;flex:0 0 auto;}
+.cxr-row.open .cxr-av{border-color:var(--blue);color:var(--blue);}
+.cxr-main{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:none;border:none;padding:15px 16px;cursor:pointer;color:inherit;font:inherit;}
 .cxr-l{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;}
 .cxr-name{font-size:17px;font-weight:800;letter-spacing:-.2px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .cxr-star{color:var(--blue);font-size:13px;}
@@ -1263,7 +1272,7 @@ body.cancel-only #cancel-wrap{margin-top:0;border-top:none;padding-top:0;}
 .cxr-pill.st-reversed{background:var(--bg-light);color:var(--muted);}
 .cxr-chev{color:var(--muted);font-size:12px;transition:transform .18s;flex:0 0 auto;}
 .cxr-chev.open{transform:rotate(180deg);color:var(--blue);}
-.cxr-body{padding:2px 4px 18px;}
+.cxr-body{padding:2px 16px 18px;}
 .cxr-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
 .cxr-chip{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:8px;background:var(--bg-light);color:var(--text);border:1px solid var(--border);}
 .cxr-chip.warn{background:var(--amber-d);color:var(--amber);border-color:transparent;}
@@ -1408,6 +1417,17 @@ textarea.cmty-in2{resize:none;}
 .cmty-tag-presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .cmty-tag-chip{font-size:11px;background:var(--bg-card);border:1px solid var(--border);color:var(--muted);border-radius:14px;padding:6px 10px;cursor:pointer;font-family:inherit;text-align:left;line-height:1.2;}
 .cmty-tag-chip:hover{border-color:var(--blue);color:var(--text);}
+/* community wall inside The Wall (phone gallery of the polaroid posts) */
+.mcw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;padding:4px 2px 2px;}
+.mcw-card{background:#fbfbf7;border-radius:4px;padding:8px 8px 11px;box-shadow:0 6px 16px rgba(0,0,0,.35);transform:rotate(var(--mr,0deg));}
+.mcw-card:nth-child(3n){--mr:1.4deg;}
+.mcw-card:nth-child(3n+1){--mr:-1.2deg;}
+.mcw-card:nth-child(5n){--mr:.6deg;}
+.mcw-ph{aspect-ratio:1/1;background:#101010;overflow:hidden;border-radius:2px;}
+.mcw-ph img{width:100%;height:100%;object-fit:cover;display:block;}
+.mcw-nm{font-family:'Caveat','Segoe Print','Bradley Hand',cursive;font-size:19px;font-weight:700;color:#141414;text-align:center;margin-top:7px;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mcw-msg{font-family:'Caveat','Segoe Print','Bradley Hand',cursive;font-size:14px;color:#4a4a4a;text-align:center;line-height:1.15;margin-top:3px;}
+.mcw-cta{margin-top:14px;text-align:center;}
 .cmty-adm-links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
 .cmty-adm-qr{display:flex;gap:12px;align-items:center;margin-bottom:12px;}
 .cmty-adm-qr img{background:#fff;padding:6px;border-radius:8px;flex:0 0 auto;}
@@ -1450,7 +1470,7 @@ body.reduce-motion .cxr-dot-pri{animation:none;}
 .cxr-m.urg.over{color:var(--red);font-weight:800;}
 .cxr-m.urg.soon{color:var(--amber);font-weight:700;}
 /* whole-row tint mode (paint==='row') */
-.cxr-row.cxr-tint{border-left:3px solid var(--cxu,transparent);padding-left:9px;}
+.cxr-row.cxr-tint{border-left:3px solid var(--cxu,transparent);}
 .cxr-row.cxr-tint.pri-urgent{background:color-mix(in srgb,var(--red) 9%,transparent);}
 .cxr-row.cxr-tint.pri-soon{background:color-mix(in srgb,var(--amber) 9%,transparent);}
 .cxr-row.cxr-tint.open{background:var(--blue-d);}
@@ -1492,7 +1512,7 @@ body.reduce-motion .cxr-dot-pri{animation:none;}
 @media(max-width:760px){.cxcal-cell{min-height:58px;padding:3px;}.cxcal-ev{font-size:8.5px;padding:2px 3px;}.cxcal-grid{gap:2px;}.cxcal-dow{font-size:8.5px;}.cxcal-dn{font-size:9.5px;}.cxcal-title{min-width:120px;font-size:15px;}.cxcal-head{gap:8px;}}
 .cx-warn-missing{color:var(--amber);font-size:12px;margin-top:6px;}
 @media(max-width:820px){
-  .cxr-main{flex-wrap:wrap;gap:8px 10px;padding:14px 2px;}
+  .cxr-main{flex-wrap:wrap;gap:8px 10px;padding:14px 13px;}
   .cxr-name{font-size:16px;white-space:normal;}
   .cxr-r{width:100%;justify-content:space-between;}
   .cxr-act{flex:1 1 auto;justify-content:center;}
@@ -1928,7 +1948,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
 
 <!-- ADMIN SIGN-IN GATE -->
 <div class="pw-gate" id="pw-gate"><div class="pw-card">
-  <div class="pw-icon">🔐</div><h2>Admin Sign In</h2><p id="auth-msg">Sign in with your Cave email. We'll send a login link and a 6-digit code.</p>
+  <div class="pw-icon">🔐</div><h2>Cave Staff Sign In</h2><p id="auth-msg">Sign in with your Cave staff email. We'll send a login link and a 6-digit code.</p>
   <div id="auth-step1">
     <input id="auth-email" type="email" placeholder="you@thecavegym.com.au" autocomplete="email" onkeydown="if(event.key==='Enter')sendAuth()">
     <button onclick="sendAuth()" id="auth-send-btn">Send login code</button>
@@ -3284,6 +3304,7 @@ const REC_GROUPS=[
   {gkey:'hyrox',cat:'fitness',group:'HYROX',dir:'low',u:'',input:'time',items:[['hyrox_open','HYROX Open'],['hyrox_pro','HYROX Pro'],['hyrox_doubles','HYROX Doubles',{single:true}],['wallball_100','100 Wall Balls']]},
   {gkey:'ergs',cat:'fitness',group:'Ergs & sprints',dir:'low',u:'',input:'time',items:[['row_500','500m Row'],['row_1000','1km Row'],['row_2000','2km Row'],['ski_500','500m Ski'],['ski_1000','1km Ski'],['run_1k','1km Run'],['bike_60','60s Bike',{dir:'high',u:'cals',input:'cals'}]]},
   {gkey:'endurance',cat:'fitness',group:'Endurance',dir:'low',u:'',input:'time',items:[['run_5k','5km Run'],['run_10k','10km Run'],['run_21k','Half Marathon'],['run_42k','Marathon']]},
+  {gkey:'cmtywall',cat:'community',group:'Community wall',special:'cmty'},
   {gkey:'achievements',cat:'community',group:'Personal achievements',special:'ach'},
   {gkey:'attendance',cat:'community',group:'Attendance & consistency',adminOnly:true,dir:'high',u:'',input:'reps',single:true,items:[['most_classes','Most Classes · Month'],['most_wods','Most WODs Logged'],['longest_streak','Longest Streak',{u:'days'}]]},
   {gkey:'champions',cat:'community',group:'Challenge champions',special:'champions'}
@@ -3296,7 +3317,7 @@ const REC_CAT_LABEL={};REC_TABS.forEach(function(t){REC_CAT_LABEL[t.key]=t.label
 // curated marquee feats for the All-Time summary
 const REC_SUMMARY=['squat','deadlift','bench','snatch','clean_jerk','hyrox_open','row_500','row_2000','run_1k','run_5k','max_pullup'];
 function recItem(rkey){return REC_MAP[rkey]||null;}
-function recGroupsForCat(cat){return REC_GROUPS.filter(function(g){return g.cat===cat;});}
+function recGroupsForCat(cat){return REC_GROUPS.filter(function(g){return g.cat===cat&&(g.special!=='cmty'||communityOn());});}
 function recGroupByKey(gk){return REC_GROUPS.find(function(g){return g.gkey===gk;})||null;}
 function recFeatGroups(){return REC_GROUPS.filter(function(g){return g.feats&&g.feats.length;});}
 function recSex(it,sex){return (it&&it.single)?'x':(sex==='f'?'f':'m');}
@@ -3344,7 +3365,7 @@ function recChampionsHTML(){var list=[];var cur=activeChallenge();if(cur&&cur.wi
   return '<div class="champ-list">'+list.map(function(x){return '<div class="champ-row"><div class="champ-medal">🏆</div><div class="champ-tx"><div class="champ-name">'+esc(titleCase(x.w))+'</div><div class="champ-sub">'+esc(x.t)+(x.when?(' · '+esc(x.when)):'')+'</div></div></div>';}).join('')+'</div>';}
 function recCatHTML(cat){return recGroupsForCat(cat).map(function(g){
   var open=recGroupClosed[g.gkey]!==true;
-  var body=g.special==='ach'?masterAchHTML():(g.special==='champions'?recChampionsHTML():recGroupBoardHTML(g,false));
+  var body=g.special==='cmty'?masterCmtyHTML():(g.special==='ach'?masterAchHTML():(g.special==='champions'?recChampionsHTML():recGroupBoardHTML(g,false)));
   return '<div class="rec-grp'+(open?' open':'')+'"><button class="rec-grp-h" onclick="recGrpToggle(\''+g.gkey+'\')"><span class="rec-grp-name">'+esc(g.group)+'</span><span class="rec-grp-chev">▾</span></button><div class="rec-grp-body">'+body+'</div></div>';
 }).join('');}
 function recGrpToggle(gk){recGroupClosed[gk]=!recGroupClosed[gk];renderMaster();}
@@ -3429,6 +3450,24 @@ function renderMaster(){
 }
 function recTab(k){recTabKey=k;renderMaster();const el=document.getElementById('master');if(el){const on=el.querySelector('.mw-tab.on');if(on&&on.scrollIntoView){try{on.scrollIntoView({inline:'center',block:'nearest'});}catch(e){}}}}
 function recCTA(kind){subCat=(kind==='ach')?'achievement':'record';setMode('submit');}
+/* Community wall on the phone — the polaroid posts, browsable inside The Wall's Community tab */
+var mcwPosts=null,mcwLoading=false,mcwKind=null;
+function masterCmtyHTML(){
+  var kind=communityKind();
+  if(mcwKind!==kind){mcwPosts=null;mcwKind=kind;}
+  var cta='<div class="mcw-cta"><button class="btn-sm" onclick="location.hash=\'community\'">Add yours</button></div>';
+  if(!sb)return '<div class="rec-none">The wall lights up on the day — check back soon.</div>';
+  if(mcwPosts===null){loadMasterCmty();return '<div class="rec-none">Loading the wall…</div>';}
+  if(!mcwPosts.length)return '<div class="rec-none">Nothing on the wall yet — yours could be the first.</div>'+cta;
+  return '<div class="mcw-grid">'+mcwPosts.map(function(p){var u=cmtyPhotoUrl(p.photo_path);return '<div class="mcw-card"><div class="mcw-ph">'+(u?'<img loading="lazy" src="'+esc(u)+'" alt="">':'')+'</div><div class="mcw-nm">'+esc(p.name||'')+'</div>'+(p.message?'<div class="mcw-msg">“'+esc(p.message)+'”</div>':'')+'</div>';}).join('')+'</div>'+cta;
+}
+function loadMasterCmty(){
+  if(mcwLoading||!sb)return;mcwLoading=true;
+  sb.from('community_posts').select('*').eq('approved',true).eq('kind',communityKind()).order('created_at',{ascending:false}).limit(24)
+    .then(function(r){mcwLoading=false;mcwPosts=(r&&!r.error&&r.data)?r.data:[];renderMaster();})
+    .catch(function(){mcwLoading=false;mcwPosts=[];renderMaster();});
+}
+function cmtyGoWall(){recTabKey='community';recGroupClosed['cmtywall']=false;cmtyCloseForm();cmtyCloseTV();try{location.hash='display';}catch(e){}_setMode('disp');renderMaster();}
 function masterAchHTML(){const a=cache.achievements||[];if(!a.length)return '<div class="rec-none">No achievements posted yet — yours could be first.</div>';return '<div class="rec-ach">'+a.slice(0,30).map(function(x){return '<div class="rec-ach-row">'+((settings().show_photos&&x.photo_url)?('<div class="lb-av" style="'+bgUrl(x.photo_url)+'"></div>'):'<div class="rec-ach-dot"></div>')+'<div class="rec-ach-tx"><div class="rec-ach-name">'+esc(titleCase(x.name||''))+'</div><div class="rec-ach-detail">'+esc(x.detail||'')+'</div></div></div>';}).join('')+'</div>';}
 // What's On — upcoming events + active challenge + next benchmark (shown in the calendar popup)
 function whatsonHTML(){
@@ -3794,7 +3833,7 @@ const CANCEL_STAFF=['calebbrowny@gmail.com','charley@thecavegym.com.au'];
 function isCancelStaff(){return !!currentUser&&CANCEL_STAFF.includes((currentUser.email||'').trim().toLowerCase());}
 function emailAllowed(e){e=(e||'').trim().toLowerCase();return ALLOWED_EMAILS.includes(e)||adminEmails().indexOf(e)>=0||CANCEL_STAFF.includes(e);}
 function isUnlocked(){return !!currentUser && emailAllowed(currentUser.email);}
-function setUnlocked(v){const lb=document.getElementById('lock-btn'),sb2=document.getElementById('set-btn');if(lb)lb.style.display=v?'inline-block':'none';if(sb2)sb2.style.display=v?'inline-block':'none';}
+function setUnlocked(v){const lb=document.getElementById('lock-btn'),sb2=document.getElementById('set-btn');if(lb)lb.style.display=v?'inline-block':'none';if(sb2)sb2.style.display=v?'inline-block':'none';const cog=document.getElementById('m-plan');if(cog)cog.style.display=(v||!membersOn())?'':'none';}
 function showPwGate(){resetAuth();document.getElementById('pw-gate').classList.add('open');setTimeout(()=>{const el=document.getElementById('auth-email');if(el)el.focus();},50);}
 function hidePwGate(){document.getElementById('pw-gate').classList.remove('open');}
 function resetAuth(){authEmail='';const e=document.getElementById('auth-email'),c=document.getElementById('auth-code'),err=document.getElementById('pw-err');if(e)e.value='';if(c)c.value='';if(err)err.textContent='';document.getElementById('auth-step1').style.display='';document.getElementById('auth-step2').style.display='none';document.getElementById('auth-msg').textContent="Sign in with your Cave email. We'll send a login link and a 6-digit code.";}
@@ -3882,8 +3921,10 @@ function memberAuthHTML(){
   h+='<div class="mauth-alt">'+(memAuthTab==='join'?'Already have an account? <button type="button" class="mauth-link" onclick="setMemberAuthTab(\'login\')">Log in</button>':'First time here? <button type="button" class="mauth-link" onclick="setMemberAuthTab(\'join\')">Sign up</button>')+'</div>';
   h+='<div class="mauth-note">'+(memAuthTab==='join'?'Minimal info, no spam, no codes. Your mobile number is your password.':'Log in with your email and the mobile number you joined with.')+'</div>';
   if(memAuthTab==='login')h+='<div class="mauth-alt" style="margin-top:6px;"><button type="button" class="mauth-link" onclick="memResetRequest()">Trouble logging in? Ask the gym to reset it</button></div>';
+  h+='<div class="mauth-staff">The Cave staff? <button type="button" class="mauth-link" onclick="staffLogin()">Cave staff login</button></div>';
   return h;
 }
+function staffLogin(){closeModal();showPwGate();}
 function memPickSex(s,el){memSex=s;if(el&&el.parentNode){el.parentNode.querySelectorAll('.rsex-btn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}}
 function setMemberAuthTab(k){memAuthTab=k;const b=document.getElementById('modal-body');if(b)b.innerHTML=memberAuthHTML();}
 function openMemberAuth(tab){memAuthTab=tab||'login';memSex='m';openModal('member');}
@@ -3927,6 +3968,8 @@ async function memberSignOut(){if(LIVE){try{await sb.auth.signOut();}catch(e){}}
 /* --- nav greeting chip --- */
 function renderMemberChip(){var el=document.getElementById('member-chip');var tab=document.getElementById('m-me');
   if(tab)tab.style.display=isMember()?'':'none';
+  /* the admin cog lives behind the login panel now ("Cave staff login"); it only shows once staff are signed in — or when member logins are off (the only remaining staff door) */
+  var cog=document.getElementById('m-plan');if(cog)cog.style.display=(isUnlocked()||!membersOn())?'':'none';
   if(!el)return;
   if(isUnlocked()||(!membersOn()&&!isMember())){el.innerHTML='';return;}/* admins use the cog/lock; hidden when logins off */
   if(isMember())el.innerHTML='<button class="mem-chip" onclick="setMode(\'me\')">Hey '+esc(memFirst()||'there')+'</button>';
@@ -4009,6 +4052,7 @@ function renderMemberDash(){var el=document.getElementById('member-body');if(!el
   h+=memSuggestHTML()+metMetricsIntroHTML()+strSectionHTML()+engSectionHTML()+bodySectionHTML()+benchSectionHTML();
   h+='<div class="md-sec-h">This month</div>'+memCalendarHTML();
   h+='<div class="md-sec-h">Achievements</div>'+memBadgesHTML(s);
+  if(communityOn())h+='<div class="md-sec-h">Community</div><button class="md-howto md-wall" onclick="cmtyGoWall()"><b>Community wall</b><span>See what everyone\'s sharing — and add your own.</span><span class="md-wall-go">View the wall →</span></button>';
   h+='<div class="md-sec-h">How to use the hub</div><div class="md-howto">'+nl2brBM(settings().howto||DEFAULT_HOWTO)+'</div>';
   h+='<button class="btn-sm" style="width:100%;margin-top:18px;padding:11px;" onclick="memberSignOut()">Log out</button>';
   h+='<div style="height:40px;"></div></div>';
@@ -5052,9 +5096,10 @@ function cxRowHTML(c){
   var term=c.no_lock_in?'No lock-in':(inT?'In term':'Out of term');
   var pr=cxPriority(c),paint=cxPriCfg().paint;
   var dot=(paint==='dot'&&pr.dot)?'<span class="cxr-dot-pri" style="background:'+pr.color+'" title="'+esc(pr.reason)+'" aria-hidden="true"></span>':'';
+  var ini=(c.member_name||'').trim().split(/\s+/).slice(0,2).map(function(w){return (w[0]||'').toUpperCase();}).join('')||'?';
   var nm=esc(c.member_name||'(no name)')+(c.review_applied?' <span class="cxr-star">★</span>':'');
   var meta='<span class="cxr-meta"><span class="cxr-m">Submitted '+(c.submission_date?cxDMY(c.submission_date):'—')+'</span><span class="cxr-dot">·</span><span class="cxr-m">Ends '+fa+'</span><span class="cxr-dot">·</span><span class="cxr-m'+(inT?' warn':'')+'">'+term+'</span>'+(tn?('<span class="cxr-dot">·</span><span class="cxr-m'+(dn>=tn?' ok':'')+'">'+dn+'/'+tn+' tasks</span>'):'')+cxPriChip(pr)+'</span>';
-  var top='<button class="cxr-main" onclick="cxRowToggle(\''+c.id+'\')">'+dot+'<span class="cxr-l"><span class="cxr-name">'+nm+'</span>'+meta+'</span><span class="cxr-r"><span class="cxr-pill st-'+c.status+'">'+cxStatusLabel(c.status)+'</span><span class="cxr-chev'+(open?' open':'')+'">▾</span></span></button>';
+  var top='<button class="cxr-main" onclick="cxRowToggle(\''+c.id+'\')">'+dot+'<span class="cxr-av" aria-hidden="true">'+esc(ini)+'</span><span class="cxr-l"><span class="cxr-name">'+nm+'</span>'+meta+'</span><span class="cxr-r"><span class="cxr-pill st-'+c.status+'">'+cxStatusLabel(c.status)+'</span><span class="cxr-chev'+(open?' open':'')+'">▾</span></span></button>';
   var rowTint=(paint==='row'&&pr.dot)?' style="--cxu:'+pr.color+'"':'';
   return '<div class="cxr-row pri-'+pr.tier+(paint==='row'&&pr.dot?' cxr-tint':'')+(open?' open':'')+'"'+rowTint+'>'+top+(open?cxRowDetailHTML(c,calc,inT):'')+'</div>';
 }
@@ -5300,7 +5345,7 @@ function cmtySubmit(){if(!communityOn()){toast('This wall isn\'t live right now'
   if(!sb){if(res)res.textContent='No connection — try again';return;}
   btn.disabled=true;btn.textContent='Adding…';if(res)res.textContent='';
   var path=Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
-  sb.storage.from('community-selfies').upload(path,cmtyPhotoBlob,{contentType:'image/jpeg',upsert:false}).then(function(up){if(up.error)throw up.error;return sb.from('community_posts').insert({name:name,message:msg,photo_path:path,marketing_ok:consent,approved:true,kind:communityKind()});}).then(function(ins){if(ins.error)throw ins.error;var el=document.getElementById('community-form');if(el)el.innerHTML='<div class="cmty-card cmty-done"><div class="cmty-tick">✓</div><h1 class="cmty-h">'+esc(c.done)+'</h1><p class="cmty-sub">Look up at the big screen 👀</p><button class="cmty-btn ghost" onclick="renderCommunityForm()">Add another</button></div>';}).catch(function(e){btn.disabled=false;btn.textContent=btnLabel;if(res)res.textContent='Hmm, that didn\'t send — give it another go';});}
+  sb.storage.from('community-selfies').upload(path,cmtyPhotoBlob,{contentType:'image/jpeg',upsert:false}).then(function(up){if(up.error)throw up.error;return sb.from('community_posts').insert({name:name,message:msg,photo_path:path,marketing_ok:consent,approved:true,kind:communityKind()});}).then(function(ins){if(ins.error)throw ins.error;var el=document.getElementById('community-form');if(el)el.innerHTML='<div class="cmty-card cmty-done"><div class="cmty-tick">✓</div><h1 class="cmty-h">'+esc(c.done)+'</h1><p class="cmty-sub">Look up at the big screen 👀</p><button class="cmty-btn ghost" onclick="renderCommunityForm()">Add another</button><button class="cmty-btn ghost" onclick="cmtyGoWall()">See the wall on your phone</button></div>';}).catch(function(e){btn.disabled=false;btn.textContent=btnLabel;if(res)res.textContent='Hmm, that didn\'t send — give it another go';});}
 var cmtyPosts=[],cmtyIdx=0,cmtyRotT=null,cmtyChan=null,cmtyPollT=null,cmtyRenderedMode=null,cmtyRenderedSig=null;
 function loadCommunityPosts(){if(!sb)return Promise.resolve();return sb.from('community_posts').select('*').eq('approved',true).eq('kind',communityKind()).order('created_at',{ascending:false}).limit(60).then(function(r){if(!r.error&&r.data)cmtyPosts=r.data;}).catch(function(){});}
 function startCommunityTV(){loadCommunityPosts().then(function(){cmtyIdx=0;renderCommunityTV();});
