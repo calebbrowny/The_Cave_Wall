@@ -609,6 +609,12 @@ appear on the TV **live** (Supabase realtime `community-live` channel + 30s poll
   = two-column; `@media (max-aspect-ratio:1/1)` (portrait 1080×1920 + mobile) restacks to a vertical column sized with
   `min(vw,vh)`. `settings.community_drama` = a bigger, more scattered pile (7 cards, larger offsets/rotation). The admin adds
   a **Wall-mode** toggle (Open day / Wins), a **Dramatic pile** toggle, and the editable title + question for the active mode.
+  The TV **sub-line** (under the QR) is per-mode: an editable field, quick-pick **preset chips** (`CMTY_OPENDAY_TAGS` /
+  `CMTY_WINS_TAGS`, `cmtyPickTag`), or a **Rotate hourly** toggle (`community_*_tag_rotate` → `cmtyBlurb()` picks
+  `list[hour % list.length]`; the TV poll re-renders the header when the hour changes via `cmtyRenderedHour`). The old
+  **Strength/HYROX display path was retired** (the `show_strength`/`show_hyrox` toggles, the legacy `buildSlides` strength/
+  HYROX slides, and their `SCREEN_KEYS` entries) — The Wall's records system owns those leaderboards now; the event-page
+  board options + stats (which read the `leaderboard` table directly) are untouched.
 
 ## Misc & security
 - **Admin sign-in:** Supabase magic link + 6-digit OTP. Allowlist = hardcoded owners (`ALLOWED_EMAILS`,
