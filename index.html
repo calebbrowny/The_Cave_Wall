@@ -1434,6 +1434,10 @@ textarea.cmty-in2{resize:none;}
   .ctv-empty-t{font-size:min(7vw,4vh);}
   .ctv-empty-s{font-size:min(4.6vw,2.6vh);}
 }
+@media (max-aspect-ratio: 1/1) and (min-aspect-ratio: 5/8){
+  .ctv-photo{width:min(60vw,30vh);height:min(60vw,30vh);}
+  .ctv-cap{max-width:min(60vw,30vh);}
+}
 /* urgency dot — leaderboard rank slot, left edge of the row */
 .cxr-dot-pri{width:9px;height:9px;border-radius:50%;flex:0 0 auto;align-self:center;box-shadow:0 0 0 3px transparent;}
 .cxr-row.pri-urgent .cxr-dot-pri{animation:cxPulse 2.2s ease-in-out infinite;}
@@ -5297,16 +5301,16 @@ function cmtySubmit(){if(!communityOn()){toast('This wall isn\'t live right now'
   btn.disabled=true;btn.textContent='Adding…';if(res)res.textContent='';
   var path=Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
   sb.storage.from('community-selfies').upload(path,cmtyPhotoBlob,{contentType:'image/jpeg',upsert:false}).then(function(up){if(up.error)throw up.error;return sb.from('community_posts').insert({name:name,message:msg,photo_path:path,marketing_ok:consent,approved:true,kind:communityKind()});}).then(function(ins){if(ins.error)throw ins.error;var el=document.getElementById('community-form');if(el)el.innerHTML='<div class="cmty-card cmty-done"><div class="cmty-tick">✓</div><h1 class="cmty-h">'+esc(c.done)+'</h1><p class="cmty-sub">Look up at the big screen 👀</p><button class="cmty-btn ghost" onclick="renderCommunityForm()">Add another</button></div>';}).catch(function(e){btn.disabled=false;btn.textContent=btnLabel;if(res)res.textContent='Hmm, that didn\'t send — give it another go';});}
-var cmtyPosts=[],cmtyIdx=0,cmtyRotT=null,cmtyChan=null,cmtyPollT=null;
+var cmtyPosts=[],cmtyIdx=0,cmtyRotT=null,cmtyChan=null,cmtyPollT=null,cmtyRenderedMode=null;
 function loadCommunityPosts(){if(!sb)return Promise.resolve();return sb.from('community_posts').select('*').eq('approved',true).eq('kind',communityKind()).order('created_at',{ascending:false}).limit(60).then(function(r){if(!r.error&&r.data)cmtyPosts=r.data;}).catch(function(){});}
 function startCommunityTV(){loadCommunityPosts().then(function(){cmtyIdx=0;renderCommunityTV();});
   if(cmtyRotT)clearInterval(cmtyRotT);cmtyRotT=setInterval(cmtyRotate,6500);
-  try{if(cmtyChan)sb.removeChannel(cmtyChan);if(sb)cmtyChan=sb.channel('community-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'community_posts'},function(p){if(p&&p.new&&p.new.kind===communityKind()){cmtyPosts.unshift(p.new);cmtyIdx=0;renderCommunityCurrent();}}).subscribe();}catch(e){}
-  if(cmtyPollT)clearInterval(cmtyPollT);cmtyPollT=setInterval(function(){loadCommunityPosts().then(renderCommunityCurrent);},30000);}
+  try{if(cmtyChan)sb.removeChannel(cmtyChan);if(sb)cmtyChan=sb.channel('community-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'community_posts'},function(p){if(p&&p.new&&p.new.approved===true&&p.new.kind===communityKind()){cmtyPosts.unshift(p.new);cmtyIdx=0;renderCommunityCurrent();}}).subscribe();}catch(e){}
+  if(cmtyPollT)clearInterval(cmtyPollT);cmtyPollT=setInterval(function(){loadCommunityPosts().then(function(){if(cmtyRenderedMode!==communityMode())renderCommunityTV();else renderCommunityCurrent();});},30000);}
 function stopCommunityTV(){if(cmtyRotT){clearInterval(cmtyRotT);cmtyRotT=null;}if(cmtyPollT){clearInterval(cmtyPollT);cmtyPollT=null;}try{if(cmtyChan){sb.removeChannel(cmtyChan);cmtyChan=null;}}catch(e){}}
 function cmtyRotate(){if(cmtyPosts.length<2)return;cmtyIdx=(cmtyIdx+1)%cmtyPosts.length;renderCommunityCurrent();}
 function cmtyQRImg(){try{var c=qrCanvas(cmtyFormUrl(),320);return c?c.toDataURL('image/png'):'';}catch(e){return '';}}
-function renderCommunityTV(){var el=document.getElementById('community-tv');if(!el)return;var qr=cmtyQRImg(),c=cmtyCopy(),wins=communityMode()==='wins';
+function renderCommunityTV(){var el=document.getElementById('community-tv');if(!el)return;cmtyRenderedMode=communityMode();var qr=cmtyQRImg(),c=cmtyCopy(),wins=communityMode()==='wins';
   el.innerHTML='<div class="ctv-wrap"><div class="ctv-left"><div class="ctv-stage" id="ctv-stage"></div></div><div class="ctv-right"><div class="ctv-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><h1 class="ctv-title">'+esc(c.title)+'</h1><p class="ctv-tag">'+esc(c.tagline)+'</p><div class="ctv-qr">'+(qr?'<img src="'+qr+'" alt="'+esc(c.tagline)+'">':'')+'</div><p class="ctv-tag2">'+(wins?'Photo · your name · your win':'Selfie · your name · what you love')+'</p></div></div>';
   renderCommunityCurrent();}
 function communityStyle(){return settings().community_style==='single'?'single':'stack';}
@@ -5316,7 +5320,8 @@ function renderCommunityCurrent(){var stage=document.getElementById('ctv-stage')
   if(cmtyIdx>=cmtyPosts.length)cmtyIdx=0;var total=cmtyPosts.length;
   if(communityStyle()==='stack'&&total>1){
     var drama=settings().community_drama===true;
-    var K=Math.min(drama?7:5,total),SX=drama?68:22,SY=drama?44:14,RB=drama?13:7,SS=drama?0.055:0.045,html='';
+    var f=Math.max(0.5,Math.min(1.6,Math.min(window.innerWidth,window.innerHeight)/900));
+    var K=Math.min(drama?7:5,total),SX=Math.round((drama?68:22)*f),SY=Math.round((drama?44:14)*f),RB=Math.max(2,Math.round((drama?13:7)*f)),SS=drama?0.055:0.045,html='';
     for(var d=K-1;d>=0;d--){var idx=(cmtyIdx+d)%total,pp=cmtyPosts[idx],top=(d===0);
       var rot=top?(((idx*37)%7)-3):(((idx*53)%(RB*2+1))-RB),tx=top?0:(((idx*29)%(SX*2+1))-SX),ty=top?0:(((idx*17)%(SY*2+1))-SY),sc=top?1:(1-SS*d);
       html+='<div class="ctv-frame ctv-stacked" style="transform:translate(calc(-50% + '+tx+'px), calc(-50% + '+ty+'px)) rotate('+rot+'deg) scale('+sc.toFixed(3)+');z-index:'+(20-d)+';'+(top?'':'opacity:'+(drama?'.9':'.94')+';')+'">'+cmtyPolaroidInner(pp)+'</div>';}
@@ -5347,16 +5352,16 @@ function renderCommunityAdmin(){var el=document.getElementById('community-admin'
   sb.from('community_posts').select('*').eq('kind',communityKind()).order('created_at',{ascending:false}).limit(200).then(function(r){cmtyAdmPosts=(r&&r.data)||[];cmtyRenderAdmList();}).catch(function(){var lst=document.getElementById('cmty-adm-list');if(lst)lst.innerHTML='<div class="ot-sub">Couldn\'t load posts.</div>';});}
 function cmtyRenderAdmList(){var lst=document.getElementById('cmty-adm-list');if(!lst)return;var list=cmtyAdmPosts||[];
   lst.innerHTML='<div class="set-section" style="margin:12px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:8px;">Posts ('+list.length+')'+(list.length?' <button class="btn-sm" onclick="cmtyDownloadAll()">Download all ↓</button>':'')+'</div>'+(list.length?list.map(cmtyAdmRow).join(''):'<div class="ot-sub">No posts yet.</div>');}
-function cmtyAdmRow(p){var u=cmtyPhotoUrl(p.photo_path),thumb=u?'<img class="cmty-adm-thumb" src="'+esc(u)+'" alt="">':'<span class="cmty-adm-thumb"></span>';
-  if(cmtyAdmEditId===p.id){return '<div class="cmty-adm-row editing">'+thumb+'<div class="cmty-adm-edit"><input class="cmty-in2" id="cmty-e-name" maxlength="40" value="'+esc(p.name||'')+'" placeholder="Name"><textarea class="cmty-in2" id="cmty-e-msg" maxlength="160" rows="2" placeholder="Message">'+esc(p.message||'')+'</textarea><label class="cmty-e-consent"><input type="checkbox" id="cmty-e-mkt"'+(p.marketing_ok?' checked':'')+'> Marketing OK</label><div class="cmty-e-acts"><button class="btn-sm" onclick="cmtyAdminSave(\''+p.id+'\')">Save</button> <button class="btn-sm" onclick="cmtyAdminEditCancel()">Cancel</button></div></div></div>';}
-  return '<div class="cmty-adm-row">'+thumb+'<div class="cmty-adm-meta"><b>'+esc(p.name||'(no name)')+'</b>'+(p.marketing_ok?' <span class="cmty-tag-ok">marketing ✓</span>':'')+'<div class="ot-sub">'+esc(p.message||'')+'</div></div><div class="cmty-adm-btns"><button class="rl-x" onclick="cmtyAdminEdit(\''+p.id+'\')">edit</button><button class="rl-x" onclick="cmtyDownloadPolaroid(\''+p.id+'\')">download</button><button class="rl-x" onclick="cmtyAdminDel(\''+p.id+'\',\''+esc(String(p.photo_path||'').replace(/[^a-zA-Z0-9_./-]/g,''))+'\')">del</button></div></div>';}
+function cmtyAdmRow(p){var u=cmtyPhotoUrl(p.photo_path),thumb=u?'<img class="cmty-adm-thumb" src="'+esc(u)+'" alt="">':'<span class="cmty-adm-thumb"></span>',sid=String(p.id).replace(/[^a-zA-Z0-9-]/g,'');
+  if(cmtyAdmEditId===p.id){return '<div class="cmty-adm-row editing">'+thumb+'<div class="cmty-adm-edit"><input class="cmty-in2" id="cmty-e-name" maxlength="40" value="'+esc(p.name||'')+'" placeholder="Name"><textarea class="cmty-in2" id="cmty-e-msg" maxlength="160" rows="2" placeholder="Message">'+esc(p.message||'')+'</textarea><label class="cmty-e-consent"><input type="checkbox" id="cmty-e-mkt"'+(p.marketing_ok?' checked':'')+'> Marketing OK</label><div class="cmty-e-acts"><button class="btn-sm" onclick="cmtyAdminSave(\''+sid+'\')">Save</button> <button class="btn-sm" onclick="cmtyAdminEditCancel()">Cancel</button></div></div></div>';}
+  return '<div class="cmty-adm-row">'+thumb+'<div class="cmty-adm-meta"><b>'+esc(p.name||'(no name)')+'</b>'+(p.marketing_ok?' <span class="cmty-tag-ok">marketing ✓</span>':'')+'<div class="ot-sub">'+esc(p.message||'')+'</div></div><div class="cmty-adm-btns"><button class="rl-x" onclick="cmtyAdminEdit(\''+sid+'\')">edit</button><button class="rl-x" onclick="cmtyDownloadPolaroid(\''+sid+'\')">download</button><button class="rl-x" onclick="cmtyAdminDel(\''+sid+'\',\''+esc(String(p.photo_path||'').replace(/[^a-zA-Z0-9_./-]/g,''))+'\')">del</button></div></div>';}
 function cmtyAdminEdit(id){cmtyAdmEditId=id;cmtyRenderAdmList();}
 function cmtyAdminEditCancel(){cmtyAdmEditId=null;cmtyRenderAdmList();}
 function cmtyAdminSave(id){if(!sb)return;var name=((document.getElementById('cmty-e-name')||{}).value||'').trim(),msg=((document.getElementById('cmty-e-msg')||{}).value||'').trim(),mkt=!!(document.getElementById('cmty-e-mkt')||{}).checked;
   sb.from('community_posts').update({name:name,message:msg,marketing_ok:mkt}).eq('id',id).then(function(r){if(r&&r.error){toast('Save failed');return;}var p=(cmtyAdmPosts||[]).find(function(x){return x.id===id;});if(p){p.name=name;p.message=msg;p.marketing_ok=mkt;}cmtyAdmEditId=null;cmtyRenderAdmList();toast('Updated');});}
 function cmtyWrapText(x,text,cx,cy,maxW,lh){var words=String(text).split(' '),line='',yy=cy;for(var i=0;i<words.length;i++){var test=line+words[i]+' ';if(x.measureText(test).width>maxW&&line){x.fillText(line.trim(),cx,yy);line=words[i]+' ';yy+=lh;}else line=test;}x.fillText(line.trim(),cx,yy);return yy;}
 function cmtyDownloadPolaroid(id){var p=(cmtyAdmPosts||[]).find(function(x){return x.id===id;});if(!p||!sb){toast('Not found');return Promise.resolve();}toast('Building polaroid…');
-  return sb.storage.from('community-selfies').download(p.photo_path).then(function(r){if(r.error||!r.data)throw r.error||'no data';return createImageBitmap(r.data);}).then(function(img){
+  return sb.storage.from('community-selfies').download(p.photo_path).then(function(r){if(r.error||!r.data)throw r.error||'no data';return createImageBitmap(r.data,{imageOrientation:'from-image'});}).then(function(img){
     var W=900,pad=46,photo=W-pad*2,capTop=pad+photo,capH=(p.message?300:170),H=capTop+capH;
     var c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
     x.fillStyle='#fbfbf7';x.fillRect(0,0,W,H);
