@@ -1253,7 +1253,7 @@ body.cancel-only #cancel-wrap{margin-top:0;border-top:none;padding-top:0;}
 .cx-editbody{padding:0 16px 16px;}
 @media(max-width:820px){.cx-cols{grid-template-columns:1fr;}.cx-lh,.cx-li{grid-template-columns:1.4fr 1fr .8fr .8fr;}.cx-lh span:nth-child(3),.cx-li>span:nth-child(3){display:none;}.cx-lh span:nth-child(5),.cx-li>span:nth-child(5){display:none;}}
 /* Cases list — leaderboard look */
-.cxr-list{display:block;border-top:1px solid var(--border);}
+.cxr-list{display:block;}
 .cxr-row{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .15s;}
 .cxr-row:hover{border-color:color-mix(in srgb,var(--blue) 40%,var(--border));}
 .cxr-row.open{background:var(--blue-d);border-color:var(--blue);}
@@ -3472,11 +3472,12 @@ function masterCmtyHTML(){
 }
 function loadMasterCmty(){
   if(mcwLoading||!sb)return;mcwLoading=true;
-  sb.from('community_posts').select('*').eq('approved',true).eq('kind',communityKind()).order('created_at',{ascending:false}).limit(24)
-    .then(function(r){mcwLoading=false;mcwPosts=(r&&!r.error&&r.data)?r.data:[];renderMaster();})
-    .catch(function(){mcwLoading=false;mcwPosts=[];renderMaster();});
+  var k=communityKind();
+  sb.from('community_posts').select('*').eq('approved',true).eq('kind',k).order('created_at',{ascending:false}).limit(24)
+    .then(function(r){mcwLoading=false;if(k!==mcwKind){loadMasterCmty();return;}mcwPosts=(r&&!r.error&&r.data)?r.data:[];renderMaster();})
+    .catch(function(){mcwLoading=false;if(k===mcwKind){mcwPosts=[];renderMaster();}});
 }
-function cmtyGoWall(){recTabKey='community';recGroupClosed['cmtywall']=false;cmtyCloseForm();cmtyCloseTV();try{location.hash='display';}catch(e){}_setMode('disp');renderMaster();}
+function cmtyGoWall(){mcwPosts=null;recTabKey='community';recGroupClosed['cmtywall']=false;cmtyCloseForm();cmtyCloseTV();try{location.hash='display';}catch(e){}_setMode('disp');renderMaster();}
 function masterAchHTML(){const a=cache.achievements||[];if(!a.length)return '<div class="rec-none">No achievements posted yet — yours could be first.</div>';return '<div class="rec-ach">'+a.slice(0,30).map(function(x){return '<div class="rec-ach-row">'+((settings().show_photos&&x.photo_url)?('<div class="lb-av" style="'+bgUrl(x.photo_url)+'"></div>'):'<div class="rec-ach-dot"></div>')+'<div class="rec-ach-tx"><div class="rec-ach-name">'+esc(titleCase(x.name||''))+'</div><div class="rec-ach-detail">'+esc(x.detail||'')+'</div></div></div>';}).join('')+'</div>';}
 // What's On — upcoming events + active challenge + next benchmark (shown in the calendar popup)
 function whatsonHTML(){
@@ -3845,7 +3846,7 @@ function isUnlocked(){return !!currentUser && emailAllowed(currentUser.email);}
 function setUnlocked(v){const lb=document.getElementById('lock-btn'),sb2=document.getElementById('set-btn');if(lb)lb.style.display=v?'inline-block':'none';if(sb2)sb2.style.display=v?'inline-block':'none';const cog=document.getElementById('m-plan');if(cog)cog.style.display=(v||!membersOn())?'':'none';}
 function showPwGate(){resetAuth();document.getElementById('pw-gate').classList.add('open');setTimeout(()=>{const el=document.getElementById('auth-email');if(el)el.focus();},50);}
 function hidePwGate(){document.getElementById('pw-gate').classList.remove('open');}
-function resetAuth(){authEmail='';const e=document.getElementById('auth-email'),c=document.getElementById('auth-code'),err=document.getElementById('pw-err');if(e)e.value='';if(c)c.value='';if(err)err.textContent='';document.getElementById('auth-step1').style.display='';document.getElementById('auth-step2').style.display='none';document.getElementById('auth-msg').textContent="Sign in with your Cave email. We'll send a login link and a 6-digit code.";}
+function resetAuth(){authEmail='';const e=document.getElementById('auth-email'),c=document.getElementById('auth-code'),err=document.getElementById('pw-err');if(e)e.value='';if(c)c.value='';if(err)err.textContent='';document.getElementById('auth-step1').style.display='';document.getElementById('auth-step2').style.display='none';document.getElementById('auth-msg').textContent="Sign in with your Cave staff email. We'll send a login link and a 6-digit code.";}
 async function sendAuth(){
   const e=document.getElementById('auth-email').value.trim().toLowerCase(),err=document.getElementById('pw-err');
   if(!e){err.textContent='Enter your email.';return;}
@@ -3943,7 +3944,7 @@ async function memberJoin(){
   if(!membersOn()){memErr('Member sign-ups are off right now.');return;}
   const email=(val('mem-email')||'').trim().toLowerCase(),phone=memNorm(val('mem-phone')),name=(val('mem-name')||'').trim(),sex=memSex,age=parseInt(val('mem-age'),10)||null;
   if(!email||email.indexOf('@')<1){memErr('Enter a valid email.');return;}
-  if(emailAllowed(email)){memErr('That’s a staff email — use the ⚙️ gear to sign in as admin.');return;}
+  if(emailAllowed(email)){memErr('That’s a staff email — use the “Cave staff login” link below.');return;}
   if(!/^04\d{8}$/.test(phone)){memErr('Enter a valid Australian mobile (04xx xxx xxx).');return;}
   if(!name){memErr('Enter your name.');return;}
   memErr('Creating your account…');
@@ -3965,7 +3966,7 @@ async function memberLogin(){
   if(!membersOn()){memErr('Member logins are off right now.');return;}
   const email=(val('mem-email')||'').trim().toLowerCase(),phone=memNorm(val('mem-phone'));
   if(!email||!phone){memErr('Enter your email and mobile number.');return;}
-  if(emailAllowed(email)){memErr('That’s a staff email — use the ⚙️ gear to sign in as admin.');return;}
+  if(emailAllowed(email)){memErr('That’s a staff email — use the “Cave staff login” link below.');return;}
   memErr('Logging in…');
   memExplicitAuth=true;
   const{error}=await sb.auth.signInWithPassword({email:email,password:phone});
@@ -5113,7 +5114,7 @@ function cxRowHTML(c){
   var term=c.no_lock_in?'No lock-in':(inT?'In term':'Out of term');
   var pr=cxPriority(c),paint=cxPriCfg().paint;
   var dot=(paint==='dot'&&pr.dot)?'<span class="cxr-dot-pri" style="background:'+pr.color+'" title="'+esc(pr.reason)+'" aria-hidden="true"></span>':'';
-  var ini=(c.member_name||'').trim().split(/\s+/).slice(0,2).map(function(w){return (w[0]||'').toUpperCase();}).join('')||'?';
+  var ini=(c.member_name||'').trim().split(/\s+/).slice(0,2).map(function(w){return (Array.from(w)[0]||'').toUpperCase();}).join('')||'?';
   var nm=esc(c.member_name||'(no name)')+(c.review_applied?' <span class="cxr-star">★</span>':'');
   var meta='<span class="cxr-meta"><span class="cxr-m">Submitted '+(c.submission_date?cxDMY(c.submission_date):'—')+'</span><span class="cxr-dot">·</span><span class="cxr-m">Ends '+fa+'</span><span class="cxr-dot">·</span><span class="cxr-m'+(inT?' warn':'')+'">'+term+'</span>'+(tn?('<span class="cxr-dot">·</span><span class="cxr-m'+(dn>=tn?' ok':'')+'">'+dn+'/'+tn+' tasks</span>'):'')+cxPriChip(pr)+'</span>';
   var top='<button class="cxr-main" onclick="cxRowToggle(\''+c.id+'\')">'+dot+'<span class="cxr-av" aria-hidden="true">'+esc(ini)+'</span><span class="cxr-l"><span class="cxr-name">'+nm+'</span>'+meta+'</span><span class="cxr-r"><span class="cxr-pill st-'+c.status+'">'+cxStatusLabel(c.status)+'</span><span class="cxr-chev'+(open?' open':'')+'">▾</span></span></button>';
