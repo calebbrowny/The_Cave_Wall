@@ -433,7 +433,7 @@ body.light #wod .wod-block-body .wb-hd{color:#1558d6;}
 .challenge{display:none;min-height:100vh;}
 .challenge.active{display:block;}
 .ch-head{padding:clamp(22px,2.6vw,42px) clamp(20px,3vw,60px) clamp(8px,1vw,16px);text-align:center;}
-.ch-eyebrow{font-size:clamp(12px,1.1vw,20px);font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
+.ch-eyebrow{font-size:clamp(12px,1.1vw,20px);font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
 .ch-big-title{font-size:clamp(30px,4.4vw,84px);font-weight:800;letter-spacing:-1.5px;line-height:1.04;}
 .ch-dates{font-size:clamp(13px,1.3vw,24px);color:var(--muted);margin-top:clamp(8px,1vw,16px);}
 .ch-count{display:inline-block;margin-top:8px;padding:clamp(4px,.5vw,9px) clamp(14px,1.6vw,26px);border-radius:20px;font-size:clamp(13px,1.2vw,22px);font-weight:700;background:var(--amber-d);color:var(--amber);}
@@ -531,6 +531,8 @@ body.light #wod .wod-block-body .wb-hd{color:#1558d6;}
 .mauth-staff{font-size:12px;color:var(--muted);margin-top:18px;padding-top:14px;border-top:1px solid var(--border);text-align:center;}
 .mauth-link{background:none;border:none;color:var(--blue);font-weight:800;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;}
 .wm-card{max-width:680px;margin:14px auto 30px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:left;}
+.wm-card.wm-join{display:flex;align-items:center;gap:12px;justify-content:space-between;font-size:13px;color:var(--muted);line-height:1.45;}
+.wm-card.wm-join .btn-sm{flex:0 0 auto;background:var(--blue);border-color:var(--blue);color:var(--dk);}
 .wm-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
 .wm-h{font-size:15px;font-weight:800;}
 .wm-mtoggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;border:none;border-top:1px solid var(--border);color:var(--text);font-size:14px;font-weight:800;cursor:pointer;padding:14px 0 4px;margin-top:10px;text-align:left;}
@@ -818,6 +820,7 @@ body.light #wod .wod-block-body .wb-hd{color:#1558d6;}
 .share-row .set-sub{word-break:break-all;font-size:10px;}
 /* ---------- TOAST ---------- */
 .cave-toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);background:var(--blue);color:var(--dk);font-weight:700;font-size:14px;padding:12px 22px;border-radius:30px;box-shadow:0 8px 30px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:all .3s;z-index:300;max-width:90vw;text-align:center;}
+body.tabbar-on .cave-toast{bottom:calc(72px + env(safe-area-inset-bottom));}
 .cave-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 /* ---------- CONFETTI ---------- */
 .confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
@@ -1354,6 +1357,8 @@ a.btn-sm{text-decoration:none;display:inline-block;}
 .cmty-form-ov{position:fixed;inset:0;z-index:260;background:var(--bg);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:22px 16px 40px;}
 body.cmty-open{overflow:hidden;}
 .cmty-card{width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;text-align:center;}
+.cmty-x{position:fixed;top:14px;right:14px;width:38px;height:38px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer;z-index:5;display:flex;align-items:center;justify-content:center;font-family:inherit;}
+.cmty-x:hover{color:var(--text);border-color:var(--blue);}
 .cmty-logo{height:52px;display:flex;justify-content:center;margin-top:6px;}
 .cmty-logo .logo-img{height:52px;width:130px;background-size:contain;background-position:center;background-repeat:no-repeat;display:block;}
 .cmty-h{font-size:26px;font-weight:800;color:var(--text);margin:2px 0 0;}
@@ -1906,7 +1911,7 @@ try{if(!localStorage.getItem('cave_sub_top_v1')){var s=JSON.parse(localStorage.g
   <div class="wod-head"><div class="wod-date" id="wod-disp-date"></div><div class="wod-title" id="wod-disp-title">Workout of the Day</div><div class="wod-hero-row"><div class="wod-focus-tag" id="wod-disp-focus"></div><button class="wod-share" id="wod-share-btn" style="display:none;" onclick="openWodExport()" aria-label="Share this workout" title="Share this workout"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v13"/><path d="M8 7l4-4 4 4"/></svg></button></div></div>
   <div class="wd-strip wd-strip-pub" id="wod-pub-strip"></div>
   <div class="wod-slot-pub" id="wod-slot-pub" style="display:none;"></div>
-  <div class="wod-wrap" id="wod-disp-body"></div>
+  <div class="wod-wrap" id="wod-disp-body"><div class="wod-empty">Loading today’s session…</div></div>
   <div id="wod-benchmark"></div>
   <div id="wod-member"></div>
 </div>
@@ -2351,7 +2356,7 @@ function openModal(type,id,extra){
   else if(type==='history'){t.textContent='🕘 Version history';b.innerHTML=historyHTML();}
   else if(type==='row'){t.textContent='🚣 500m Row Challenge';b.innerHTML=rowAdminHTML();}
   else if(type==='benchmark'){t.textContent='🏅 Benchmark test';b.innerHTML=bmAdminHTML();}
-  else if(type==='member'){t.textContent='Cave Hub account';b.innerHTML=memberAuthHTML();}
+  else if(type==='member'){t.textContent='My Account';b.innerHTML=memberAuthHTML();}
   else if(type==='metric'){t.textContent='Log a number';b.innerHTML=metricModalHTML();}
   else if(type==='memedit'){t.textContent='My account';b.innerHTML=memEditHTML();}
   else if(type==='record'){const parts=String(id||'').split('|');const rk=parts[0],sex=parts[1]||'m';const it=recItem(rk)||{};const best=recBest(rk,sex);t.textContent='Add entry';
@@ -2425,7 +2430,7 @@ function renderChallengeTab(){
   const c=activeChallenge();
   const wrap=document.getElementById('ch-wrap');
   setTxt('ch-eyebrow','Monthly Challenge');
-  if(!c){setTxt('ch-big-title','No Active Challenge');setTxt('ch-dates','');document.getElementById('ch-count-wrap').innerHTML='';wrap.innerHTML='<div class="ch-empty">Set one up in Admin → Monthly Challenge.</div>';return;}
+  if(!c){setTxt('ch-big-title','No Active Challenge');setTxt('ch-dates','');document.getElementById('ch-count-wrap').innerHTML='';wrap.innerHTML='<div class="ch-empty">'+(isUnlocked()?'Set one up in Admin → Monthly Challenge.':'No challenge running right now — watch this space.')+'</div>';return;}
   setTxt('ch-big-title',c.title||'Challenge');
   setTxt('ch-dates',chDateRange(c));
   const cw=document.getElementById('ch-count-wrap');
@@ -2438,6 +2443,7 @@ function renderChallengeTab(){
   h+='</div>';
   const sp=split(c.entries||[]);
   h+=`<div class="lb-split"><div><div class="lb-col-h male">♂ Male</div>${colHtml(sp.m)}</div><div><div class="lb-col-h female">♀ Female</div>${colHtml(sp.f)}</div></div>`;
+  if(!c.winner&&submissionsOpen())h+='<div class="mw-cta"><button class="btn-full" onclick="subCat=\'challenge\';setMode(\'submit\')">Submit my score</button><div class="mw-cta-sub">Send in your result with proof and climb the board.</div></div>';
   wrap.innerHTML=h;
 }
 
@@ -2506,7 +2512,7 @@ function pickSubBoard(id){subBoard=id;renderSubmitFields();}
 function renderSubmitForm(){
   const card=document.getElementById('submit-card');if(!card)return;
   if(!submissionsOpen()){card.innerHTML='<div class="submit-done"><div class="big">⏸️</div><h3>Submissions paused</h3><p>We\'re not taking submissions right now — check back soon. Thanks!</p></div>';return;}
-  if(subDone){card.innerHTML=`<div class="submit-done"><div class="big">✅</div><h3>Submitted!</h3><p>Thanks — your entry is with the team for approval. Once it's approved it'll show up on the boards.</p><button class="btn-full" style="max-width:240px;margin:0 auto;" onclick="resetSubmit()">Submit another</button></div>`;return;}
+  if(subDone){card.innerHTML=`<div class="submit-done"><div class="cmty-tick" style="margin:0 auto 14px;">✓</div><h3>Submitted!</h3><p>Thanks — your entry is with the team for approval. Once it's approved it'll land on The Wall.</p><button class="btn-full" style="max-width:240px;margin:0 auto;" onclick="resetSubmit()">Submit another</button><button class="btn-sm" style="margin-top:12px;" onclick="setMode('disp')">See The Wall</button></div>`;return;}
   if(subCat==='strength'||subCat==='hyrox')subCat='record';
   if(subCat==='challenge'&&!challengeOn())subCat='record';
   if(subCat==='customboard'&&!customBoardsOn())subCat='record';
@@ -2514,7 +2520,8 @@ function renderSubmitForm(){
   if(challengeOn())cats.push(['challenge','🏅','Challenge']);
   cats.push(['achievement','⭐','Achievement']);
   if(customBoardsOn())cats.push(['customboard','🏅',settings().customboard_submit_label||'Leaderboard']);
-  let h=`<div class="fld"><label>Your name</label><input id="s-name" placeholder="e.g. Jordan K."></div>`;
+  const myName=(isMember()&&memberProfile&&memberProfile.name)?memberProfile.name:'';
+  let h=`<div class="fld"><label>Your name</label><input id="s-name" placeholder="e.g. Jordan K." value="${esc(myName)}"></div>`;
   h+=`<div class="fld"><label>What are you submitting?</label><div class="cat-pick">`+cats.map(c=>`<button class="cat-btn ${subCat===c[0]?'on':''}" onclick="selectCat('${c[0]}')"><span class="ic">${c[1]}</span>${c[2]}</button>`).join('')+`</div></div>`;
   h+=`<div id="s-fields"></div>`;
   if(subCat!=='record')h+=photoField('').replace('id="photo-prev"','id="s-photo-prev"').replace('onchange="onPhotoPick(this)"','onchange="onSubmitPhotoPick(this)"').replace('id="photo-status"','id="s-photo-status"');
@@ -2528,7 +2535,8 @@ function proofField(required){
 }
 function renderSubmitFields(){
   const el=document.getElementById('s-fields');if(!el)return;
-  const g='<div class="fld"><label>Gender</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
+  const myF=isMember()&&memberProfile&&memberProfile.sex==='f';
+  const g='<div class="fld"><label>Gender</label><select id="s-gender"><option value="m"'+(myF?'':' selected')+'>♂ Male</option><option value="f"'+(myF?' selected':'')+'>♀ Female</option></select></div>';
   if(subCat==='record'){
     if(!subRecKey||!recItem(subRecKey)||(recItem(subRecKey).gkey&&recGroupByKey(recItem(subRecKey).gkey).adminOnly))subRecKey='squat';
     const opts=REC_GROUPS.filter(function(g){return g.feats&&g.feats.length&&!g.adminOnly;}).map(function(g){return '<optgroup label="'+esc(g.group)+'">'+g.feats.map(function(it){return '<option value="'+it.k+'"'+(it.k===subRecKey?' selected':'')+'>'+esc(it.l)+'</option>';}).join('')+'</optgroup>';}).join('');
@@ -2553,7 +2561,8 @@ function renderSubmitFields(){
 }
 function onRecPick(v){subRecKey=v;renderRecFields();}
 function renderRecFields(){const el=document.getElementById('s-rec-fields');if(!el)return;const it=recItem(subRecKey);if(!it){el.innerHTML='';return;}
-  const g=it.single?'<input type="hidden" id="s-gender" value="x">':'<div class="fld"><label>Gender</label><select id="s-gender"><option value="m">♂ Male</option><option value="f">♀ Female</option></select></div>';
+  const myF2=isMember()&&memberProfile&&memberProfile.sex==='f';
+  const g=it.single?'<input type="hidden" id="s-gender" value="x">':'<div class="fld"><label>Gender</label><select id="s-gender"><option value="m"'+(myF2?'':' selected')+'>♂ Male</option><option value="f"'+(myF2?' selected':'')+'>♀ Female</option></select></div>';
   if(subRecKey==='pl_total'){
     el.innerHTML=g
       +'<div class="set-sub" style="margin:-4px 0 8px;">Enter all three lifts — we’ll post your Total plus each individual lift to the board.</div>'
@@ -2576,24 +2585,24 @@ function onSubmitProofPick(inp){const f=inp.files&&inp.files[0];if(!f)return;sub
 function strengthProofField(){var row=function(k,l){return '<div class="fld"><label>\uD83D\uDCF9 '+l+' video <span style="color:var(--blue);font-weight:800;">(required)</span></label><div class="photo-fld" style="margin-bottom:4px;"><div class="photo-prev" id="s-pv-'+k+'" style="border-radius:10px;">\uD83C\uDFAC</div><label class="upl">Upload<input type="file" accept="image/*,video/*" onchange="onStrengthProofPick(\''+k+'\',this)"></label><span class="photo-status" id="s-st-'+k+'"></span></div></div>';};return row('squat','Squat')+row('bench','Bench')+row('deadlift','Deadlift')+'<div class="set-sub" style="margin-top:-2px;">Stored for verification only. Never shown on the boards.</div>';}
 function onStrengthProofPick(lift,inp){var f=inp.files&&inp.files[0];if(!f)return;subStrengthProofs[lift]=f;var p=document.getElementById('s-pv-'+lift);var st=document.getElementById('s-st-'+lift);if(p){if(f.type.startsWith('image/')){p.style.backgroundImage="url('"+URL.createObjectURL(f)+"')";p.textContent='';}else{p.textContent='\uD83C\uDFAC';}}if(st)st.textContent=f.name;}
 async function doSubmit(){
-  const name=val('s-name');if(!name){alert('Please enter your name.');return;}
+  const name=val('s-name');if(!name){toast('Please enter your name.');return;}
   if(subCat==='record')return doSubmitRecord(name);
   const score=val('s-score');
-  if(subCat!=='achievement'&&!score){alert('Please enter your score.');return;}
-  if(subCat==='achievement'&&!val('s-detail')){alert('Please enter your achievement.');return;}
-  if(subCat==='customboard'&&!subBoard){alert('Please pick a leaderboard to submit to.');return;}
-  if((subCat==='challenge'||subCat==='customboard')&&!subProofFile){alert('Photo or video proof is required for this submission. Please upload it.');return;}
+  if(subCat!=='achievement'&&!score){toast('Please enter your score.');return;}
+  if(subCat==='achievement'&&!val('s-detail')){toast('Please enter your achievement.');return;}
+  if(subCat==='customboard'&&!subBoard){toast('Please pick a leaderboard to submit to.');return;}
+  if((subCat==='challenge'||subCat==='customboard')&&!subProofFile){toast('Photo or video proof is required for this submission. Please upload it.');return;}
   let photo=null;if(subPhotoFile){const st=document.getElementById('s-photo-status');if(st)st.textContent='Uploading…';photo=await uploadPhoto(subPhotoFile);}
   let proof=null;if(subProofFile){const st=document.getElementById('s-proof-status');if(st)st.textContent='Uploading proof…';proof=await uploadPhoto(subProofFile);}
   await rowInsert('submissions',{name,category:subCat,gender:val('s-gender')||'m',detail:(subCat==='customboard'?subBoard:val('s-detail'))||'',score,unit:val('s-unit'),photo_url:photo,proof_url:proof,status:'pending'});
   subDone=true;subPhotoFile=null;subProofFile=null;renderSubmitForm();renderSubmissions();
 }
 async function doSubmitRecord(name){
-  var it=recItem(subRecKey);if(!it){alert('Please pick what you did.');return;}
+  var it=recItem(subRecKey);if(!it){toast('Please pick what you did.');return;}
   if(subRecKey==='pl_total'){
     var sq=val('s-pl-sq'),bn=val('s-pl-bn'),dl=val('s-pl-dl');
-    if([sq,bn,dl].some(function(v){return v===''||isNaN(parseFloat(v))||parseFloat(v)<0;})){alert('Enter your squat, bench and deadlift (kg).');return;}
-    if(!subStrengthProofs.squat||!subStrengthProofs.bench||!subStrengthProofs.deadlift){alert('Upload a video for each lift — squat, bench and deadlift.');return;}
+    if([sq,bn,dl].some(function(v){return v===''||isNaN(parseFloat(v))||parseFloat(v)<0;})){toast('Enter your squat, bench and deadlift (kg).');return;}
+    if(!subStrengthProofs.squat||!subStrengthProofs.bench||!subStrengthProofs.deadlift){toast('Upload a video for each lift — squat, bench and deadlift.');return;}
     var total=Math.round((parseFloat(sq)+parseFloat(bn)+parseFloat(dl))*100)/100;
     var setSt=function(k,t){var e=document.getElementById('s-st-'+k);if(e)e.textContent=t;};
     setSt('squat','Uploading…');var v1=await uploadPhoto(subStrengthProofs.squat);
@@ -2602,9 +2611,9 @@ async function doSubmitRecord(name){
     await rowInsert('submissions',{name:name,category:'record',gender:(val('s-gender')||'m'),detail:'pl_total:'+parseFloat(sq)+'/'+parseFloat(bn)+'/'+parseFloat(dl),score:String(total),unit:'kg',proof_url:v1,proof_url2:v2,proof_url3:v3,status:'pending'});
     subDone=true;subStrengthProofs={squat:null,bench:null,deadlift:null};subProofFile=null;subPhotoFile=null;renderSubmitForm();renderSubmissions();return;
   }
-  var score=val('s-score');if(!score){alert('Please enter your result.');return;}
-  var parsed=recParseInput(it,score);if(!parsed){alert(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}
-  if(!subProofFile){alert('Photo or video proof is required.');return;}
+  var score=val('s-score');if(!score){toast('Please enter your result.');return;}
+  var parsed=recParseInput(it,score);if(!parsed){toast(it.input==='time'?'Enter a valid time (mm:ss or h:mm:ss).':'Enter a valid number.');return;}
+  if(!subProofFile){toast('Photo or video proof is required.');return;}
   var st=document.getElementById('s-proof-status');if(st)st.textContent='Uploading proof…';var proof=await uploadPhoto(subProofFile);
   await rowInsert('submissions',{name:name,category:'record',gender:(it.single?'x':(val('s-gender')||'m')),detail:subRecKey,score:String(parsed.value),unit:it.u||'',proof_url:proof,status:'pending'});
   subDone=true;subPhotoFile=null;subProofFile=null;renderSubmitForm();renderSubmissions();
@@ -3449,7 +3458,7 @@ function renderMaster(){
     +'</div>';
 }
 function recTab(k){recTabKey=k;renderMaster();const el=document.getElementById('master');if(el){const on=el.querySelector('.mw-tab.on');if(on&&on.scrollIntoView){try{on.scrollIntoView({inline:'center',block:'nearest'});}catch(e){}}}}
-function recCTA(kind){subCat=(kind==='ach')?'achievement':'record';setMode('submit');}
+function recCTA(kind){subCat=(kind==='ach')?'achievement':'record';if(kind!=='ach'&&recOpenKey){var it=recItem(recOpenKey);var grp=it&&it.gkey?recGroupByKey(it.gkey):null;if(it&&!(grp&&grp.adminOnly))subRecKey=recOpenKey;}setMode('submit');}
 /* Community wall on the phone — the polaroid posts, browsable inside The Wall's Community tab */
 var mcwPosts=null,mcwLoading=false,mcwKind=null;
 function masterCmtyHTML(){
@@ -3979,12 +3988,19 @@ function renderMemberChip(){var el=document.getElementById('member-chip');var ta
 /* --- workout completion + metrics (on the WOD page) --- */
 function myLogForDate(d){return (cache.workout_logs||[]).find(function(x){return x.date===d;});}
 function renderWodMember(){var el=document.getElementById('wod-member');if(!el)return;
-  if(!isMember()||(!memCompleteOn()&&!memMetricsOn())){el.innerHTML='';return;}
-  var d=publicWodDate||todayKey(),today=todayKey(),w=wodForDate(d,publicWodSlot)||{};
+  var d0=publicWodDate||todayKey(),w0=wodForDate(d0,publicWodSlot)||{};
+  if(!isMember()){
+    /* the on-ramp: anonymous visitors on a live training day get one slim line into the member platform */
+    if(membersOn()&&LIVE&&!isUnlocked()&&wodLive(d0)&&wodHasContent(w0)&&(memCompleteOn()||memMetricsOn()))el.innerHTML='<div class="wm-card wm-join"><span>Training today? Log it, post your result and build your streak.</span><button class="btn-sm" onclick="openMemberAuth(\'join\')">Join free</button></div>';
+    else el.innerHTML='';
+    return;
+  }
+  if(!memCompleteOn()&&!memMetricsOn()){el.innerHTML='';return;}
+  var d=d0,today=todayKey(),w=w0;
   var done=!!myLogForDate(d),mine=myResultFor(d),spec=wodResultSpec(w);
   var dl=(d===today)?'today':dateLabel(d,{weekday:'short',day:'numeric',month:'short'});
   if(drLoadedDate!==d){drLoadedDate=d;drOpen=false;loadDailyBoard(d).then(function(){renderWodMember();});}
-  var liveDay=wodLive(d)&&wodHasContent(w);
+  var liveDay=wodLive(d)&&wodHasContent(w)&&d<=today;
   var h='<div class="wm-card">';
   if(memCompleteOn()&&(done||liveDay)){
     h+='<div class="wm-top"><span class="wm-h">'+(done?'✓ Completed — '+dl:'Did this workout?')+'</span>'+(done?'<button class="btn-sm" onclick="wmUncomplete(\''+d+'\')">Undo</button>':'')+'</div>';
@@ -4048,7 +4064,7 @@ function renderMemberDash(){var el=document.getElementById('member-body');if(!el
   if(!isMember()){el.innerHTML='<div class="md-empty"><div class="md-empty-h">My Account</div><p>Log in to track your workouts, lifts and engine — build streaks and watch your numbers climb.</p><button class="btn-full" style="max-width:260px;margin:16px auto 0;" onclick="openMemberAuth(\'login\')">Log in / Join</button></div>';return;}
   var s=memberStats();
   var h='<div class="md-wrap"><div class="md-hello"><span>Hey '+esc(memFirst()||'there')+'</span><button class="md-edit" onclick="openMemEdit()">Edit account</button></div>';
-  h+='<div class="md-stats">'+memStat(s.current,'day streak')+memStat(s.longest,'best streak')+memStat(s.total,'workouts')+memStat(s.week+'/7','this week')+'</div>';
+  h+='<div class="md-stats">'+memStat(s.current,'day streak')+memStat(s.longest,'best streak')+memStat(s.total,'workouts')+memStat(s.week+'/7','days this week')+'</div>';
   h+=memSuggestHTML()+metMetricsIntroHTML()+strSectionHTML()+engSectionHTML()+bodySectionHTML()+benchSectionHTML();
   h+='<div class="md-sec-h">This month</div>'+memCalendarHTML();
   h+='<div class="md-sec-h">Achievements</div>'+memBadgesHTML(s);
@@ -4212,7 +4228,7 @@ async function drSave(){
 }
 function drBoardHTML(d,spec){
   var rows=(cache.daily_results||[]).filter(function(r){return r.date===d;});
-  var h='<div class="wm-board"><div class="wm-board-h">Today’s board</div>';
+  var h='<div class="wm-board"><div class="wm-board-h">'+(d===todayKey()?'Today’s board':esc(dateLabel(d,{weekday:'short',day:'numeric',month:'short'}))+' board')+'</div>';
   if(!rows.length)return h+'<div class="wm-board-empty">No results yet — be the first to post.</div></div>';
   var lower=drLower(spec.type),scored=rows.filter(function(r){return r.kind!=='done'&&r.value!=null;}),doneN=rows.length-scored.length;
   function col(sex,label){
@@ -4344,6 +4360,7 @@ function applyHashRoute(){const h=(location.hash||'').replace('#','').toLowerCas
   return false;}
 let currentMode='wod';
 function _setMode(mode){
+  if(currentMode!==mode)window.scrollTo(0,0);/* app-style: each tab starts at its top (guarded so re-renders/silent restores don't jump) */
   currentMode=mode;
   document.getElementById('m-plan').classList.toggle('on',mode==='plan');
   document.getElementById('m-wod').classList.toggle('on',mode==='wod');
@@ -5321,9 +5338,10 @@ function cmtyOpenTV(){var el=document.getElementById('community-tv');if(!el)retu
 function cmtyCloseTV(){var el=document.getElementById('community-tv');if(el&&el.style.display!=='none'){el.style.display='none';stopCommunityTV();}if(document.body)document.body.classList.remove('cmty-tv-open');}
 var cmtyPhotoBlob=null;
 function renderCommunityForm(){var el=document.getElementById('community-form');if(!el)return;var c=cmtyCopy(),wins=communityMode()==='wins';
-  if(!communityOn()){el.innerHTML='<div class="cmty-card"><div class="cmty-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><h1 class="cmty-h">'+esc(c.title)+'</h1><p class="cmty-sub">This wall isn\'t live right now — check back soon!</p></div>';return;}
+  var xBtn='<button class="cmty-x" onclick="cmtyGoWall()" aria-label="Close">✕</button>';
+  if(!communityOn()){el.innerHTML=xBtn+'<div class="cmty-card"><div class="cmty-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div><h1 class="cmty-h">'+esc(c.title)+'</h1><p class="cmty-sub">This wall isn\'t live right now — check back soon!</p></div>';return;}
   cmtyPhotoBlob=null;
-  el.innerHTML='<div class="cmty-card">'
+  el.innerHTML=xBtn+'<div class="cmty-card">'
    +'<div class="cmty-logo"><span class="logo-img" role="img" aria-label="The Cave Gym"></span></div>'
    +'<h1 class="cmty-h">'+esc(c.formTitle)+'</h1>'
    +'<p class="cmty-sub">'+esc(c.formSub)+'</p>'
@@ -5345,7 +5363,7 @@ function cmtySubmit(){if(!communityOn()){toast('This wall isn\'t live right now'
   if(!sb){if(res)res.textContent='No connection — try again';return;}
   btn.disabled=true;btn.textContent='Adding…';if(res)res.textContent='';
   var path=Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
-  sb.storage.from('community-selfies').upload(path,cmtyPhotoBlob,{contentType:'image/jpeg',upsert:false}).then(function(up){if(up.error)throw up.error;return sb.from('community_posts').insert({name:name,message:msg,photo_path:path,marketing_ok:consent,approved:true,kind:communityKind()});}).then(function(ins){if(ins.error)throw ins.error;var el=document.getElementById('community-form');if(el)el.innerHTML='<div class="cmty-card cmty-done"><div class="cmty-tick">✓</div><h1 class="cmty-h">'+esc(c.done)+'</h1><p class="cmty-sub">Look up at the big screen 👀</p><button class="cmty-btn ghost" onclick="renderCommunityForm()">Add another</button><button class="cmty-btn ghost" onclick="cmtyGoWall()">See the wall on your phone</button></div>';}).catch(function(e){btn.disabled=false;btn.textContent=btnLabel;if(res)res.textContent='Hmm, that didn\'t send — give it another go';});}
+  sb.storage.from('community-selfies').upload(path,cmtyPhotoBlob,{contentType:'image/jpeg',upsert:false}).then(function(up){if(up.error)throw up.error;return sb.from('community_posts').insert({name:name,message:msg,photo_path:path,marketing_ok:consent,approved:true,kind:communityKind()});}).then(function(ins){if(ins.error)throw ins.error;var el=document.getElementById('community-form');if(el)el.innerHTML='<button class="cmty-x" onclick="cmtyGoWall()" aria-label="Close">✕</button><div class="cmty-card cmty-done"><div class="cmty-tick">✓</div><h1 class="cmty-h">'+esc(c.done)+'</h1><p class="cmty-sub">Look up at the big screen 👀</p><button class="cmty-btn ghost" onclick="renderCommunityForm()">Add another</button><button class="cmty-btn ghost" onclick="cmtyGoWall()">See the wall on your phone</button></div>';}).catch(function(e){btn.disabled=false;btn.textContent=btnLabel;if(res)res.textContent='Hmm, that didn\'t send — give it another go';});}
 var cmtyPosts=[],cmtyIdx=0,cmtyRotT=null,cmtyChan=null,cmtyPollT=null,cmtyRenderedMode=null,cmtyRenderedSig=null;
 function loadCommunityPosts(){if(!sb)return Promise.resolve();return sb.from('community_posts').select('*').eq('approved',true).eq('kind',communityKind()).order('created_at',{ascending:false}).limit(60).then(function(r){if(!r.error&&r.data)cmtyPosts=r.data;}).catch(function(){});}
 function startCommunityTV(){loadCommunityPosts().then(function(){cmtyIdx=0;renderCommunityTV();});

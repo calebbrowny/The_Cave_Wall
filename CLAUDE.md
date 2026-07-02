@@ -335,6 +335,16 @@ Members are a SECOND auth tier, distinct from admins. Anonymous public viewing i
 - **Benchmarks & tests section (`benchSectionHTML`).** In My Account, shows the member's recurring-benchmark
   results matched by name (`bmKey`) across cycles with improvement arrows + a PB line; prompts to log on the WOD
   page when a test week is active. Read-only view over the existing public `benchmarks` data.
+- **Connected-system polish (Fable deep-dive).** The Submit form **pre-fills a logged-in member's name + gender**
+  (`memberProfile` in `renderSubmitForm`/`renderSubmitFields`/`renderRecFields`); The Wall's "Set a record" **carries the
+  open feat** into the form (`recCTA` sets `subRecKey` from `recOpenKey`, adminOnly-guarded); members **can't mark
+  complete / log results for future days** (`liveDay` requires `d<=today`) and the daily board is titled by its date;
+  anonymous visitors on a live WOD day see a slim **join on-ramp** (`.wm-join`, gated `membersOn()&&LIVE&&!isUnlocked()`);
+  submit validation uses **toasts not alerts**; the Submitted screen links to The Wall (monochrome ✓, "it'll land on The
+  Wall"); the Challenge page got a member "Submit my score" CTA + public-safe empty copy + blue eyebrow; tab switches
+  **scroll to top** (`_setMode` guard); toasts sit **above the tab bar** (`body.tabbar-on .cave-toast`); the community
+  form has a fixed **✕ → `cmtyGoWall()`**; the member auth modal is titled "My Account"; `#wod-disp-body` seeds a
+  loading line before first paint.
 - **Audit hardening (this pass).** Sign-out now also clears `cache.daily_results`/`my_results` + `drLoadedDate`/
   `drOpen`/`metHistOpen` (prevents a second member on a shared device briefly seeing the first's board);
   `renderWodMember` only shows **Mark complete** on live days with content (`liveDay`); the daily board reloads
